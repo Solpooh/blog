@@ -1,7 +1,7 @@
 import { SignInRequestDto, SignUpRequestDto } from './request/auth';
 import axios from "axios";
-import {SignInResponseDto} from "./response/auth";
-import {ResponseDto} from "./response";
+import {SignInResponseDto} from './response/auth';
+import {ResponseDto} from './response';
 
 const DOMAIN = 'http://localhost:4000';
 

@@ -1,13 +1,13 @@
 import React, {ChangeEvent, KeyboardEvent, useRef, useState} from 'react';
 import './style.css';
-import InputBox from "../../components/InputBox";
-import {SignInRequestDto} from "../../apis/request/auth";
-import {signInRequest} from "../../apis";
-import {SignInResponseDto} from "../../apis/response/auth";
-import {ResponseDto} from "../../apis/response";
-import {useCookies} from "react-cookie";
-import {MAIN_PATH} from "../../constants";
-import {useNavigate} from "react-router-dom";
+import InputBox from 'components/InputBox';
+import {SignInRequestDto} from 'apis/request/auth';
+import {signInRequest} from 'apis';
+import {SignInResponseDto} from 'apis/response/auth';
+import {ResponseDto} from 'apis/response';
+import {useCookies} from 'react-cookie';
+import {MAIN_PATH} from '../../constants';
+import {useNavigate} from 'react-router-dom';
 
 //  component: 인증 화면 컴포넌트 //
 export default function Authentication() {
