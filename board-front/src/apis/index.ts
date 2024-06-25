@@ -1,7 +1,9 @@
 import { SignInRequestDto, SignUpRequestDto } from './request/auth';
 import axios from "axios";
-import {SignInResponseDto} from './response/auth';
+import {SignInResponseDto, SignUpResponseDto} from './response/auth';
 import {ResponseDto} from './response';
+import {Simulate} from "react-dom/test-utils";
+import reset = Simulate.reset;
 
 const DOMAIN = 'http://localhost:4000';
 
@@ -20,10 +22,20 @@ export const signInRequest = async (requestBody: SignInRequestDto) => {
             if (!error.response.data) return null;
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
-        })
+        });
     return result;
 }
 
 export const signUpRequest = async (requestBody: SignUpRequestDto) => {
-
+    const result = await axios.post(SIGN_UP_URL(), requestBody)
+        .then(response => {
+            const responseBody: SignUpResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response.data) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
 }
