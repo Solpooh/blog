@@ -81,7 +81,10 @@ export default function Header() {
                 setStatus(true);
             }
         }, [searchWord]);
-
+        //  effect: login user 변경 될때마다 실행될 함수 //
+        useEffect(() => {
+            setLogin(loginUser !== null);
+        }, [loginUser])
 
         if (!status)
         //  render: 검색 버튼 컴포넌트 렌더링 (클릭 false 상태) //
@@ -114,6 +117,7 @@ export default function Header() {
         //  event handler: 로그아웃 버튼 클릭 이벤트 처리 함수 //
         const onSignOutButtonClickHandler = () => {
             resetLoginUser();
+            setCookie('accessToken', '', { path: MAIN_PATH(), expires: new Date() });
             navigate(MAIN_PATH());
         }
 
