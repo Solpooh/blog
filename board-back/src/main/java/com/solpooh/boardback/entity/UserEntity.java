@@ -1,6 +1,6 @@
 package com.solpooh.boardback.entity;
 
-import com.solpooh.boardback.dto.request.SignUpRequestDto;
+import com.solpooh.boardback.dto.request.auth.SignUpRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
