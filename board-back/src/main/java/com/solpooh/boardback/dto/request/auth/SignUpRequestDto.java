@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.request;
+package com.solpooh.boardback.dto.request.auth;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;

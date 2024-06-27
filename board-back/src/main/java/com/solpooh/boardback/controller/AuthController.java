@@ -1,6 +1,6 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.request.SignUpRequestDto;
+import com.solpooh.boardback.dto.request.auth.SignUpRequestDto;
 import com.solpooh.boardback.dto.request.auth.SignInRequestDto;
 import com.solpooh.boardback.dto.response.auth.SignInResponseDto;
 import com.solpooh.boardback.dto.response.auth.SignUpResponseDto;
