@@ -130,20 +130,20 @@ export default function Header() {
             navigate(AUTH_PATH());
         }
 
-        //  render: 로그아웃 버튼 컴포넌트 렌더링 //
-        if (isLogin && userEmail === loginUser?.email)
-            return (
+        //    render: 로그아웃 버튼 컴포넌트 렌더링  //
+        if(isLogin && userEmail === loginUser?.email)
+            return(
                 <div className='black-button' onClick={onSignOutButtonClickHandler}>{'로그아웃'}</div>
-            );
-        //  render: 마이페이지 버튼 컴포넌트 렌더링 //
-        if (isLogin)
-            return (
+            )
+        if(isLogin)
+            //    render: 마이페이지 버튼 컴포넌트 렌더링  //
+            return(
                 <div className='white-button' onClick={onMyPageButtonClickHandler}>{'마이페이지'}</div>
             )
-        //  render: 로그인 버튼 컴포넌트 렌더링 //
-            return (
-                <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>
-            );
+        //    render: 로그인 버튼 컴포넌트 렌더링  //
+        return(
+            <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>
+        )
     };
 
     //  component: 마이페이지 버튼 컴포넌트 //
