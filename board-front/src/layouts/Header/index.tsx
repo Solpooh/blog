@@ -12,6 +12,10 @@ import {
 } from "../../constants";
 import {useCookies} from "react-cookie";
 import {useBoardStore, useLoginUserStore} from "../../stores";
+import {fileUploadRequest, postBoardRequest} from "../../apis";
+import {PostBoardRequestDto} from "../../apis/request/board";
+import {PostBoardResponseDto} from "../../apis/response/board";
+import {ResponseDto} from "../../apis/response";
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -128,12 +132,18 @@ export default function Header() {
 
         //  render: 로그아웃 버튼 컴포넌트 렌더링 //
         if (isLogin && userEmail === loginUser?.email)
-            return <div className='white-button' onClick={onSignOutButtonClickHandler}>{'로그아웃'}</div>;
+            return (
+                <div className='black-button' onClick={onSignOutButtonClickHandler}>{'로그아웃'}</div>
+            );
         //  render: 마이페이지 버튼 컴포넌트 렌더링 //
         if (isLogin)
-            return <div className='white-button' onClick={onMyPageButtonClickHandler}>{'마이페이지'}</div>;
+            return (
+                <div className='white-button' onClick={onMyPageButtonClickHandler}>{'마이페이지'}</div>
+            )
         //  render: 로그인 버튼 컴포넌트 렌더링 //
-            return <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>;
+            return (
+                <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>
+            );
     };
 
     //  component: 마이페이지 버튼 컴포넌트 //
@@ -141,9 +151,40 @@ export default function Header() {
         //  state: 게시물 상태 //
         const { title, content, boardImageFileList, resetBoard } = useBoardStore();
 
-        //  event handler: 업로드 버튼 클릭 이벤트 처리 함수 //
-        const onUploadButtonClickHandler = () => {
+        //  function: post board response 처리 함수 //
+        const postBoardResponse = (responseBody: PostBoardResponseDto | ResponseDto | null) => {
+            if (!responseBody) return;
+            const { code } = responseBody;
+            if (code === 'DBE') alert('데이터베이스 오류입니다.');
+            if (code === 'AF' || code === 'NU') navigate(AUTH_PATH());
+            if (code === 'VF') alert('제목과 내용을 입력해주세요.');
+            if (code !== 'SU') return;
 
+            resetBoard();
+            if (!loginUser) return;
+            const { email } = loginUser;
+            navigate(USER_PATH(email));
+        }
+
+        //  event handler: 업로드 버튼 클릭 이벤트 처리 함수 //
+        const onUploadButtonClickHandler = async () => {
+            const accessToken = cookies.accessToken;
+            if (!accessToken) return;
+
+            const boardImageList: string[] = [];
+
+            for (const file of boardImageFileList) {
+                const data = new FormData();
+                data.append('file', file);
+
+                const url = await fileUploadRequest(data);
+                if (url) boardImageList.push(url);
+            }
+
+            const requestBody: PostBoardRequestDto = {
+                title, content, boardImageList
+            }
+            postBoardRequest(requestBody, accessToken).then(postBoardResponse);
         };
 
         //  render: 업로드 버튼 컴포넌트 렌더링 //
