@@ -1,10 +1,8 @@
 package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
-import com.solpooh.boardback.dto.response.board.GetBoardResponseDto;
-import com.solpooh.boardback.dto.response.board.GetFavoriteListResponseDto;
-import com.solpooh.boardback.dto.response.board.PostBoardResponseDto;
-import com.solpooh.boardback.dto.response.board.PutFavoriteResponseDto;
+import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
+import com.solpooh.boardback.dto.response.board.*;
 import com.solpooh.boardback.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +36,15 @@ public class BoardController {
             @AuthenticationPrincipal String email
     ) {
         ResponseEntity<? super PostBoardResponseDto> response = boardService.postBoard(requestBody, email);
+        return response;
+    }
+    @PostMapping("/{boardNumber}/comment")
+    public ResponseEntity<? super PostCommentResponseDto> postComment(
+            @RequestBody @Valid PostCommentRequestDto requestBody,
+            @PathVariable("boardNumber") Integer boardNumber,
+            @AuthenticationPrincipal String email
+    ) {
+        ResponseEntity<? super PostCommentResponseDto> response = boardService.postComment(requestBody, boardNumber, email);
         return response;
     }
     @PutMapping("/{boardNumber}/favorite")

@@ -1,18 +1,14 @@
 package com.solpooh.boardback.service.implement;
 
 import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
+import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
 import com.solpooh.boardback.dto.response.ResponseDto;
-import com.solpooh.boardback.dto.response.board.GetBoardResponseDto;
-import com.solpooh.boardback.dto.response.board.GetFavoriteListResponseDto;
-import com.solpooh.boardback.dto.response.board.PostBoardResponseDto;
-import com.solpooh.boardback.dto.response.board.PutFavoriteResponseDto;
+import com.solpooh.boardback.dto.response.board.*;
 import com.solpooh.boardback.entity.BoardEntity;
+import com.solpooh.boardback.entity.CommentEntity;
 import com.solpooh.boardback.entity.FavoriteEntity;
 import com.solpooh.boardback.entity.ImageEntity;
-import com.solpooh.boardback.repository.BoardRepository;
-import com.solpooh.boardback.repository.FavoriteRepository;
-import com.solpooh.boardback.repository.ImageRepository;
-import com.solpooh.boardback.repository.UserRepository;
+import com.solpooh.boardback.repository.*;
 import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
 import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
@@ -29,6 +25,7 @@ public class BoardServiceImplement implements BoardService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
     private final FavoriteRepository favoriteRepository;
 
     @Override
@@ -96,6 +93,29 @@ public class BoardServiceImplement implements BoardService {
             return ResponseDto.databaseError();
         }
         return PostBoardResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber, String email) {
+        try {
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            if (boardEntity == null) return PostCommentResponseDto.noExistBoard();
+
+            boolean existedUser = userRepository.existsByEmail(email);
+            if (!existedUser) return PostCommentResponseDto.noExistUser();
+
+            CommentEntity commentEntity = new CommentEntity(dto, boardNumber, email);
+            commentRepository.save(commentEntity);
+
+            boardEntity.increaseCommentCount();
+            boardRepository.save(boardEntity);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return PostCommentResponseDto.success();
     }
 
     @Override
