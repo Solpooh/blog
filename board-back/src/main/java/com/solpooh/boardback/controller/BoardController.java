@@ -2,6 +2,7 @@ package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
 import com.solpooh.boardback.dto.response.board.GetBoardResponseDto;
+import com.solpooh.boardback.dto.response.board.GetFavoriteListResponseDto;
 import com.solpooh.boardback.dto.response.board.PostBoardResponseDto;
 import com.solpooh.boardback.dto.response.board.PutFavoriteResponseDto;
 import com.solpooh.boardback.service.BoardService;
@@ -21,6 +22,13 @@ public class BoardController {
             @PathVariable("boardNumber") Integer boardNumber
     ) {
         ResponseEntity<? super GetBoardResponseDto> response = boardService.getBoard(boardNumber);
+        return response;
+    }
+    @GetMapping("/{boardNumber}/favorite-list")
+    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(
+            @PathVariable("boardNumber") Integer boardNumber
+    ) {
+        ResponseEntity<? super GetFavoriteListResponseDto> response = boardService.getFavoriteList(boardNumber);
         return response;
     }
 
