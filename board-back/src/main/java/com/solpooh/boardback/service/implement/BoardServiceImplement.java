@@ -10,6 +10,7 @@ import com.solpooh.boardback.entity.FavoriteEntity;
 import com.solpooh.boardback.entity.ImageEntity;
 import com.solpooh.boardback.repository.*;
 import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
+import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
 import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +67,23 @@ public class BoardServiceImplement implements BoardService {
         }
 
         return GetFavoriteListResponseDto.success(resultSets);
+    }
+
+    @Override
+    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber) {
+        List<GetCommentListResultSet> resultSets = new ArrayList<>();
+
+        try {
+            boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
+            if (!existedBoard) return GetCommentListResponseDto.noExistBoard();
+
+            resultSets = commentRepository.getCommentList(boardNumber);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetCommentListResponseDto.success(resultSets);
     }
 
     @Override
