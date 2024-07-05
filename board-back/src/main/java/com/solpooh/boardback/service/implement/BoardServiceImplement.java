@@ -5,10 +5,7 @@ import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
 import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
 import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.board.*;
-import com.solpooh.boardback.entity.BoardEntity;
-import com.solpooh.boardback.entity.CommentEntity;
-import com.solpooh.boardback.entity.FavoriteEntity;
-import com.solpooh.boardback.entity.ImageEntity;
+import com.solpooh.boardback.entity.*;
 import com.solpooh.boardback.repository.*;
 import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
 import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
@@ -29,6 +26,7 @@ public class BoardServiceImplement implements BoardService {
     private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final FavoriteRepository favoriteRepository;
+    private final BoardListViewRepository boardListViewRepository;
 
     @Override
     public ResponseEntity<? super GetBoardResponseDto> getBoard(Integer boardNumber) {
@@ -81,6 +79,22 @@ public class BoardServiceImplement implements BoardService {
             return ResponseDto.databaseError();
         }
         return GetCommentListResponseDto.success(resultSets);
+    }
+
+    @Override
+    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList() {
+        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+
+        try {
+
+            boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return GetLatestBoardListResponseDto.success(boardListViewEntities);
     }
 
     @Override
