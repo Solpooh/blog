@@ -49,6 +49,11 @@ public class BoardController {
         ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList();
         return response;
     }
+    @GetMapping("/top-3")
+    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
+        ResponseEntity<? super GetTop3BoardListResponseDto> response = boardService.getTop3BoardList();
+        return response;
+    }
     @PostMapping("")
     public ResponseEntity<? super PostBoardResponseDto> postBoard(
             @RequestBody @Valid PostBoardRequestDto requestBody,
