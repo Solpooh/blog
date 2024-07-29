@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class BadRequestExceptionHandler {
+    // 검증 실패 시 예외 발생 처리
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ResponseDto> validationExceptionHandler(Exception exception) {
         return ResponseDto.validationFailed();

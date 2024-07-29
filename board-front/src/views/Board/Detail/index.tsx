@@ -6,8 +6,8 @@ import CommentItem from 'components/CommentItem';
 import Pagination from 'components/Pagination';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
 import {useLoginUserStore} from 'stores';
-import {useNavigate, useParams} from "react-router-dom";
-import {BOARD_PATH, BOARD_UPDATE_PATH, MAIN_PATH, USER_PATH} from "../../../constants";
+import {useNavigate, useParams} from 'react-router-dom';
+import {BOARD_PATH, BOARD_UPDATE_PATH, MAIN_PATH, USER_PATH} from '../../../constants';
 import {Board} from 'types/interface';
 import {
     deleteBoardRequest,
@@ -16,21 +16,23 @@ import {
     getFavoriteListRequest,
     increaseViewCountRequest, postCommentRequest,
     putFavoriteRequest
-} from "../../../apis";
-import GetBoardResponseDto from "../../../apis/response/board/get-board.response.dto";
-import {ResponseDto} from "../../../apis/response";
+} from 'apis';
+import GetBoardResponseDto from 'apis/response/board/get-board.response.dto';
+import {ResponseDto} from 'apis/response';
 import {
     DeleteBoardResponseDto,
     GetCommentListResponseDto,
     GetFavoriteListResponseDto,
     IncreaseViewCountResponseDto, PostCommentResponseDto, PutFavoriteResponseDto
-} from "../../../apis/response/board";
+} from 'apis/response/board';
 import dayjs from 'dayjs';
-import {useCookies} from "react-cookie";
-import {PostCommentRequestDto} from "../../../apis/request/board";
-import {usePagination} from "../../../hooks";
+import {useCookies} from 'react-cookie';
+import {PostCommentRequestDto} from 'apis/request/board';
+import {usePagination} from 'hooks';
+
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
+
     //  state: 게시물 번호 path variable 상태 //
     const { boardNumber } = useParams();
     //  state: 로그인 유저 상태 //

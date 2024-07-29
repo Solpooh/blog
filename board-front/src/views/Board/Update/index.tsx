@@ -1,13 +1,13 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
-import {useBoardStore, useLoginUserStore} from "../../../stores";
-import {MAIN_PATH} from "../../../constants";
-import {useNavigate, useParams} from "react-router-dom";
-import {useCookies} from "react-cookie";
-import {getBoardRequest} from "../../../apis";
-import {GetBoardResponseDto} from "../../../apis/response/board";
-import {ResponseDto} from "../../../apis/response";
-import {convertUrlsToFile} from "../../../utils";
+import {useBoardStore, useLoginUserStore} from 'stores';
+import {MAIN_PATH} from '../../../constants';
+import {useNavigate, useParams} from 'react-router-dom';
+import {useCookies} from 'react-cookie';
+import {getBoardRequest} from 'apis';
+import {GetBoardResponseDto} from 'apis/response/board';
+import {ResponseDto} from 'apis/response';
+import {convertUrlsToFile} from 'utils';
 
 //  component: 게시물 수정 화면 컴포넌트 //
 export default function BoardWrite() {

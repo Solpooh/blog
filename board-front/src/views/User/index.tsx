@@ -1,29 +1,29 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
-import {useNavigate, useParams} from "react-router-dom";
-import {BoardListItem} from "../../types/interface";
-import {latestBoardListMock} from "../../mocks";
-import BoardItem from "../../components/BoardItem";
-import {useLoginUserStore} from "../../stores";
-import {BOARD_PATH, BOARD_WRITE_PATH, MAIN_PATH, USER_PATH} from "../../constants";
+import {useNavigate, useParams} from 'react-router-dom';
+import {BoardListItem} from 'types/interface';
+import BoardItem from 'components/BoardItem';
+import {useLoginUserStore} from 'stores';
+import {BOARD_PATH, BOARD_WRITE_PATH, MAIN_PATH, USER_PATH} from '../../constants';
 import {
     fileUploadRequest,
     getUserBoardListRequest,
     getUserRequest,
     patchNicknameRequest,
     patchProfileImageRequest
-} from "../../apis";
-import {GetUserResponseDto, PatchNicknameResponseDto, PatchProfileImageResponseDto} from "../../apis/response/user";
-import {ResponseDto} from "../../apis/response";
-import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from "../../apis/request/user";
-import {useCookies} from "react-cookie";
-import {usePagination} from "../../hooks";
-import {GetUserBoardListResponseDto} from "../../apis/response/board";
-import Pagination from "../../components/Pagination";
+} from 'apis';
+import {GetUserResponseDto, PatchNicknameResponseDto, PatchProfileImageResponseDto} from 'apis/response/user';
+import {ResponseDto} from 'apis/response';
+import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from 'apis/request/user';
+import {useCookies} from 'react-cookie';
+import {usePagination} from 'hooks';
+import {GetUserBoardListResponseDto} from 'apis/response/board';
+import Pagination from 'components/Pagination';
 
 //  component: 유저 화면 컴포넌트 //
 export default function User() {
+
     //  state: userEmail path variable 상태 //
     const { userEmail } = useParams();
     //  state: 로그인 유저 상태 //
@@ -175,7 +175,7 @@ export default function User() {
                             <div className='user-top-info-nickname'>{nickname}</div>
                             }
                         </div>
-                        <div className='user-top-info-email'>{'email@email.com'}</div>
+                        <div className='user-top-info-email'>{userEmail}</div>
                     </div>
                 </div>
             </div>
@@ -226,7 +226,7 @@ export default function User() {
         return (
             <div id='user-bottom-wrapper'>
                 <div className='user-bottom-container'>
-                    <div className='user-bottom-title'>{isMyPage ? '내 게시물 ' : '게시물 '}<span className='emphasis'>{count}</span></div>
+                    <div className='user-bottom-title'>{isMyPage ? '내가 쓴 게시물 ' : '게시물 '}<span className='emphasis'>{count}</span></div>
                     <div className='user-bottom-contents-box'>
                         {count === 0 ?
                             <div className='user-bottom-contents-nothing'>{'게시물이 없습니다.'}</div> :

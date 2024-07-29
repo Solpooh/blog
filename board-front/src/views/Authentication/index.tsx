@@ -10,7 +10,7 @@ import {MAIN_PATH} from '../../constants';
 import {useNavigate} from 'react-router-dom';
 import {Address, useDaumPostcodePopup} from 'react-daum-postcode';
 import {SignUpRequestDto} from 'apis/request/auth';
-import {SignUpResponseDto} from "../../apis/response/auth";
+import {SignUpResponseDto} from '../../apis/response/auth';
 
 //  component: 인증 화면 컴포넌트 //
 export default function Authentication() {
@@ -146,13 +146,13 @@ export default function Authentication() {
         //  state: 패스워드 확인 요소 참조 상태 //
         const passwordCheckRef = useRef<HTMLInputElement | null>(null);
         //  state: 닉네임 요소 참조 상태   //
-        const nicknameRef = useRef<HTMLInputElement|null>(null);
+        const nicknameRef = useRef<HTMLInputElement | null>(null);
         //  state: 핸드폰 번호 요소 참조 상태   //
-        const telNumberRef = useRef<HTMLInputElement|null>(null);
+        const telNumberRef = useRef<HTMLInputElement | null>(null);
         //  state: 주소 요소 참조 상태   //
-        const addressRef = useRef<HTMLInputElement|null>(null);
+        const addressRef = useRef<HTMLInputElement | null>(null);
         //  state: 상세 주소 요소 참조 상태   //
-        const addressDetailRef = useRef<HTMLInputElement|null>(null);
+        const addressDetailRef = useRef<HTMLInputElement | null>(null);
 
         //  state: 페이지 번호 상태 //
         const [page, setPage] = useState<1 | 2>(1);
@@ -235,6 +235,7 @@ export default function Authentication() {
             if(code==='DBE') alert('데이터베이스 오류입니다.');
             if(code!=='SU') return;
 
+            alert('회원가입이 완료됐습니다 !!')
             setView('sign-in');
         };
 
@@ -359,7 +360,7 @@ export default function Authentication() {
                 return;
             }
 
-            const hasNickname=nickname.trim().length > 0;
+            const hasNickname = nickname.trim().length > 0;
             if(!hasNickname){
                 setNicknameError(true);
                 setNicknameErrorMessage('닉네임을 입력해주세요');
@@ -505,10 +506,9 @@ export default function Authentication() {
             <div className='auth-container'>
                 <div className='auth-jumbotron-box'>
                     <div className='auth-jumbotron-contents'>
-                        <div className='auth-logo-icon'></div>
                         <div className='auth-jumbotron-text-box'>
-                            <div className='auth-jumbotron-text'>{'환영합니다.'}</div>
-                            <div className='auth-jumbotron-text'>{'Solpooh Blog 입니다.'}</div>
+                            <div className='auth-jumbotron-text'>{'토트넘 커뮤니티'}</div>
+                            <div className='auth-jumbotron-text'>{'The Spurs 입니다.'}</div>
                         </div>
                     </div>
                 </div>

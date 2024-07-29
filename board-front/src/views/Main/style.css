@@ -12,7 +12,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 56px;
+    gap: 16px;
 }
 
 .main-top-title {
@@ -134,4 +134,31 @@
 
     display: flex;
     justify-content: center;
+}
+
+/* 네온사인 text */
+@keyframes neonRainbow {
+    0% { color: #FF0000; }
+    16.67% { color: #FF7F00; }
+    33.33% { color: #FFFF00; }
+    50% { color: #00FF00; }
+    66.67% { color: #0000FF; }
+    83.33% { color: #4B0082; }
+    100% { color: #8B00FF; }
+}
+
+@keyframes gradientBackground {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-top-intro2 {
+    font-size: 2em;
+    font-weight: bold;
+    animation: neonRainbow 3s infinite, gradientBackground 5s infinite;
+    background: linear-gradient(270deg, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #8B00FF);
+    background-size: 1400% 1400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }

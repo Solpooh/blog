@@ -68,8 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             exception.printStackTrace();
         }
 
-        // 다음 filter로 넘기기
+        // 요청&응답을 다음 filter 로 넘기기
         filterChain.doFilter(request, response);
-
     }
 }

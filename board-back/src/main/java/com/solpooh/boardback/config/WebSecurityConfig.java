@@ -63,7 +63,8 @@ public class WebSecurityConfig {
         configuration.addExposedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 각각의 pattern에 대해서도 적용가능
+
+        // 각각의 pattern 에 대해서도 적용가능
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

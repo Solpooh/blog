@@ -2,15 +2,14 @@ import React, {useEffect, useState} from 'react';
 import './style.css';
 import {useNavigate, useParams} from 'react-router-dom';
 import {BoardListItem} from 'types/interface';
-import {latestBoardListMock} from "../../mocks";
-import BoardItem from "../../components/BoardItem";
+import BoardItem from 'components/BoardItem';
 import {SEARCH_PATH} from "../../constants";
-import Pagination from "../../components/Pagination";
-import {getRelationListRequest, getSearchBoardListRequest} from "../../apis";
-import {GetSearchBoardListResponseDto} from "../../apis/response/board";
-import {ResponseDto} from "../../apis/response";
-import {usePagination} from "../../hooks";
-import {GetRelationListResponseDto} from "../../apis/response/search";
+import Pagination from 'components/Pagination';
+import {getRelationListRequest, getSearchBoardListRequest} from 'apis';
+import {GetSearchBoardListResponseDto} from 'apis/response/board';
+import {ResponseDto} from 'apis/response';
+import {usePagination} from 'hooks';
+import {GetRelationListResponseDto} from 'apis/response/search';
 
 //  component: 검색 화면 컴포넌트 //
 export default function Search() {
@@ -80,7 +79,7 @@ export default function Search() {
                     {count === 0 ?
                     <div className='search-contents-nothing'>{'검색 결과가 없습니다.'}</div> :
                     <div className='search-contents'>
-                        {viewList.map(boardListItem => <BoardItem boardListItem={boardListItem}/> )}
+                        {viewList.map(boardListItem => <BoardItem boardListItem={boardListItem} /> )}
                     </div>
                     }
                     <div className='search-relation-box'>
@@ -106,7 +105,8 @@ export default function Search() {
                          setCurrentSection={setCurrentSection}
                          viewPageList={viewPageList}
                          totalSection={totalSection}
-                     />}
+                     />
+                    }
                 </div>
             </div>
         </div>

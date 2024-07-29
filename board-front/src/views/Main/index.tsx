@@ -14,7 +14,7 @@ import {
 import {GetLatestBoardListResponseDto, GetTop3BoardListResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {usePagination} from 'hooks';
-import {GetPopularListResponseDto} from "../../apis/response/search";
+import {GetPopularListResponseDto} from 'apis/response/search';
 
 //  component: 메인 화면 컴포넌트 //
 export default function Main() {
@@ -38,9 +38,9 @@ export default function Main() {
             const { top3List } = responseBody as GetTop3BoardListResponseDto;
             setTop3BoardList(top3List);
         };
+
         //  effect: 첫 마운트 시 실행될 함수 //
         useEffect(() => {
-            // setTop3BoardList(top3BoardListMock);
             getTop3BoardListRequest().then(getTop3BoardListResponse);
         }, []);
 
@@ -49,7 +49,8 @@ export default function Main() {
         return (
             <div id='main-top-wrapper'>
                 <div className='main-top-container'>
-                    <div className='main-top-intro'>{'Solpooh Blog에\n오신 것을 환영합니다.'}</div>
+                    <div className='main-top-intro1'>{'토트넘 핫스퍼 커뮤니티'}</div>
+                    <div className='main-top-intro2'>{'[The Spurs]'}</div>
                     <div className='main-top-contents-box'>
                         <div className='main-top-contents-title'>{'주간 TOP 3 게시글'}</div>
                         <div className='main-top-contents'>
@@ -129,7 +130,14 @@ export default function Main() {
                         </div>
                     </div>
                     <div className='main-bottom-pagination-box'>
-                        <Pagination currentPage={currentPage} currentSection={currentSection} setCurrentPage={setCurrentPage} setCurrentSection={setCurrentSection} viewPageList={viewPageList} totalSection={totalSection} />
+                        <Pagination
+                            currentPage={currentPage}
+                            currentSection={currentSection}
+                            setCurrentPage={setCurrentPage}
+                            setCurrentSection={setCurrentSection}
+                            viewPageList={viewPageList}
+                            totalSection={totalSection}
+                        />
                     </div>
                 </div>
             </div>
