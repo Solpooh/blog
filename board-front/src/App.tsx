@@ -17,13 +17,13 @@ import {
     SEARCH_PATH,
     USER_PATH
 } from './constants';
-import {Cookies, useCookies} from "react-cookie";
-import {useEffect} from "react";
-import {useLoginUserStore} from "./stores";
-import {getSignInUserRequest} from "./apis";
-import {GetSignInUserResponseDto} from "./apis/response/user";
-import {ResponseDto} from "./apis/response";
-import {User} from "./types/interface";
+import {Cookies, useCookies} from 'react-cookie';
+import {useEffect} from 'react';
+import {useLoginUserStore} from './stores';
+import {getSignInUserRequest} from './apis';
+import {GetSignInUserResponseDto} from './apis/response/user';
+import {ResponseDto} from './apis/response';
+import {User} from './types/interface';
 
 
 //  component: Application 컴포넌트 //
@@ -69,7 +69,7 @@ function App() {
               <Route path={MAIN_PATH()} element={<Main />} />
               <Route path={AUTH_PATH()} element={<Authentication />} />
               <Route path={SEARCH_PATH(':searchWord')} element={<Search />} />
-              <Route path={USER_PATH(':userEmail')} element={<UserP />} />
+              <Route path={USER_PATH(':userEmail')} element={<UserP />} />x
               <Route path={BOARD_PATH()}>
                   <Route path={BOARD_WRITE_PATH()} element={<BoardWrite />} />
                   <Route path={BOARD_DETAIL_PATH(':boardNumber')} element={<BoardDetail />} />

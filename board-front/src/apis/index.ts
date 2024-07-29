@@ -1,5 +1,5 @@
 import { SignInRequestDto, SignUpRequestDto } from './request/auth';
-import axios from "axios";
+import axios from 'axios';
 import {SignInResponseDto, SignUpResponseDto} from './response/auth';
 import {ResponseDto} from './response';
 import {
@@ -24,8 +24,8 @@ import {
     GetSearchBoardListResponseDto,
     GetUserBoardListResponseDto
 } from './response/board';
-import {GetPopularListResponseDto, GetRelationListResponseDto} from "./response/search";
-import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from "./request/user";
+import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
+import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
 
 const DOMAIN = 'http://localhost:4000';
 
@@ -43,7 +43,7 @@ export const signInRequest = async (requestBody: SignInRequestDto) => {
             const responseBody: SignInResponseDto = response.data;
             return responseBody;
         })
-        .catch(error => {
+        .catch (error=> {
             if (!error.response.data) return null;
             const responseBody: ResponseDto = error.response.data;
             return responseBody;

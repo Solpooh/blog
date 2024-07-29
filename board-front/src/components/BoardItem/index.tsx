@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 import './style.css'
-import {BoardListItem} from "../../types/interface";
-import {useNavigate} from "react-router-dom";
+import {BoardListItem} from '../../types/interface';
+import {useNavigate} from 'react-router-dom';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
-import {BOARD_DETAIL_PATH, BOARD_PATH} from "../../constants";
+import {BOARD_DETAIL_PATH, BOARD_PATH} from '../../constants';
 
 interface Props {
     boardListItem: BoardListItem

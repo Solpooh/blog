@@ -13,7 +13,7 @@ public class ResponseDto {
     private String code;
     private String message;
 
-    // 공용으로 DB에러를 가지고 있음
+    // 공용으로 DB 에러를 가지고 있음
     public static ResponseEntity<ResponseDto> databaseError() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.DATABASE_ERROR, ResponseMessage.DATABASE_ERROR);
 
@@ -22,6 +22,7 @@ public class ResponseDto {
 
     public static ResponseEntity<ResponseDto> validationFailed() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.VALIDATION_FAILED, ResponseMessage.VALIDATION_FAILED);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
     }
 }

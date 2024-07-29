@@ -126,6 +126,7 @@ public class BoardServiceImplement implements BoardService {
 
         try {
 
+            // title or content
             boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
 
             SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
@@ -172,6 +173,7 @@ public class BoardServiceImplement implements BoardService {
             BoardEntity boardEntity = new BoardEntity(dto, email);
             boardRepository.save(boardEntity);
 
+            // for 이미지 저장
             int boardNumber = boardEntity.getBoardNumber();
 
             List<String> boardImageList = dto.getBoardImageList();
@@ -193,6 +195,7 @@ public class BoardServiceImplement implements BoardService {
     @Override
     public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber, String email) {
         try {
+
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return PostCommentResponseDto.noExistBoard();
 
@@ -216,6 +219,7 @@ public class BoardServiceImplement implements BoardService {
     @Override
     public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(Integer boardNumber, String email) {
         try {
+
             boolean existedUser = userRepository.existsByEmail(email);
             if (!existedUser) return PutFavoriteResponseDto.noExistUser();
 

@@ -1,9 +1,9 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
-import {useBoardStore, useLoginUserStore} from "../../../stores";
-import {MAIN_PATH} from "../../../constants";
-import {useNavigate} from "react-router-dom";
-import {useCookies} from "react-cookie";
+import {useBoardStore, useLoginUserStore} from '../../../stores';
+import {MAIN_PATH} from '../../../constants';
+import {useNavigate} from 'react-router-dom';
+import {useCookies} from 'react-cookie';
 
 //  component: 게시물 작성 화면 컴포넌트 //
 export default function BoardWrite() {
@@ -28,7 +28,7 @@ export default function BoardWrite() {
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
     //  function: 네비게이트 함수 //
-    const navigate = useNavigate();
+    const navigator = useNavigate();
 
     //  event handler: 제목 변경 이벤트 처리 //
     const onTitleChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -55,7 +55,7 @@ export default function BoardWrite() {
 
         // 이미지 미리보기용 URL 만들기
         const imageUrl = URL.createObjectURL(file);
-        console.log(imageUrl);
+        console.log(imageUrl); // localhost:3000
         const newImageUrls = imageUrls.map(item => item);
         newImageUrls.push(imageUrl);
         setImageUrls(newImageUrls);
@@ -90,7 +90,7 @@ export default function BoardWrite() {
     useEffect(() => {
         const accessToken = cookies.accessToken;
         if (!accessToken) {
-            navigate(MAIN_PATH());
+            navigator(MAIN_PATH());
             return;
         }
         resetBoard();
