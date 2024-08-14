@@ -34,11 +34,11 @@ public class WebSecurityConfig {
         httpSecurity
                 .cors(cors -> cors
                         .configurationSource(corsConfigurationSource())
-                )
-                .csrf(CsrfConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
+                ) // CORS 설정 (프론트/백엔드)
+                .csrf(CsrfConfigurer::disable) // CSRF 보호를 비활성화
+                .httpBasic(HttpBasicConfigurer::disable) // HTTP Basic 인증 비활성화
                 .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않음 (stateless)
                 )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**").permitAll()

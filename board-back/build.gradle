@@ -28,6 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'mysql:mysql-connector-java:8.0.33'  // 최신 버전으로 업데이트 가능
+
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
