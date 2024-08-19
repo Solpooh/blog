@@ -13,10 +13,13 @@ import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
@@ -120,6 +123,19 @@ public class BoardServiceImplement implements BoardService {
         return GetTop3BoardListResponseDto.success(boardListViewEntities);
     }
 
+    @Async
+    @Scheduled(cron = "0 0 2 * * *") // 매일 새벽 2시에 실행
+    public void deleteOldSearchLogs() {
+        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+        searchLogRepository.deleteByCreatedAtBefore(threeMonthsAgo);
+    }
+
+    @Async
+    public void saveSearchLog(String searchWord, String preSearchWord, boolean relation) {
+        SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, relation);
+        searchLogRepository.save(searchLogEntity);
+    }
+
     @Override
     public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord) {
         List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
@@ -129,13 +145,11 @@ public class BoardServiceImplement implements BoardService {
             // title or content
             boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
 
-            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
-            searchLogRepository.save(searchLogEntity);
+            // 비동기로 검색 로그 저장
+            saveSearchLog(searchWord, preSearchWord, false);
 
-            boolean relation = preSearchWord != null;
-            if (relation) {
-                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, true);
-                searchLogRepository.save(searchLogEntity);
+            if (preSearchWord != null) {
+                saveSearchLog(preSearchWord, searchWord, true);
             }
 
         } catch (Exception e) {
