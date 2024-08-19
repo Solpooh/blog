@@ -5,6 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,9 +22,13 @@ public class SearchLogEntity {
     private String relationWord;
     private boolean relation;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
     public SearchLogEntity(String searchWord, String relationWord, boolean relation) {
         this.searchWord = searchWord;
         this.relationWord = relationWord;
         this.relation = relation;
+        this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 }
