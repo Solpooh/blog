@@ -36,6 +36,7 @@ public class BoardListItem {
         this.writerProfileImage = boardListViewEntity.getWriterProfileImage();
     }
 
+    // entity => dto로 변환
     public static List<BoardListItem> getList(List<BoardListViewEntity> boardListViewEntities) {
         List<BoardListItem> list = new ArrayList<>();
         for(BoardListViewEntity boardListViewEntity : boardListViewEntities){

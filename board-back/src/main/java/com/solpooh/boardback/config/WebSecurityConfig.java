@@ -53,13 +53,16 @@ public class WebSecurityConfig {
 
         return httpSecurity.build();
     }
-
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // 모든 출처에서의 요청을 허용
         configuration.addAllowedOrigin("*");
+        // 모든 HTTP 메서드를 허용 (GET, POST, PUT, DELETE 등)
         configuration.addAllowedMethod("*");
+        // 모든 요청 헤더를 허용
         configuration.addAllowedHeader("*");
+        // 응답 헤더 중 클라이언트에게 노출할 헤더를 설정
         configuration.addExposedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

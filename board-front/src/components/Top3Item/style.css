@@ -1,13 +1,13 @@
 .top-3-list-item {
     border-radius: 10px;
     padding: 24px;
-    width: calc(384px - 24px - 24px);
-    height: calc(508px - 24px - 24px);
+    width: calc(380px - 24px - 24px);
+    height: calc(397px - 24px - 24px);
 
     display: flex;
     flex-direction: column-reverse;
 
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0,0,0,0.05);
     background-position: 50% 50%;
     background-size: 100% 100%;
 
@@ -51,14 +51,14 @@
 }
 
 .top-3-list-item-nickname {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1.0);
     font-size: 12px;
     font-weight: 500;
     line-height: 140%;
 }
 
 .top-3-list-item-write-date {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 1.0);
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
@@ -78,7 +78,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1.0);
     font-size: 16px;
     font-weight: 500;
     line-height: 140%;
@@ -92,7 +92,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 1.0);
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
@@ -103,7 +103,7 @@
 }
 
 .top-3-list-item-counts {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 1.0);
 
     font-size: 12px;
     font-weight: 400;

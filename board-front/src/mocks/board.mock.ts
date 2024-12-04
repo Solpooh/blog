@@ -1,4 +1,4 @@
-import { Board } from "types/interface";
+import { Board } from 'types/interface';
 
 const boardMock: Board = {
     boardNumber: 1,

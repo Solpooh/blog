@@ -118,8 +118,11 @@ export default function Header() {
         }
         //  event handler: 로그아웃 버튼 클릭 이벤트 처리 함수 //
         const onSignOutButtonClickHandler = () => {
+            // eslint-disable-next-line no-restricted-globals
+            if (!confirm("정말 로그아웃 하시겠습니까?")) return;
             resetLoginUser();
             setCookie('accessToken', '', { path: MAIN_PATH(), expires: new Date() });
+            setLogin(false);
             navigate(MAIN_PATH());
         }
 
@@ -128,8 +131,18 @@ export default function Header() {
             navigate(AUTH_PATH());
         }
 
+        //  effect: 새로고침 시 isLogin true 유지  //
+        useEffect(() => {
+            // 쿠키에서 토큰 확인 후 로그인 상태 복원
+            if (!cookies.accessToken) {
+                setLogin(false);
+            } else {
+                setLogin(true);
+            }
+        }, []);
+
         //    render: 로그아웃 버튼 컴포넌트 렌더링  //
-        if(isLogin && userEmail === loginUser?.email)
+        if(isLogin && (userEmail === loginUser?.email))
         return(
             <div className='black-button' onClick={onSignOutButtonClickHandler}>{'로그아웃'}</div>
         )
@@ -223,7 +236,7 @@ export default function Header() {
                     <div className='icon-box'>
                         <div className='icon logo-dark-icon'></div>
                     </div>
-                    <div className='header-logo'>{'The Spurs'}</div>
+                    <div className='header-logo'>{'DevHub'}</div>
                 </div>
                 <div className='header-right-box'>
                     {(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}

@@ -177,11 +177,11 @@ export default function BoardDetail() {
         const {
             currentPage, currentSection, viewList, viewPageList, totalSection,
             setCurrentPage, setCurrentSection, setTotalList
-        } = usePagination<CommentListItem>(3);
+        } = usePagination<CommentListItem>(5);
 
         //  state: 좋아요 리스트 상태 //
         const [favoriteList, setFavoriteList] = useState<FavoriteListItem[]>([]);
-        //  state: 좋아요 상태 //
+        //  state: 좋아요 클릭 상태 //
         const [isFavorite, setFavorite] = useState<boolean>(false);
         //  state: 좋아요 상자 보기 상태 //
         const [showFavorite, setShowFavorite] = useState<boolean>(false);
