@@ -53,7 +53,7 @@ export default function BoardWrite() {
         if (!event.target.files || !event.target.files.length) return;
         const file = event.target.files[0];
 
-        // 이미지 미리보기용 URL 만들기
+        // 이미지 미리보기용 URL 만들기 (blob -> url)
         const imageUrl = URL.createObjectURL(file);
         console.log(imageUrl); // localhost:3000
         const newImageUrls = imageUrls.map(item => item);

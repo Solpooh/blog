@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (!isBearer) return null;
 
         String token = authorization.substring(7);
+
         return token;
     }
 

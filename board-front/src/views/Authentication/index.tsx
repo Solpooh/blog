@@ -10,7 +10,7 @@ import {MAIN_PATH} from '../../constants';
 import {useNavigate} from 'react-router-dom';
 import {Address, useDaumPostcodePopup} from 'react-daum-postcode';
 import {SignUpRequestDto} from 'apis/request/auth';
-import {SignUpResponseDto} from '../../apis/response/auth';
+import {SignUpResponseDto} from 'apis/response/auth';
 
 //  component: 인증 화면 컴포넌트 //
 export default function Authentication() {
@@ -45,7 +45,7 @@ export default function Authentication() {
         //  function: sign in response 처리 함수 //
         const signInResponse = (responseBody: SignInResponseDto | ResponseDto | null) => {
             if (!responseBody) {
-                alert('네트워크 이상입니다.');
+                alert('문제가 생겨 요청을 처리하지 못했습니다.');
                 return;
             }
             const { code } = responseBody;
@@ -58,7 +58,7 @@ export default function Authentication() {
             // JWT 생성 시 만료 시간과 쿠키의 만료시간 일치
             const decodedToken = JSON.parse(atob(token.split('.')[1])); // JWT의 페이로드 부분을 디코딩
             const expirationTimeInMs = decodedToken.exp * 1000; // `exp` 필드를 밀리초로 변환
-            setCookie('accessToken', token, { expires: new Date(expirationTimeInMs), path: MAIN_PATH(), httpOnly: true, secure: true, sameSite: "lax" });
+            setCookie('accessToken', token, { expires: new Date(expirationTimeInMs), path: MAIN_PATH() });
 
             navigator(MAIN_PATH());
         }
@@ -139,7 +139,6 @@ export default function Authentication() {
 
     //  component: sign up card 컴포넌트 //
     const SignUpCard = () => {
-
         //  state: 이메일 요소 참조 상태 //
         const emailRef = useRef<HTMLInputElement | null>(null);
         //  state: 패스워드 요소 참조 상태 //
@@ -236,7 +235,7 @@ export default function Authentication() {
             if(code==='DBE') alert('데이터베이스 오류입니다.');
             if(code!=='SU') return;
 
-            alert('회원가입이 완료됐습니다 !!')
+            alert('회원가입이 완료되었습니다.')
             setView('sign-in');
         };
 
@@ -263,28 +262,28 @@ export default function Authentication() {
         }
         //  event handler: 닉네임 변경 이벤트 처리    //
         const onNicknameChangeHandler = (event:ChangeEvent<HTMLInputElement>) => {
-            const {value} = event.target;
+            const { value } = event.target;
             setNickname(value);
             setNicknameError(false);
             setNicknameErrorMessage('');
         }
         //  event handler: 핸드폰 번호 변경 이벤트 처리    //
         const onTelNumberChangeHandler = (event:ChangeEvent<HTMLInputElement>) => {
-            const {value} = event.target;
+            const { value } = event.target;
             setTelNumber(value);
             setTelNumberError(false);
             setTelNumberErrorMessage('');
         }
         //  event handler: 주소 변경 이벤트 처리    //
         const onAddressChangeHandler = (event:ChangeEvent<HTMLInputElement>) => {
-            const {value} = event.target;
+            const { value } = event.target;
             setAddress(value);
             setAddressError(false);
             setAddressErrorMessage('');
         }
         //  event handler: 상세 주소 변경 이벤트 처리    //
         const onAddressDetailChangeHandler = (event:ChangeEvent<HTMLInputElement>) => {
-            const {value} = event.target;
+            const { value } = event.target;
             setAddressDetail(value);
         }
         //  event handler: 개인 정보 동의 체크 박스 클릭 이벤트 처리    //
@@ -508,8 +507,8 @@ export default function Authentication() {
                 <div className='auth-jumbotron-box'>
                     <div className='auth-jumbotron-contents'>
                         <div className='auth-jumbotron-text-box'>
-                            <div className='auth-jumbotron-text'>{'토트넘 커뮤니티'}</div>
-                            <div className='auth-jumbotron-text'>{'The Spurs 입니다.'}</div>
+                            <div className='auth-jumbotron-text'>{'개발자들을 위한 소통의 장'}</div>
+                            <div className='auth-jumbotron-text'>{'DevHub 입니다.'}</div>
                         </div>
                     </div>
                 </div>

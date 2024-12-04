@@ -49,12 +49,12 @@ export default function Main() {
         return (
             <div id='main-top-wrapper'>
                 <div className='main-top-container'>
-                    <div className='main-top-intro1'>{'토트넘 핫스퍼 커뮤니티'}</div>
-                    <div className='main-top-intro2'>{'[The Spurs]'}</div>
+                    <div className='main-top-intro1'>{'평범한 개발자들의 소통의 장'}</div>
+                    <div className='main-top-intro2'>{'DevHub'}</div>
                     <div className='main-top-contents-box'>
                         <div className='main-top-contents-title'>{'주간 TOP 3 게시글'}</div>
                         <div className='main-top-contents'>
-                            {top3BoardList.map(top3ListItem => <Top3Item top3ListItem={top3ListItem} />)}
+                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem} />)}
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,6 @@ export default function Main() {
 
     //  component: 메인 화면 하단 컴포넌트 //
     const MainBottom = () => {
-
         //  state: 페이지네이션 관련 상태 //
         const {
             currentPage, setCurrentPage, currentSection, setCurrentSection, viewList,
@@ -116,14 +115,14 @@ export default function Main() {
                     <div className='main-bottom-title'>{'최신 게시물'}</div>
                     <div className='main-bottom-contents-box'>
                         <div className='main-bottom-current-contents'>
-                            {viewList.map(boardListItem => <BoardItem boardListItem={boardListItem} />)}
+                            {viewList.map(boardListItem => <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem} />)}
                         </div>
                         <div className='main-bottom-popular-box'>
                             <div className='main-bottom-popular-card'>
                                 <div className='main-bottom-popular-card-box'>
                                     <div className='main-bottom-popular-card-title'>{'인기 검색어'}</div>
                                     <div className='main-bottom-popular-card-contents'>
-                                        {popularWordList.map(word => <div className='word-badge' onClick={() => onPopularWordClickHandler(word)}>{word}</div>)}
+                                        {popularWordList.map(word => <div className='word-badge' key={word} onClick={() => onPopularWordClickHandler(word)}>{word}</div>)}
                                     </div>
                                 </div>
                             </div>

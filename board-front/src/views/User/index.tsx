@@ -23,7 +23,6 @@ import Pagination from 'components/Pagination';
 
 //  component: 유저 화면 컴포넌트 //
 export default function User() {
-
     //  state: userEmail path variable 상태 //
     const { userEmail } = useParams();
     //  state: 로그인 유저 상태 //
@@ -63,7 +62,7 @@ export default function User() {
             const { email, nickname, profileImage }  = responseBody as GetUserResponseDto;
             setNickname(nickname);
             setProfileImage(profileImage);
-            const isMyPage = email === loginUser?.email;
+            const isMyPage = (email === loginUser?.email);
             setMyPage(isMyPage);
         };
         //  function: file upload response 처리 함수 //
@@ -226,12 +225,12 @@ export default function User() {
         return (
             <div id='user-bottom-wrapper'>
                 <div className='user-bottom-container'>
-                    <div className='user-bottom-title'>{isMyPage ? '내가 쓴 게시물 ' : '게시물 '}<span className='emphasis'>{count}</span></div>
+                    <div className='user-bottom-title'>{isMyPage ? '내가 쓴 게시물 ' : '작성글 '}<span className='emphasis'>{count}</span></div>
                     <div className='user-bottom-contents-box'>
                         {count === 0 ?
-                            <div className='user-bottom-contents-nothing'>{'게시물이 없습니다.'}</div> :
+                            <div className='user-bottom-contents-nothing'>{'작성한 게시글이 없습니다.'}</div> :
                             <div className='user-bottom-contents'>
-                                {viewList.map(boardListItem => <BoardItem boardListItem={boardListItem} />)}
+                                {viewList.map(boardListItem => <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem} />)}
                             </div>
                         }
                         <div className='user-bottom-side-box'>
