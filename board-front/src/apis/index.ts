@@ -27,9 +27,9 @@ import {
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
 
-const DOMAIN = 'https://43.203.221.135:4000';
-
-const API_DOMAIN = `${DOMAIN}/api/v1`;
+// const DOMAIN = 'https://43.203.221.135:4000';
+const DOMAIN = 'https://devhubs.site/api';
+const API_DOMAIN = `${DOMAIN}/v1`;
 
 const authorization = (accessToken: string) => {
     return { headers: { Authorization: `Bearer ${accessToken}` } }
