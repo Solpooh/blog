@@ -35,7 +35,7 @@
     color: rgba(0, 0, 0, 0.7);
     font-size: 16px;
     font-weight: 500;
-    line-height: 140%;
+    line-height: 172%;
 }
 
 .comment-list-item-time {
@@ -50,4 +50,29 @@
     font-size: 18px;
     font-weight: 500;
     line-height: 150%;
+}
+
+.comment-list-update-button, .board-detail-bottom-comment-cancel-button {
+    margin-left: auto; /* 오른쪽 정렬 */
+    color: rgba(0, 0, 0, 0.5); /* 약간 연한 회색 */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.comment-list-update-button:hover, .board-detail-bottom-comment-cancel-button {
+    color: rgba(0, 0, 0, 0.7); /* 호버 시 더 진한 색상 */
+}
+
+.comment-list-delete-button, .board-detail-bottom-comment-submit-button {
+    color: #ff4d4f; /* 빨간색 */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.comment-list-delete-button:hover, .board-detail-bottom-comment-submit-button {
+    color: #e63946; /* 호버 시 더 진한 빨간색 */
 }

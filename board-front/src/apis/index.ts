@@ -8,7 +8,7 @@ import {
     PatchNicknameResponseDto,
     PatchProfileImageResponseDto
 } from './response/user';
-import {PatchBoardRequestDto, PostBoardRequestDto, PostCommentRequestDto} from './request/board';
+import {PatchBoardRequestDto, PostBoardRequestDto, PostCommentRequestDto, PatchCommentRequestDto} from './request/board';
 import {
     PostBoardResponseDto,
     GetBoardResponseDto,
@@ -19,6 +19,7 @@ import {
     PostCommentResponseDto,
     DeleteBoardResponseDto,
     PatchBoardResponseDto,
+    PatchCommentResponseDto,
     GetLatestBoardListResponseDto,
     GetTop3BoardListResponseDto,
     GetSearchBoardListResponseDto,
@@ -27,8 +28,8 @@ import {
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
 
-// const DOMAIN = 'https://43.203.221.135:4000';
-const DOMAIN = 'https://devhubs.site/api';
+const DOMAIN = 'http://localhost:4000/api';
+// const DOMAIN = 'https://devhubs.site/api';
 const API_DOMAIN = `${DOMAIN}/v1`;
 
 const authorization = (accessToken: string) => {
@@ -76,6 +77,7 @@ const GET_COMMENT_LIST_URL = (boardNumber: number | string) => `${API_DOMAIN}/bo
 const POST_BOARD_URL = () => `${API_DOMAIN}/board`;
 const POST_COMMENT_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment`;
 const PATCH_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
+const PATCH_COMMENT_URL = (boardNumber: number | string, commentNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment/${commentNumber}`;
 const PUT_FAVORITE_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/favorite`;
 const DELETE_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
 export const getBoardRequest = async (boardNumber: number | string) => {
@@ -208,14 +210,27 @@ export const postCommentRequest = async (boardNumber: number | string, requestBo
         });
     return result;
 }
-export const patchBoardRequest = async (boardNumber: number| string, requestBody: PatchBoardRequestDto, accessToken:string) => {
+export const patchBoardRequest = async (boardNumber: number | string, requestBody: PatchBoardRequestDto, accessToken: string) => {
     const result = await axios.patch(PATCH_BOARD_URL(boardNumber), requestBody, authorization(accessToken))
         .then(response => {
             const responseBody: PatchBoardResponseDto = response.data;
             return responseBody;
         })
-        .catch(error =>{
+        .catch(error => {
             if (!error.resposne) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+}
+export const patchCommentRequest = async (boardNumber: number | string, commentNumber: number | string, requestBody: PatchCommentRequestDto, accessToken: string) => {
+    const result = await axios.patch(PATCH_COMMENT_URL(boardNumber, commentNumber), requestBody, authorization(accessToken))
+        .then(response => {
+            const responseBody: PatchCommentResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         });

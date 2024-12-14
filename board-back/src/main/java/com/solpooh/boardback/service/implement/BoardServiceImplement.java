@@ -1,6 +1,7 @@
 package com.solpooh.boardback.service.implement;
 
 import com.solpooh.boardback.dto.request.board.PatchBoardRequestDto;
+import com.solpooh.boardback.dto.request.board.PatchCommentRequestDto;
 import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
 import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
 import com.solpooh.boardback.dto.response.ResponseDto;
@@ -123,35 +124,22 @@ public class BoardServiceImplement implements BoardService {
         return GetTop3BoardListResponseDto.success(boardListViewEntities);
     }
 
-    @Async
-    @Scheduled(cron = "0 0 2 * * *") // 매일 새벽 2시에 실행
-    public void deleteOldSearchLogs() {
-        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
-        searchLogRepository.deleteByCreatedAtBefore(threeMonthsAgo);
-    }
-
-    @Async
-    public void saveSearchLog(String searchWord, String preSearchWord, boolean relation) {
-        SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, relation);
-        searchLogRepository.save(searchLogEntity);
-    }
-
     @Override
     public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord) {
         List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
 
         try {
-
             // title or content
             boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
 
-            // 비동기로 검색 로그 저장
-            saveSearchLog(searchWord, preSearchWord, false);
+            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
+            searchLogRepository.save(searchLogEntity);
 
-            if (preSearchWord != null) {
-                saveSearchLog(preSearchWord, searchWord, true);
+            boolean relation = (preSearchWord != null);
+            if (relation) {
+                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, true);
+                searchLogRepository.save(searchLogEntity);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();
@@ -294,6 +282,34 @@ public class BoardServiceImplement implements BoardService {
         }
 
         return PatchBoardResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super PatchCommentResponseDto> patchComment(PatchCommentRequestDto dto, Integer boardNumber, Integer commentNumber, String email) {
+        try {
+
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            if (boardEntity == null) return PatchBoardResponseDto.noExistBoard();
+
+            CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber);
+            if (commentEntity == null) return PatchCommentResponseDto.noExistComment();
+
+            boolean existedUser = userRepository.existsByEmail(email);
+            if (!existedUser) return PatchBoardResponseDto.noExistUser();
+
+            String writerEmail = boardEntity.getWriterEmail();
+            boolean isWriter = writerEmail.equals(email);
+            if (!isWriter) return PatchBoardResponseDto.noPermission();
+
+            commentEntity.patchComment(dto);
+            commentRepository.save(commentEntity);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return PatchCommentResponseDto.success();
     }
 
     @Override

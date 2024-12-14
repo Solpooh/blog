@@ -189,8 +189,6 @@ export default function BoardDetail() {
         const [totalCommentCount, setTotalCommentCount] = useState<number>(0);
         //  state: 댓글 상태 //
         const [comment, setComment] = useState<string>('');
-        //  state: 댓글 상자 보기 상태 //
-        const [showComment, setShowComment] = useState<boolean>(false);
 
         //  function: get favorite list response 처리 함수 //
         const getFavoriteListResponse = (responseBody: GetFavoriteListResponseDto | ResponseDto | null) => {
@@ -261,9 +259,9 @@ export default function BoardDetail() {
             setShowFavorite(!showFavorite);
         }
         //  event handler: 댓글 상자 보기 클릭 이벤트 처리 //
-        const onShowCommentClickHandler = () => {
-            setShowComment(!showComment);
-        }
+        // const onShowCommentClickHandler = () => {
+        //     setShowComment(!showComment);
+        // }
         //  event handler: 댓글 작성 버튼 클릭 이벤트 처리 //
         const onCommentSubmitButtonClickHandler = () => {
             if (!comment || !boardNumber || !loginUser || !cookies.accessToken) return;
@@ -310,12 +308,6 @@ export default function BoardDetail() {
                             <div className='icon comment-icon'></div>
                         </div>
                         <div className='board-detail-bottom-button-text'>{`댓글 ${totalCommentCount}`}</div>
-                        <div className='icon-button' onClick={onShowCommentClickHandler}>
-                            {showComment ?
-                                <div className='icon up-light-icon'></div> :
-                                <div className='icon down-light-icon'></div>
-                            }
-                        </div>
                     </div>
                 </div>
                 {showFavorite &&
@@ -328,10 +320,8 @@ export default function BoardDetail() {
                     </div>
                 </div>
                 }
-                {showComment &&
                 <div className='board-detail-bottom-comment-box'>
                     <div className='board-detail-bottom-comment-container'>
-                        <div className='board-detail-bottom-comment-title'>{'댓글 '}<span className='emphasis'>{totalCommentCount}</span></div>
                         <div className='board-detail-bottom-comment-list-container'>
                             {viewList.map(item => <CommentItem commentListItem={item} />)}
                         </div>
@@ -359,7 +349,6 @@ export default function BoardDetail() {
                     </div>
                     }
                 </div>
-                }
             </div>
         );
     };

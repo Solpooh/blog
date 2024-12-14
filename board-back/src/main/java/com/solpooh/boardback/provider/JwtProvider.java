@@ -15,7 +15,6 @@ import java.util.Date;
 
 @Component
 public class JwtProvider {
-    // application.properties 에서 불러오기
     @Value("${secret-key}")
     private String secretKey;
 

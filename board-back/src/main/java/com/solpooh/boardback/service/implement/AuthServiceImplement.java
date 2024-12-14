@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImplement implements AuthService {
-    private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Override
     public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {
@@ -60,6 +60,8 @@ public class AuthServiceImplement implements AuthService {
         try {
 
             String email = dto.getEmail();
+
+            // 이메일 비교
             UserEntity userEntity = userRepository.findByEmail(email);
             if (userEntity == null) return SignInResponseDto.signInFail();
 

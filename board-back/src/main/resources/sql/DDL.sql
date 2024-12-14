@@ -126,7 +126,7 @@ ALTER TABLE `comment`
 
 CREATE USER 'developer'@'%' IDENTIFIED BY 'P!ssw0rd';
 GRANT SELECT, UPDATE, DELETE, INSERT
-    ON myblog.*
+    ON devhub.*
     TO 'developer'@'%';
 
 CREATE VIEW board_list_view AS

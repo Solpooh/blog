@@ -23,7 +23,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
-
     private String parseBearerToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
 

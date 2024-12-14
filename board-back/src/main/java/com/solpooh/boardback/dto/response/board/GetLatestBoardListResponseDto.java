@@ -24,5 +24,4 @@ public class GetLatestBoardListResponseDto extends ResponseDto {
         GetLatestBoardListResponseDto result = new GetLatestBoardListResponseDto(boardEntities);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
 }

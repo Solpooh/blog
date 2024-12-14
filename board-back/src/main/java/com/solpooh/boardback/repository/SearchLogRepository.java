@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -34,6 +33,4 @@ public interface SearchLogRepository extends JpaRepository<SearchLogEntity, Inte
     nativeQuery = true
     )
     List<GetRelationListResultSet> getRelationList(String searchWord);
-
-    void deleteByCreatedAtBefore(LocalDateTime dateTime);
 }

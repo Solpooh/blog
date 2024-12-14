@@ -1,6 +1,7 @@
 package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.dto.request.board.PatchBoardRequestDto;
+import com.solpooh.boardback.dto.request.board.PatchCommentRequestDto;
 import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
 import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
 import com.solpooh.boardback.dto.response.board.*;
@@ -101,6 +102,16 @@ public class BoardController {
             @AuthenticationPrincipal String email
     ) {
         ResponseEntity<? super PatchBoardResponseDto> response = boardService.patchBoard(requestBody, boardNumber, email);
+        return response;
+    }
+    @PatchMapping("/{boardNumber}/comment/{commentNumber}")
+    public ResponseEntity<? super PatchCommentResponseDto> patchComment(
+            @RequestBody @Valid PatchCommentRequestDto requestBody,
+            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("commentNumber") Integer commentNumber,
+            @AuthenticationPrincipal String email
+    ) {
+        ResponseEntity<? super PatchCommentResponseDto> response = boardService.patchComment(requestBody, boardNumber, commentNumber, email);
         return response;
     }
     @DeleteMapping("/{boardNumber}")
