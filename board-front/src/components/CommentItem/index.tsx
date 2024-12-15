@@ -7,10 +7,11 @@ import {useLoginUserStore} from 'stores';
 import {useCookies} from 'react-cookie';
 import {PatchCommentRequestDto} from 'apis/request/board';
 import {useNavigate, useParams} from 'react-router-dom';
-import {patchCommentRequest} from 'apis';
+import {deleteCommentRequest, patchCommentRequest} from 'apis';
 import {PatchCommentResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {AUTH_PATH} from '../../constants';
+import {DeleteCommentResponseDto} from "../../apis/response/board";
 
 interface Props {
     commentListItem: CommentListItem;
@@ -37,24 +38,26 @@ export default function CommentItem({ commentListItem }: Props) {
     const { commentNumber, nickname, profileImage, writeDatetime, content, userEmail } = commentListItem;
     //  state: 댓글 textarea 참조 상태  //
     const commentRef = useRef<HTMLTextAreaElement | null>(null);
-    //  state: 수정 댓글 상태  //
+    //  state: 댓글 수정내용 상태  //
     const [editContent, setEditContent] = useState<string>(content);
-    //  state: 수정 시간 상태  //
+    //  state: 댓글 수정시간 상태  //
     const [elapsedTime, setElapsedTime] = useState<string>(getElapsedTime());
-    //  state: 댓글 수정 모드 상태  //
+    //  state: 댓글 수정모드 상태  //
     const [isEdit, setEdit] = useState<boolean>(false);
+    //  state: 댓글 삭제 상태  //
+    const [isDelete, setDelete] = useState<boolean>(false);
     //  state: cookie 상태  //
     const [cookies, setCookie] = useCookies();
-    //  state: 게시물 번호, 댓글 번호 상태  //
+    //  state: 게시물 번호  //
     const { boardNumber } = useParams();
 
-    //  function: 네비게이트 함수  //
-    const navigate = useNavigate();
-    //  function: patch comment response 처리 함수 //
+    const accessToken = cookies.accessToken;
+
+    //  function: patch comment response 처리 함수  //
     const patchCommentResponse = (responseBody: PatchCommentResponseDto | ResponseDto | null) => {
         if (!responseBody) return;
         const { code } = responseBody;
-        if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NC' || code == 'NP') navigate(AUTH_PATH());
+        if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NC' || code == 'NP') alert("잘못된 요청 시도입니다.");
         if (code === 'VF') alert('내용을 입력해주세요.');
         if (code === 'DBE') alert('데이터베이스 오류입니다.');
         if (code !== 'SU') return;
@@ -63,15 +66,28 @@ export default function CommentItem({ commentListItem }: Props) {
         commentListItem.content = editContent;
         setEdit(false);
     }
+    //  function: delete comment response 처리 함수  //
+    const deleteCommentResponse = (responseBody: DeleteCommentResponseDto | ResponseDto | null) => {
+        // eslint-disable-next-line no-restricted-globals
+        if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
-    //  event handler: 수정 버튼 클릭 이벤트 처리 //
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NC' || code == 'NP') alert("잘못된 요청 시도입니다.");
+        if (code === 'DBE') alert('데이터베이스 오류입니다.');
+        if (code !== 'SU') return;
+
+        setDelete(true);
+    }
+
+    //  event handler: 수정 버튼 클릭 이벤트 처리  //
     const onUpdateButtonClickHandler = () => {
         if (!commentListItem || !loginUser) return;
         if (loginUser.email !== userEmail) return;
 
         setEdit(true);
     }
-    //  event handler: 댓글 변경 이벤트 처리 //
+    //  event handler: 댓글 변경 이벤트 처리  //
     const onCommentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
         const { value } = event.target;
         setEditContent(value);
@@ -79,24 +95,29 @@ export default function CommentItem({ commentListItem }: Props) {
         commentRef.current.style.height = 'auto';
         commentRef.current.style.height = `${commentRef.current.scrollHeight}px`;
     }
-    //  event handler: 수정 취소 버튼 클릭 이벤트 처리 //
+    //  event handler: 수정 취소 버튼 클릭 이벤트 처리  //
     const onCancelButtonClickHandler = () => {
         setEdit(false);
         setEditContent(content);
     }
     //  event handler: 수정 등록 버튼 클릭 이벤트 처리  //
     const onSubmitButtonClickHandler = () => {
-        const accessToken = cookies.accessToken;
         if (!accessToken) return;
-
         if (!boardNumber || !commentNumber) return;
+
         const requestBody: PatchCommentRequestDto = {
             // 수정된 내용 전송
             content: editContent
         }
 
         patchCommentRequest(boardNumber, commentNumber, requestBody, accessToken).then(patchCommentResponse);
-        alert("댓글 수정이 완료되었습니다.")
+    }
+    //  event handler: 삭제 버튼 클릭 이벤트 처리  //
+    const onDeleteButtonClickHandler = () => {
+        if (!accessToken) return;
+        if (!boardNumber || !commentNumber) return;
+
+        deleteCommentRequest(boardNumber, commentNumber, accessToken).then(deleteCommentResponse);
     }
 
     useEffect(() => {
@@ -104,6 +125,13 @@ export default function CommentItem({ commentListItem }: Props) {
     }, [editContent]);
 
     //  render: Comment List Item 렌더링 //
+    if (isDelete) {
+        return (
+            <div className="comment-list-item-deleted">
+                <p>이 댓글은 삭제되었습니다.</p>
+            </div>
+        );
+    }
     return (
         <div className='comment-list-item'>
             {isEdit ?
@@ -129,7 +157,7 @@ export default function CommentItem({ commentListItem }: Props) {
                         <>
                             <div className='comment-list-update-button' onClick={onUpdateButtonClickHandler}>{'수정'}</div>
                             <div className='comment-list-item-divider'>{'|'}</div>
-                            <div className='comment-list-delete-button'>{'삭제'}</div>
+                            <div className='comment-list-delete-button' onClick={onDeleteButtonClickHandler}>{'삭제'}</div>
                         </>
                     }
                 </div>
@@ -140,5 +168,5 @@ export default function CommentItem({ commentListItem }: Props) {
                 </div>
             )}
         </div>
-    )
+    );
 }

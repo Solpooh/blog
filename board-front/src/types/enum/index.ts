@@ -1,3 +1,3 @@
-import ResponseCode from "./response-code.enum";
+import ResponseCode from './response-code.enum';
 
 export { ResponseCode };

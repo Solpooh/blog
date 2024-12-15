@@ -23,4 +23,5 @@ public interface BoardService {
     ResponseEntity<? super PatchCommentResponseDto> patchComment(PatchCommentRequestDto dto, Integer boardNumber, Integer commentNumber, String email);
     ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(Integer boardNumber);
     ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(Integer boardNumber, String email);
+    ResponseEntity<? super DeleteCommentResponseDto> deleteComment(Integer boardNumber, Integer commentNumber, String email);
 }

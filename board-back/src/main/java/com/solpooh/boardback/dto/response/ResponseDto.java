@@ -13,7 +13,7 @@ public class ResponseDto {
     private String code;
     private String message;
 
-    // 공용으로 DB 에러를 가지고 있음
+    // 공통으로 가질 수 있는 에러들
     public static ResponseEntity<ResponseDto> databaseError() {
         ResponseDto responseBody = new ResponseDto(ResponseCode.DATABASE_ERROR, ResponseMessage.DATABASE_ERROR);
 

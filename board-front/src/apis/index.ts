@@ -18,6 +18,7 @@ import {
     PutFavoriteResponseDto,
     PostCommentResponseDto,
     DeleteBoardResponseDto,
+    DeleteCommentResponseDto,
     PatchBoardResponseDto,
     PatchCommentResponseDto,
     GetLatestBoardListResponseDto,
@@ -80,6 +81,7 @@ const PATCH_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/$
 const PATCH_COMMENT_URL = (boardNumber: number | string, commentNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment/${commentNumber}`;
 const PUT_FAVORITE_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/favorite`;
 const DELETE_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
+const DELETE_COMMENT_URL = (boardNumber: number | string, commentNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment/${commentNumber}`;
 export const getBoardRequest = async (boardNumber: number | string) => {
     const result = await axios.get(GET_BOARD_URL(boardNumber))
         .then(response => {
@@ -262,6 +264,19 @@ export const deleteBoardRequest = async (boardNumber: number | string, accessTok
         });
     return result;
 };
+export const deleteCommentRequest = async (boardNumber: number | string, commentNumber: number | string, accessToken: string) => {
+    const result = await axios.delete(DELETE_COMMENT_URL(boardNumber, commentNumber), authorization(accessToken))
+        .then(response => {
+            const responseBody: DeleteCommentResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
 
 const GET_POPULAR_LIST_URL = () => `${API_DOMAIN}/search/popular-list`;
 const GET_RELATION_LIST_URL = (searchWord: string) => `${API_DOMAIN}/search/${searchWord}/relation-list`;
@@ -350,7 +365,7 @@ export const patchProfileImageRequest = async (requestBody: PatchProfileImageReq
     return result;
 };
 
-const FILE_DOMAIN = `${DOMAIN}/file`;
+const FILE_DOMAIN = `http://localhost:4000/file`;
 
 const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;
 

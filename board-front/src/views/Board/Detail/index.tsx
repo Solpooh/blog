@@ -32,7 +32,6 @@ import {usePagination} from 'hooks';
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
-
     //  state: 게시물 번호 path variable 상태 //
     const { boardNumber } = useParams();
     //  state: 로그인 유저 상태 //
@@ -258,10 +257,6 @@ export default function BoardDetail() {
         const onShowFavoriteClickHandler = () => {
             setShowFavorite(!showFavorite);
         }
-        //  event handler: 댓글 상자 보기 클릭 이벤트 처리 //
-        // const onShowCommentClickHandler = () => {
-        //     setShowComment(!showComment);
-        // }
         //  event handler: 댓글 작성 버튼 클릭 이벤트 처리 //
         const onCommentSubmitButtonClickHandler = () => {
             if (!comment || !boardNumber || !loginUser || !cookies.accessToken) return;

@@ -25,10 +25,14 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Integer>
             "INNER JOIN user AS U " +
             "ON C.user_email = U.email " +
             "WHERE C.board_number = ?1 " +
-            "ORDER BY writeDatetime DESC",
+            "ORDER BY C.comment_number DESC",
             nativeQuery = true
     )
     List<GetCommentListResultSet> getCommentList(Integer boardNumber);
     @Transactional
     void deleteByBoardNumber(Integer boardNumber);
+
+    // 댓글 삭제
+    @Transactional
+    void deleteByBoardNumberAndCommentNumber(Integer boardNumber, Integer commentNumber);
 }

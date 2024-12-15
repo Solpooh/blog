@@ -289,17 +289,17 @@ public class BoardServiceImplement implements BoardService {
         try {
 
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return PatchBoardResponseDto.noExistBoard();
+            if (boardEntity == null) return PatchCommentResponseDto.noExistBoard();
 
             CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber);
             if (commentEntity == null) return PatchCommentResponseDto.noExistComment();
 
             boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return PatchBoardResponseDto.noExistUser();
+            if (!existedUser) return PatchCommentResponseDto.noExistUser();
 
             String writerEmail = boardEntity.getWriterEmail();
             boolean isWriter = writerEmail.equals(email);
-            if (!isWriter) return PatchBoardResponseDto.noPermission();
+            if (!isWriter) return PatchCommentResponseDto.noPermission();
 
             commentEntity.patchComment(dto);
             commentRepository.save(commentEntity);
@@ -352,5 +352,32 @@ public class BoardServiceImplement implements BoardService {
         }
 
         return DeleteBoardResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super DeleteCommentResponseDto> deleteComment(Integer boardNumber, Integer commentNumber, String email) {
+        try {
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            if (boardEntity == null) return DeleteCommentResponseDto.noExistBoard();
+
+            CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber);
+            if (commentEntity == null) return DeleteCommentResponseDto.noExistComment();
+
+            boolean existedUser = userRepository.existsByEmail(email);
+            if (!existedUser) return DeleteCommentResponseDto.noExistUser();
+
+            String writerEmail = boardEntity.getWriterEmail();
+            boolean isWriter = writerEmail.equals(email);
+            if (!isWriter) return DeleteBoardResponseDto.noPermission();
+
+            commentRepository.deleteByBoardNumberAndCommentNumber(boardNumber, commentNumber);
+            boardEntity.decreaseCommentCount();
+            boardRepository.save(boardEntity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return DeleteCommentResponseDto.success();
     }
 }
