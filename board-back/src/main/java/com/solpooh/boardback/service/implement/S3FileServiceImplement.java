@@ -28,7 +28,7 @@ public class S3FileServiceImplement implements FileService {
 
         // 파일 이름 생성
         String originalFileName = file.getOriginalFilename();
-        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String extension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : "";
         String uuid = UUID.randomUUID().toString();
         String saveFileName = uuid + extension;
 
@@ -47,5 +47,4 @@ public class S3FileServiceImplement implements FileService {
         }
         return fileUrl + saveFileName;
     }
-
 }
