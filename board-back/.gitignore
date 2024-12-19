@@ -37,6 +37,3 @@ out/
 .vscode/
 
 # Environment-specific configuration files
-board-back/src/main/resources/application.properties
-board-back/src/main/resources/application-dev.properties
-board-back/src/main/resources/application-prod.properties
