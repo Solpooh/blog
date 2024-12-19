@@ -11,7 +11,6 @@ import {convertUrlsToFile} from 'utils';
 
 //  component: 게시물 수정 화면 컴포넌트 //
 export default function BoardWrite() {
-
     //  state: 제목 영역 요소 참조 상태 //
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
     //  state: 본문 영역 요소 참조 상태 //
@@ -89,7 +88,6 @@ export default function BoardWrite() {
 
         // 이미지 미리보기용 URL 만들기
         const imageUrl = URL.createObjectURL(file);
-        console.log(imageUrl);
         const newImageUrls = imageUrls.map(item => item);
         newImageUrls.push(imageUrl);
         setImageUrls(newImageUrls);
@@ -149,7 +147,7 @@ export default function BoardWrite() {
                     </div>
                     <div className='board-update-images-box'>
                         {imageUrls.map((imageUrl, index) =>
-                            <div className='board-update-image-box'>
+                            <div key={index} className='board-update-image-box'>
                                 <img className='board-update-image'src={imageUrl} />
                                 <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>
                                     <div className='icon close-icon'></div>

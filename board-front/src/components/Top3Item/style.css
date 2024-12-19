@@ -8,8 +8,9 @@
     flex-direction: column-reverse;
 
     background-color: rgba(0,0,0,0.05);
-    background-position: 50% 50%;
-    background-size: 100% 100%;
+    background-position: top center; /* 배경을 상단 중앙으로 */
+    background-size: 100% 59%; /* 높이를 자동으로 설정 */
+    background-repeat: no-repeat; /* 반복 제거 */
 
     cursor: pointer;
 }
@@ -21,7 +22,7 @@
 .top-3-list-item-main-box {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
 
 .top-3-list-item-top {

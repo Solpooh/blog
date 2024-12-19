@@ -24,7 +24,7 @@ export default function Search() {
     //  state: 이전 검색어 상태 //
     const [preSearchWord, setPreSearchWord] = useState<string | null>(null);
     //  state: 검색 게시물 개수 상태 //
-    const [count, setCount] = useState<number>(2);
+    const [count, setCount] = useState<number>(0);
     //  state: 관련 검색어 리스트 상태 //
     const [relativeWordList, setRelativeWordList] = useState<string[]>([]);
 

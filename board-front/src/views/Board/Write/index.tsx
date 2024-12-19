@@ -1,6 +1,6 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
-import {useBoardStore, useLoginUserStore} from '../../../stores';
+import {useBoardStore} from '../../../stores';
 import {MAIN_PATH} from '../../../constants';
 import {useNavigate} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
@@ -66,6 +66,7 @@ export default function BoardWrite() {
         setBoardImageFileList(newBoardImageFileList);
 
         if (!imageInputRef.current) return;
+
         // 똑같은 이미지 새로운 등록을 위해 초기화
         imageInputRef.current.value = '';
     }
@@ -114,7 +115,7 @@ export default function BoardWrite() {
                     </div>
                     <div className='board-write-images-box'>
                         {imageUrls.map((imageUrl, index) =>
-                            <div className='board-write-image-box'>
+                            <div key={index} className='board-write-image-box'>
                                 <img className='board-write-image'src={imageUrl} />
                                 <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>
                                     <div className='icon close-icon'></div>

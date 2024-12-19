@@ -365,6 +365,7 @@ export const patchProfileImageRequest = async (requestBody: PatchProfileImageReq
     return result;
 };
 
+//const FILE_DOMAIN = 'https://devhubs.site/file';
 const FILE_DOMAIN = `http://localhost:4000/file`;
 
 const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;

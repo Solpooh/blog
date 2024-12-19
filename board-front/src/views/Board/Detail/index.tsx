@@ -162,7 +162,7 @@ export default function BoardDetail() {
                 <div className='divider'></div>
                 <div className='board-detail-top-main'>
                     <div className='board-detail-main-text'>{board.content}</div>
-                    {board.boardImageList.map(image => <img className='board-detail-main-image' src={image} />)}
+                    {board.boardImageList.map((image, index) => <img key={index} className='board-detail-main-image' src={image} />)}
                 </div>
             </div>
         );

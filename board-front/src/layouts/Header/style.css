@@ -14,7 +14,7 @@
 .header-left-box {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 4px;
 
     cursor: pointer;
 }
@@ -58,4 +58,8 @@
     font-weight: 400;
     line-height: 140%;
 
+}
+
+.logo-dark-icon {
+    background-image: url(hub.png);
 }

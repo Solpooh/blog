@@ -1,6 +1,7 @@
 import React from 'react';
 import './style.css';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
+import defaultTitleImage from 'assets/image/default-title-image.jpg';
 import { BoardListItem } from 'types/interface';
 import {useNavigate} from 'react-router-dom';
 import {BOARD_DETAIL_PATH, BOARD_PATH} from '../../constants';
@@ -27,7 +28,7 @@ export default function Top3Item({ top3ListItem }: Props) {
 
     //  render: Top 3 List Item 컴포넌트 렌더링 //
     return (
-        <div className='top-3-list-item' style={{ backgroundImage: `url(${boardTitleImage})`}} onClick={onClickHandler}>
+        <div className='top-3-list-item' style={{ backgroundImage: `url(${boardTitleImage ? boardTitleImage : defaultTitleImage})`}} onClick={onClickHandler}>
             <div className='top-3-list-item-main-box'>
                 <div className='top-3-list-item-top'>
                     <div className='top-3-list-item-profile-box'>

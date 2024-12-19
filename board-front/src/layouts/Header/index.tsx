@@ -202,6 +202,7 @@ export default function Header() {
                 const data = new FormData();
                 data.append('file', file);
 
+                // 서버에서 url로 응답
                 const url = await fileUploadRequest(data);
                 if (url) boardImageList.push(url);
             }
