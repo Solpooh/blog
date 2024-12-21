@@ -18,7 +18,7 @@ public class FileController {
     public String upload(
             @RequestParam("file") MultipartFile file
     ) {
-        String url = fileService.upload(file);
+        String url = fileService.uploadToS3(file);
         return url;
     }
 

@@ -340,7 +340,7 @@ public class BoardServiceImplement implements BoardService {
             boolean isWriter = writerEmail.equals(email);
             if (!isWriter) return DeleteBoardResponseDto.noPermission();
 
-            imageRepository.deleteByBoardNumber(boardNumber);
+            imageRepository.imageToDelete(boardNumber);
             commentRepository.deleteByBoardNumber(boardNumber);
             favoriteRepository.deleteByBoardNumber(boardNumber);
 

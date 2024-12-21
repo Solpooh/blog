@@ -38,6 +38,7 @@ WHERE board_number = 1 AND comment_number = 1;
 UPDATE board SET comment_count = comment_count - 1 WHERE board_number = 1;
 
 -- 게시물 삭제
+DELETE FROM image WHERE board_number = 1;
 DELETE FROM comment WHERE board_number = 1;
 DELETE FROM favorite WHERE board_number = 1;
 DELETE FROM board WHERE board_number = 1;
