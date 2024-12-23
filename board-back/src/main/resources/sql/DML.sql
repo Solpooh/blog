@@ -8,7 +8,7 @@ SELECT * FROM user WHERE email = 'email@email.com';
 INSERT INTO board (title, content, write_datetime, favorite_count, comment_count, view_count, writer_email)
 VALUES ('제목입니다', '내용입니다', '2024-06-10 13:08', 0, 0, 0, 'email@email.com');
 
-INSERT INTO image VALUES (1, 'url',1);
+INSERT INTO image VALUES (1, 'url',1, 0);
 
 -- 댓글 작성
 INSERT INTO comment (content, write_datetime, user_email, board_number)
@@ -26,7 +26,7 @@ UPDATE board SET favorite_count = favorite_count - 1 WHERE board_number = 1;
 -- 게시물 수정
 UPDATE board SET title = '수정 제목입니다', content = '수정 내용입니다' WHERE board_number = 1;
 DELETE FROM image WHERE board_number = 1;
-INSERT INTO image VALUES (1, 'url', 1);
+INSERT INTO image VALUES (1, 'url', 1, 0);
 
 -- 댓글 수정
 UPDATE comment SET content = '수정 내용입니다'
@@ -59,7 +59,7 @@ WHERE board_number = 1;
 
 SELECT image
 FROM image
-WHERE board_number = 1;
+WHERE board_number = 1 AND is_deleted = false;
 
 -- 좋아요 리스트 가져오기
 SELECT

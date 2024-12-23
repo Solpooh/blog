@@ -1,5 +1,4 @@
 package com.solpooh.boardback.service.implement;
-import com.solpooh.boardback.repository.ImageRepository;
 import com.solpooh.boardback.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

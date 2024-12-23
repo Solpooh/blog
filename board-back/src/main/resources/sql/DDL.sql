@@ -144,5 +144,5 @@ SELECT B.board_number   AS board_number,
 FROM board AS B
          INNER JOIN user AS U
                     ON B.writer_email = U.email
-         LEFT JOIN (SELECT board_number, ANY_VALUE(image) AS image FROM image GROUP BY board_number) AS I
+         LEFT JOIN (SELECT board_number, ANY_VALUE(image) AS image FROM image WHERE is_deleted = 0 GROUP BY board_number) AS I
                    ON B.board_number = I.board_number;

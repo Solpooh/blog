@@ -15,7 +15,8 @@ public class ImageEntity {
     private int sequence;
     private Integer boardNumber;
     private String image;
-    private boolean isDeleted;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 
     public ImageEntity(int boardNumber, String image) {
         this.boardNumber = boardNumber;

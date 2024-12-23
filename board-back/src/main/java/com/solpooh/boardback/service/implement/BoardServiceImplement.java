@@ -14,13 +14,10 @@ import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +43,7 @@ public class BoardServiceImplement implements BoardService {
             resultSet = boardRepository.getBoard(boardNumber);
             if (resultSet == null) return GetBoardResponseDto.noExistBoard();
 
-            imageEntities = imageRepository.findByBoardNumber(boardNumber);
+            imageEntities = imageRepository.findByBoardNumberAndDeleted(boardNumber, false);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,7 +262,7 @@ public class BoardServiceImplement implements BoardService {
             boardRepository.save(boardEntity);
 
             // 기존 이미지 다 지우기
-            imageRepository.deleteByBoardNumber(boardNumber);
+            imageRepository.imageToDelete(boardNumber);
             List<String> boardImageList = dto.getBoardImageList();
             List<ImageEntity> imageEntities = new ArrayList<>();
 
