@@ -50,9 +50,11 @@ public class BoardController {
         return response;
     }
 
-    @GetMapping("/latest-list")
-    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList() {
-        ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList();
+    @GetMapping("/latest-list/{category}")
+    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(
+            @PathVariable(required = false) String category
+    ) {
+        ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList(category);
         return response;
     }
 

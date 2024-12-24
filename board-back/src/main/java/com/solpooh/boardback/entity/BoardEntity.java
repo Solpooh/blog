@@ -21,6 +21,7 @@ public class BoardEntity {
     private int boardNumber;
     private String title;
     private String content;
+    private String category;
     private String writeDatetime;
     private int favoriteCount;
     private int commentCount;
@@ -34,6 +35,7 @@ public class BoardEntity {
 
         this.title = dto.getTitle();
         this.content = dto.getContent();
+        this.category = dto.getCategory();
         this.writeDatetime = writeDateTime;
         this.favoriteCount = 0;
         this.commentCount = 0;
@@ -63,5 +65,6 @@ public class BoardEntity {
     public void patchBoard(PatchBoardRequestDto dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
+        this.category = dto.getCategory();
     }
 }

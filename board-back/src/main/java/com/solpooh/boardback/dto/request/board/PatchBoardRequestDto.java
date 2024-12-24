@@ -16,6 +16,8 @@ public class PatchBoardRequestDto {
     private String title;
     @NotBlank
     private String content;
+    @NotBlank
+    private String category;
     @NotNull
     private List<String> boardImageList;
 }

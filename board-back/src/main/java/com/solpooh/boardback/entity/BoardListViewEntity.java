@@ -17,6 +17,7 @@ public class BoardListViewEntity {
     private int boardNumber;
     private String title;
     private String content;
+    private String category;
     private String titleImage;
     private int viewCount;
     private int favoriteCount;

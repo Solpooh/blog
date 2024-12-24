@@ -162,7 +162,7 @@ export default function Header() {
         //  state: 게시물 번호 path variable 상태 //
         const { boardNumber } = useParams();
         //  state: 게시물 상태 //
-        const { title, content, boardImageFileList, resetBoard } = useBoardStore();
+        const { title, content, category, boardImageFileList, resetBoard } = useBoardStore();
 
         //  function: post board response 처리 함수 //
         const postBoardResponse = (responseBody: PostBoardResponseDto | ResponseDto | null) => {
@@ -211,13 +211,13 @@ export default function Header() {
             const isWritePage = pathname === BOARD_PATH() + '/' + BOARD_WRITE_PATH();
             if (isWritePage) {
                 const requestBody: PostBoardRequestDto = {
-                    title, content, boardImageList
+                    title, content, category, boardImageList
                 }
                 postBoardRequest(requestBody, accessToken).then(postBoardResponse);
             } else {
                 if (!boardNumber) return;
                 const requestBody: PatchBoardRequestDto = {
-                    title, content, boardImageList
+                    title, content, category, boardImageList
                 }
                 patchBoardRequest(boardNumber, requestBody, accessToken).then(patchBoardResponse);
             }

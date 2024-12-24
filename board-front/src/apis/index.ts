@@ -68,7 +68,7 @@ export const signUpRequest = async (requestBody: SignUpRequestDto) => {
 }
 
 const GET_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
-const GET_LATEST_BOARD_LIST_URL = () => `${API_DOMAIN}/board/latest-list`;
+const GET_LATEST_BOARD_LIST_URL = (category: string | null) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}`;
 const GET_TOP_3_BOARD_LIST_URL = () => `${API_DOMAIN}/board/top-3`;
 const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}`;
 const GET_USER_BOARD_LIST_URL = (email: string) => `${API_DOMAIN}/board/user-board-list/${email}`;
@@ -95,8 +95,8 @@ export const getBoardRequest = async (boardNumber: number | string) => {
         })
     return result;
 };
-export const getLatestBoardListRequest = async () => {
-    const result = await axios.get(GET_LATEST_BOARD_LIST_URL())
+export const getLatestBoardListRequest = async (category: string | null) => {
+    const result = await axios.get(GET_LATEST_BOARD_LIST_URL(category))
         .then(response => {
             const responseBody: GetLatestBoardListResponseDto = response.data;
             return responseBody;

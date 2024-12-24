@@ -17,6 +17,7 @@ public class GetBoardResponseDto extends ResponseDto {
     private int boardNumber;
     private String title;
     private String content;
+    private String category;
     private List<String> boardImageList;
     private String writeDatetime;
     private String writerEmail;
@@ -35,6 +36,7 @@ public class GetBoardResponseDto extends ResponseDto {
         this.boardNumber = resultSet.getBoardNumber();
         this.title = resultSet.getTitle();
         this.content = resultSet.getContent();
+        this.category = resultSet.getCategory();
         this.boardImageList = boardImageList;
         this.writeDatetime = resultSet.getWriteDatetime();
         this.writerEmail = resultSet.getWriterEmail();

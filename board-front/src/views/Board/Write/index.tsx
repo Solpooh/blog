@@ -18,6 +18,7 @@ export default function BoardWrite() {
     //  state: 게시물 상태 //
     const { title, setTitle } = useBoardStore();
     const { content, setContent } = useBoardStore();
+    const { category, setCategory } = useBoardStore();
     const { boardImageFileList, setBoardImageFileList } = useBoardStore();
     const { resetBoard } = useBoardStore();
 
@@ -30,7 +31,12 @@ export default function BoardWrite() {
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
 
-    //  event handler: 제목 변경 이벤트 처리 //
+    //  event handler: 카테고리 변경 이벤트 처리  //
+    const onCategoryChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+        const { value } = event.target;
+        setCategory(value);
+    }
+    //  event handler: 제목 변경 이벤트 처리  //
     const onTitleChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
         const { value } = event.target;
         setTitle(value);
@@ -38,7 +44,7 @@ export default function BoardWrite() {
         titleRef.current.style.height = 'auto';
         titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-    //  event handler: 내용 변경 이벤트 처리 //
+    //  event handler: 내용 변경 이벤트 처리  //
     const onContentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
         const { value } = event.target;
         setContent(value);
@@ -48,7 +54,7 @@ export default function BoardWrite() {
         contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
 
-    //  event handler: 이미지 변경 이벤트 처리 //
+    //  event handler: 이미지 변경 이벤트 처리  //
     const onImageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || !event.target.files.length) return;
         const file = event.target.files[0];
@@ -103,6 +109,13 @@ export default function BoardWrite() {
             <div className='board-write-container'>
                 <div className='board-write-box'>
                     <div className='board-write-title-box'>
+                        <div className='category-select-box'>
+                            <select className='category-select' value={category} onChange={onCategoryChangeHandler}>
+                                <option value="">게시판을 선택해 주세요</option>
+                                <option value="java">Java</option>
+                                <option value="spring">Spring</option>
+                            </select>
+                        </div>
                         <textarea ref={titleRef} className='board-write-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler}/>
                     </div>
                     <div className='divider'></div>

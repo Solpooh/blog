@@ -23,6 +23,7 @@ export default function BoardWrite() {
     //  state: 게시물 상태 //
     const { title, setTitle } = useBoardStore();
     const { content, setContent } = useBoardStore();
+    const { category, setCategory } = useBoardStore();
     const { boardImageFileList, setBoardImageFileList } = useBoardStore();
     //  state: 로그인 유저 상태 //
     const { loginUser } = useLoginUserStore();
@@ -47,9 +48,10 @@ export default function BoardWrite() {
             return;
         }
 
-        const { title, content, boardImageList, writerEmail } = responseBody as GetBoardResponseDto;
+        const { title, content, category, boardImageList, writerEmail } = responseBody as GetBoardResponseDto;
         setTitle(title);
         setContent(content);
+        setCategory(category);
         setImageUrls(boardImageList);
         convertUrlsToFile(boardImageList).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
 
@@ -63,6 +65,11 @@ export default function BoardWrite() {
         contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
 
+    //  event handler: 카테고리 변경 이벤트 처리  //
+    const onCategoryChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+        const { value } = event.target;
+        setCategory(value);
+    }
     //  event handler: 제목 변경 이벤트 처리 //
     const onTitleChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
         const { value } = event.target;
@@ -135,6 +142,13 @@ export default function BoardWrite() {
             <div className='board-update-container'>
                 <div className='board-update-box'>
                     <div className='board-update-title-box'>
+                        <div className='category-select-box'>
+                            <select className='category-select' value={category} onChange={onCategoryChangeHandler}>
+                                <option value="">게시판을 선택해 주세요</option>
+                                <option value="java">Java</option>
+                                <option value="spring">Spring</option>
+                            </select>
+                        </div>
                         <textarea ref={titleRef} className='board-update-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler}/>
                     </div>
                     <div className='divider'></div>

@@ -5,8 +5,8 @@ INSERT INTO user VALUES ('email@email.com', 'P!ssw0rd', 'nickname', '01012345678
 SELECT * FROM user WHERE email = 'email@email.com';
 
 -- 게시물 작성
-INSERT INTO board (title, content, write_datetime, favorite_count, comment_count, view_count, writer_email)
-VALUES ('제목입니다', '내용입니다', '2024-06-10 13:08', 0, 0, 0, 'email@email.com');
+INSERT INTO board (title, content, category, write_datetime, favorite_count, comment_count, view_count, writer_email)
+VALUES ('제목입니다', '내용입니다', 'java', '2024-06-10 13:08', 0, 0, 0, 'email@email.com');
 
 INSERT INTO image VALUES (1, 'url',1, 0);
 
@@ -24,7 +24,7 @@ DELETE FROM favorite WHERE user_email = 'email@email.com' AND board_number = 1;
 UPDATE board SET favorite_count = favorite_count - 1 WHERE board_number = 1;
 
 -- 게시물 수정
-UPDATE board SET title = '수정 제목입니다', content = '수정 내용입니다' WHERE board_number = 1;
+UPDATE board SET title = '수정 제목입니다', content = '수정 내용입니다', category = 'spring' WHERE board_number = 1;
 DELETE FROM image WHERE board_number = 1;
 INSERT INTO image VALUES (1, 'url', 1, 0);
 
@@ -48,6 +48,7 @@ SELECT
     B.board_number AS board_number,
     B.title AS title,
     B.content AS content,
+    B.category AS category,
     B.write_datetime AS write_datetime,
     B.writer_email AS writer_email,
     U.nickname AS nickname,
@@ -89,7 +90,14 @@ ORDER BY write_datetime DESC;
 SELECT *
 FROM board_list_view
 ORDER BY write_datetime DESC
-LIMIT 0,5;
+LIMIT 0, 5;
+
+-- 유형별 게시물 리스트 불러오기
+SELECT *
+FROM board_list_view
+WHERE category = 'java'
+ORDER BY write_datetime DESC
+LIMIT 0, 5;
 
 -- 검색어 리스트 불러오기
 SELECT *

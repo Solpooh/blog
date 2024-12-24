@@ -88,12 +88,15 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList() {
+    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category) {
         List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
 
         try {
-
-            boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc();
+            if ("All".equals(category) || category == null) {
+                boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc();
+            } else {
+                boardListViewEntities = boardListViewRepository.findByCategoryOrderByWriteDatetimeDesc(category);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
