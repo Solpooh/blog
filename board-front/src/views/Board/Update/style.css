@@ -7,7 +7,7 @@
 }
 
 .board-update-container {
-    padding: 100px 24px;
+    padding: 30px 24px;
     width: 996px;
     min-height: 1952px;
 
@@ -39,12 +39,12 @@
     line-height: 140%;
 }
 
-.board-update-content-box {
-    width: 100%;
+/*.board-update-content-box {*/
+/*    width: 100%;*/
 
-    display: flex;
-    gap: 16px;
-}
+/*    display: flex;*/
+/*    gap: 16px;*/
+/*}*/
 
 .board-update-content-textarea {
     flex: 1;
@@ -89,4 +89,40 @@
     font-size: 14px;
     border-radius: 10px;
     border: 1px solid #ccc;
+}
+
+/* editor */
+.editor {
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    cursor: text;
+    padding: 16px;
+    border-radius: 2px;
+    margin-bottom: 2em;
+    /*box-shadow: inset 0px 1px 8px -3px #ABABAB;*/
+    background: #fefefe;
+}
+
+.editor :global(.public-DraftEditor-content) {
+    min-height: 540px;
+}
+
+.headlineButtonWrapper {
+    display: inline-block;
+}
+
+.headlineButton {
+    background: #fbfbfb;
+    color: #888;
+    font-size: 18px;
+    border: 0;
+    padding-top: 5px;
+    vertical-align: bottom;
+    height: 34px;
+    width: 36px;
+}
+
+.headlineButton:hover,
+.headlineButton:focus {
+    background: #f3f3f3;
 }

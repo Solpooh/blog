@@ -5,6 +5,7 @@
     align-items: center;
     gap: 30px;
     cursor: pointer;
+
 }
 .board-list-item:hover {
     background-color: rgba(0, 0, 0, 0.02);
@@ -64,6 +65,13 @@
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
+    /* 줄 제한 및 말줄임표 추가 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* 최대 3줄로 제한 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 .board-list-item-bottom {
 

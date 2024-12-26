@@ -8,6 +8,32 @@ import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
+import {ContentState, convertFromRaw, EditorState} from 'draft-js';
+import Editor, {createEditorStateWithText} from '@draft-js-plugins/editor';
+import createToolbarPlugin, {
+    Separator,
+} from '@draft-js-plugins/static-toolbar';
+import '@draft-js-plugins/static-toolbar/lib/plugin.css';
+import {
+    ItalicButton,
+    BoldButton,
+    UnderlineButton,
+    CodeButton,
+    HeadlineOneButton,
+    HeadlineTwoButton,
+    HeadlineThreeButton,
+    UnorderedListButton,
+    OrderedListButton,
+    BlockquoteButton,
+    CodeBlockButton,
+} from '@draft-js-plugins/buttons';
+import editorStyles from './editorStyles.module.css';
+
+
+//  플러그인 설정
+const toolbarPlugin = createToolbarPlugin();
+const { Toolbar } = toolbarPlugin;
+const plugins = [toolbarPlugin];
 
 //  component: 게시물 수정 화면 컴포넌트 //
 export default function BoardWrite() {
@@ -34,6 +60,10 @@ export default function BoardWrite() {
     //  state: 게시물 이미지 미리보기 URL 상태 //
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const getEditorState = () => editorState;
+    const setEditorStateHandler = (newState: EditorState) => setEditorState(newState);
+
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
 
@@ -50,10 +80,13 @@ export default function BoardWrite() {
 
         const { title, content, category, boardImageList, writerEmail } = responseBody as GetBoardResponseDto;
         setTitle(title);
-        setContent(content);
         setCategory(category);
         setImageUrls(boardImageList);
         convertUrlsToFile(boardImageList).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
+
+        const contentState = convertFromRaw(JSON.parse(content));
+        const editorState = EditorState.createWithContent(contentState); // ContentState -> EditorState
+        setEditorState(editorState);
 
         if (!loginUser || loginUser.email !== writerEmail) {
             navigator(MAIN_PATH());
@@ -78,16 +111,24 @@ export default function BoardWrite() {
         titleRef.current.style.height = 'auto';
         titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-    //  event handler: 내용 변경 이벤트 처리 //
-    const onContentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
-        const { value } = event.target;
-        setContent(value);
+     //  event handler: 내용 변경 이벤트 처리 //
+    // const onContentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    //     const { value } = event.target;
+    //     setContent(value);
+    //
+    //     if (!contentRef.current) return;
+    //     contentRef.current.style.height = 'auto';
+    //     contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+    // }
 
-        if (!contentRef.current) return;
-        contentRef.current.style.height = 'auto';
-        contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+    //  event handler: editor 내용 변경 이벤트 처리  //
+    const onEditorChangeHandler = (newState: EditorState) => {
+        setEditorState(newState);
+
+        // 순수 텍스트 변환
+        const plainText = newState.getCurrentContent().getPlainText();
+        setContent(plainText);
     }
-
     //  event handler: 이미지 변경 이벤트 처리 //
     const onImageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || !event.target.files.length) return;
@@ -134,6 +175,7 @@ export default function BoardWrite() {
         }
         if (!boardNumber) return;
         getBoardRequest(boardNumber).then(getBoardResponse);
+        setEditorState(createEditorStateWithText(content));
     }, [boardNumber]);
 
     //  render: 게시물 수정 화면 컴포넌트 렌더링 //
@@ -147,13 +189,39 @@ export default function BoardWrite() {
                                 <option value="">게시판을 선택해 주세요</option>
                                 <option value="java">Java</option>
                                 <option value="spring">Spring</option>
+                                <option value="AWS">AWS</option>
                             </select>
                         </div>
                         <textarea ref={titleRef} className='board-update-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler}/>
                     </div>
                     <div className='divider'></div>
                     <div className='board-update-content-box'>
-                        <textarea ref={contentRef} className='board-update-content-textarea' placeholder='내용을 작성해주세요.' value={content} onChange={onContentChangeHandler} />
+                        {/*<textarea ref={contentRef} className='board-update-content-textarea' placeholder='내용을 작성해주세요.' value={content} onChange={onContentChangeHandler} />*/}
+                        <div className={editorStyles.editor}>
+                            <Toolbar>
+                                {(externalProps) => (
+                                    <>
+                                        <BoldButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <ItalicButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <UnderlineButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <CodeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <Separator />
+                                        <HeadlineOneButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <HeadlineTwoButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <HeadlineThreeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <UnorderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <OrderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <BlockquoteButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <CodeBlockButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                    </>
+                                )}
+                            </Toolbar>
+                            <Editor
+                                editorState={editorState}
+                                onChange={onEditorChangeHandler}
+                                plugins={plugins}
+                            />
+                        </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
                             <div className='icon image-box-light-icon'></div>
                         </div>

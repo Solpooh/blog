@@ -7,7 +7,7 @@
 }
 
 .board-write-container {
-    padding: 100px 24px;
+    padding: 30px 24px;
     width: 996px;
     min-height: 1952px;
 
@@ -17,7 +17,7 @@
 .board-write-box {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 6px;
 }
 
 .board-write-title-box {
@@ -39,12 +39,12 @@
     line-height: 140%;
 }
 
-.board-write-content-box {
-    width: 100%;
+/*.board-write-content-box {*/
+/*    width: 100%;*/
 
-    display: flex;
-    gap: 16px;
-}
+/*    display: flex;*/
+/*    gap: 16px;*/
+/*}*/
 
 .board-write-content-textarea {
     flex: 1;
@@ -90,3 +90,4 @@
     border-radius: 10px;
     border: 1px solid #ccc;
 }
+

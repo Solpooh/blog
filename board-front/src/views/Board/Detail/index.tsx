@@ -29,6 +29,7 @@ import dayjs from 'dayjs';
 import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
 import {usePagination} from 'hooks';
+import {Editor, EditorState, convertFromRaw} from 'draft-js';
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
@@ -38,6 +39,8 @@ export default function BoardDetail() {
     const { loginUser } = useLoginUserStore();
     //  state: 쿠키 상태 //
     const [cookies, setCookies] = useCookies();
+    //  state: Editor State 상태 //
+    const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
@@ -55,6 +58,8 @@ export default function BoardDetail() {
         const [isWriter, setWriter] = useState<boolean>(false);
         //  state: board 상태 //
         const [board, setBoard] = useState<Board | null>(null);
+        //  state: editor 상태 //
+        const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
         //  state: more 버튼 상태 //
         const [showMore, setShowMore] = useState<boolean>(false);
 
@@ -76,6 +81,11 @@ export default function BoardDetail() {
             }
             const board: Board = { ...responseBody as GetBoardResponseDto };
             setBoard(board);
+
+            // content => EditorState
+            const contentState = convertFromRaw(JSON.parse(board.content));
+            const editorState = EditorState.createWithContent(contentState); // ContentState -> EditorState
+            setEditorState(editorState);
 
             if (!loginUser) {
                 setWriter(false);
@@ -161,7 +171,12 @@ export default function BoardDetail() {
                 </div>
                 <div className='divider'></div>
                 <div className='board-detail-top-main'>
-                    <div className='board-detail-main-text'>{board.content}</div>
+                    <div className='board-detail-main-text'>
+                        <Editor editorState={editorState}
+                                readOnly={true}
+                                onChange={() => {}}
+                        />
+                    </div>
                     {board.boardImageList.map((image, index) => <img key={index} className='board-detail-main-image' src={image} />)}
                 </div>
             </div>
