@@ -33,23 +33,6 @@ const usePagination = <T> (countPerPage: number) => {
         setViewPageList(viewPageList);
     };
 
-    //  effect: total List 가 변경될 때마다 실행할 작업 //
-    // useEffect(() => {
-    //     const totalPage = Math.ceil(totalList.length / countPerPage);
-    //     const totalPageList: number[] = [];
-    //     for (let page = 1; page <= totalPage; page++) totalPageList.push(page);
-    //     setTotalPageList(totalPageList);
-    //
-    //     const totalSection = Math.ceil(totalList.length / (countPerPage * 10));
-    //     setTotalSection(totalSection);
-    //
-    //     setCurrentPage(1);
-    //     setCurrentSection(1);
-    //
-    //     setView();
-    //     setViewPage();
-    // }, [totalList]);
-
     useEffect(() => {
         const totalPage = Math.ceil(totalList.length / countPerPage);
         const totalPageList = Array.from({ length: totalPage }, (_, i) => i + 1);

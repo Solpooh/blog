@@ -1,12 +1,16 @@
 package com.solpooh.boardback.dto.object;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solpooh.boardback.entity.BoardListViewEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Getter
 @NoArgsConstructor
@@ -27,7 +31,7 @@ public class BoardListItem {
     public BoardListItem(BoardListViewEntity boardListViewEntity) {
         this.boardNumber = boardListViewEntity.getBoardNumber();
         this.title = boardListViewEntity.getTitle();
-        this.content = boardListViewEntity.getContent();
+        this.content = parseContent(boardListViewEntity.getContent());
         this.category = boardListViewEntity.getCategory();
         this.boardTitleImage = boardListViewEntity.getTitleImage();
         this.favoriteCount = boardListViewEntity.getFavoriteCount();
@@ -38,12 +42,30 @@ public class BoardListItem {
         this.writerProfileImage = boardListViewEntity.getWriterProfileImage();
     }
 
-    public static List<BoardListItem> getList(List<BoardListViewEntity> boardListViewEntities) {
-        List<BoardListItem> list = new ArrayList<>();
-        for(BoardListViewEntity boardListViewEntity : boardListViewEntities){
-            BoardListItem boardListItem = new BoardListItem(boardListViewEntity);
-            list.add(boardListItem);
+    // JSON 데이터를 문자열로 변환하는 메서드
+    private String parseContent(String content) {
+        try {
+            // JSON 문자열을 JsonNode로 파싱
+            JsonNode parsedContent = new ObjectMapper().readTree(content);
+
+            // "blocks" 필드에서 배열 데이터 추출
+            JsonNode blocks = parsedContent.get("blocks");
+
+            // 각 JsonNode에서 "text" 필드 추출
+            return StreamSupport.stream(blocks.spliterator(), false)
+                    .map(block -> block.get("text").asText())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" "));
+        } catch (Exception e) {
+            // JSON 파싱 실패 시 원본 content 반환
+            return content;
         }
-        return list;
     }
+
+    public static List<BoardListItem> getList(List<BoardListViewEntity> boardListViewEntities) {
+        return boardListViewEntities.stream()
+                .map(BoardListItem::new) // 변환된 생성자 호출
+                .collect(Collectors.toList());
+    }
+
 }

@@ -36,6 +36,7 @@ export default function Main() {
             if (code !== 'SU') return;
 
             const { top3List } = responseBody as GetTop3BoardListResponseDto;
+
             setTop3BoardList(top3List);
         };
 

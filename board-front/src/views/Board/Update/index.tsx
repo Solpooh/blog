@@ -8,7 +8,7 @@ import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
-import {ContentState, convertFromRaw, EditorState} from 'draft-js';
+import {ContentState, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
 import Editor, {createEditorStateWithText} from '@draft-js-plugins/editor';
 import createToolbarPlugin, {
     Separator,
@@ -125,9 +125,9 @@ export default function BoardWrite() {
     const onEditorChangeHandler = (newState: EditorState) => {
         setEditorState(newState);
 
-        // 순수 텍스트 변환
-        const plainText = newState.getCurrentContent().getPlainText();
-        setContent(plainText);
+        // JSON으로 저장해야 포맷팅 정보 포함 가능
+        const rawContent = JSON.stringify(convertToRaw(newState.getCurrentContent()));
+        setContent(rawContent);
     }
     //  event handler: 이미지 변경 이벤트 처리 //
     const onImageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
