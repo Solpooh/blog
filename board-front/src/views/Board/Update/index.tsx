@@ -10,10 +10,10 @@ import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
 import {ContentState, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
 import Editor, {createEditorStateWithText} from '@draft-js-plugins/editor';
-import createToolbarPlugin, {
+import createInlineToolbarPlugin, {
     Separator,
-} from '@draft-js-plugins/static-toolbar';
-import '@draft-js-plugins/static-toolbar/lib/plugin.css';
+} from '@draft-js-plugins/inline-toolbar';
+import '@draft-js-plugins/inline-toolbar/lib/plugin.css';
 import {
     ItalicButton,
     BoldButton,
@@ -28,15 +28,16 @@ import {
     CodeBlockButton,
 } from '@draft-js-plugins/buttons';
 import editorStyles from './editorStyles.module.css';
-
+import {BackgroundColorButton, TextColorButton, styleMap} from '../../../components/CustomStyle';
 
 //  플러그인 설정
-const toolbarPlugin = createToolbarPlugin();
-const { Toolbar } = toolbarPlugin;
-const plugins = [toolbarPlugin];
+const inlineToolbarPlugin = createInlineToolbarPlugin();
+const { InlineToolbar } = inlineToolbarPlugin;
+const plugins = [inlineToolbarPlugin];
 
 //  component: 게시물 수정 화면 컴포넌트 //
 export default function BoardWrite() {
+
     //  state: 제목 영역 요소 참조 상태 //
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
     //  state: 본문 영역 요소 참조 상태 //
@@ -60,6 +61,7 @@ export default function BoardWrite() {
     //  state: 게시물 이미지 미리보기 URL 상태 //
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
+    //  state: Editor State 상태 //
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const getEditorState = () => editorState;
     const setEditorStateHandler = (newState: EditorState) => setEditorState(newState);
@@ -111,16 +113,6 @@ export default function BoardWrite() {
         titleRef.current.style.height = 'auto';
         titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
-     //  event handler: 내용 변경 이벤트 처리 //
-    // const onContentChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    //     const { value } = event.target;
-    //     setContent(value);
-    //
-    //     if (!contentRef.current) return;
-    //     contentRef.current.style.height = 'auto';
-    //     contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
-    // }
-
     //  event handler: editor 내용 변경 이벤트 처리  //
     const onEditorChangeHandler = (newState: EditorState) => {
         setEditorState(newState);
@@ -198,28 +190,32 @@ export default function BoardWrite() {
                     <div className='board-update-content-box'>
                         {/*<textarea ref={contentRef} className='board-update-content-textarea' placeholder='내용을 작성해주세요.' value={content} onChange={onContentChangeHandler} />*/}
                         <div className={editorStyles.editor}>
-                            <Toolbar>
+                            <InlineToolbar>
                                 {(externalProps) => (
                                     <>
-                                        <BoldButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <ItalicButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <UnderlineButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <CodeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <BoldButton {...externalProps} />
+                                        <ItalicButton {...externalProps} />
+                                        <UnderlineButton {...externalProps} />
+                                        <CodeButton {...externalProps} />
                                         <Separator />
-                                        <HeadlineOneButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <HeadlineTwoButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <HeadlineThreeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <UnorderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <OrderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <BlockquoteButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <CodeBlockButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <HeadlineOneButton {...externalProps} />
+                                        <HeadlineTwoButton {...externalProps} />
+                                        <HeadlineThreeButton {...externalProps} />
+                                        <UnorderedListButton {...externalProps} />
+                                        <OrderedListButton {...externalProps} />
+                                        <BlockquoteButton {...externalProps} />
+                                        <CodeBlockButton {...externalProps} />
+                                        <Separator />
+                                        <TextColorButton getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <BackgroundColorButton getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
                                     </>
                                 )}
-                            </Toolbar>
+                            </InlineToolbar>
                             <Editor
                                 editorState={editorState}
                                 onChange={onEditorChangeHandler}
                                 plugins={plugins}
+                                customStyleMap={styleMap}
                             />
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>

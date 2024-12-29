@@ -10,8 +10,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {deleteCommentRequest, patchCommentRequest} from 'apis';
 import {PatchCommentResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
-import {AUTH_PATH} from '../../constants';
-import {DeleteCommentResponseDto} from "../../apis/response/board";
+import {DeleteCommentResponseDto} from '../../apis/response/board';
 
 interface Props {
     commentListItem: CommentListItem;

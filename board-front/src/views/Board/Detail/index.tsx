@@ -29,7 +29,8 @@ import dayjs from 'dayjs';
 import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
 import {usePagination} from 'hooks';
-import {Editor, EditorState, convertFromRaw} from 'draft-js';
+import {Editor, EditorState, ContentState, convertFromRaw} from 'draft-js';
+import {styleMap} from "../../../components/CustomStyle";
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
@@ -39,8 +40,6 @@ export default function BoardDetail() {
     const { loginUser } = useLoginUserStore();
     //  state: 쿠키 상태 //
     const [cookies, setCookies] = useCookies();
-    //  state: Editor State 상태 //
-    const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
@@ -127,6 +126,8 @@ export default function BoardDetail() {
         }
         //  event handler: 삭제 버튼 클릭 이벤트 처리 //
         const onDeleteButtonClickHandler = () => {
+            // eslint-disable-next-line no-restricted-globals
+            if (!confirm("게시글을 삭제 하시겠습니까?")) return;
             if (!boardNumber || !board || !loginUser || !cookies.accessToken) return;
             if (loginUser.email !== board.writerEmail) return;
 
@@ -173,8 +174,9 @@ export default function BoardDetail() {
                 <div className='board-detail-top-main'>
                     <div className='board-detail-main-text'>
                         <Editor editorState={editorState}
-                                readOnly={true}
                                 onChange={() => {}}
+                                customStyleMap={styleMap}
+                                readOnly={true}
                         />
                     </div>
                     {board.boardImageList.map((image, index) => <img key={index} className='board-detail-main-image' src={image} />)}

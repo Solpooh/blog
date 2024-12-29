@@ -32,3 +32,12 @@
 .headlineButton:focus {
     background: #f3f3f3;
 }
+
+/* blockquote 스타일 재정의 */
+blockquote {
+    margin: 0; /* 기본 마진 제거 */
+    padding: 10px; /* 여백 추가 */
+    border-left: 4px solid  #4caf50; /* 구분선 추가 */
+    background-color: #f9f9f9; /* 배경색 추가 */
+    color: #333; /* 텍스트 색상 */
+}

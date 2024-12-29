@@ -17,7 +17,7 @@
 .board-update-box {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 6px;
 }
 
 .board-update-title-box {
