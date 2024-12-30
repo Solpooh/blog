@@ -1,15 +1,15 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import {useBoardStore, useLoginUserStore} from 'stores';
-import {MAIN_PATH} from '../../../constants';
+import {AUTH_PATH, MAIN_PATH} from '../../../constants';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
-import {ContentState, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
-import Editor, {createEditorStateWithText} from '@draft-js-plugins/editor';
+import {convertFromRaw, convertToRaw, EditorState} from 'draft-js';
+import Editor from '@draft-js-plugins/editor';
 import createInlineToolbarPlugin, {
     Separator,
 } from '@draft-js-plugins/inline-toolbar';
@@ -28,7 +28,8 @@ import {
     CodeBlockButton,
 } from '@draft-js-plugins/buttons';
 import editorStyles from './editorStyles.module.css';
-import {BackgroundColorButton, TextColorButton, styleMap} from '../../../components/CustomStyle';
+import {ColorButton} from '../../../components/ColorButton';
+import {ColorMap} from 'types/enum';
 
 //  플러그인 설정
 const inlineToolbarPlugin = createInlineToolbarPlugin();
@@ -63,8 +64,21 @@ export default function BoardWrite() {
 
     //  state: Editor State 상태 //
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
+    //  function: EditorState 접근 함수 //
     const getEditorState = () => editorState;
     const setEditorStateHandler = (newState: EditorState) => setEditorState(newState);
+
+    //  function: color 추출 함수 //
+    const customStyleMap = Object.keys(ColorMap).reduce((map, key) => {
+        const value = ColorMap[key as keyof typeof ColorMap];
+        if (key.startsWith("CUSTOM_COLOR_")) {
+            map[key] = { color: value }; // 텍스트 색상 설정
+        } else if (key.startsWith("CUSTOM_BACKGROUND_")) {
+            map[key] = { backgroundColor: value }; // 배경색 설정
+        }
+        return map;
+    }, {} as Record<string, { color?: string; backgroundColor?: string }>);
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
@@ -162,12 +176,11 @@ export default function BoardWrite() {
     useEffect(() => {
         const accessToken = cookies.accessToken;
         if (!accessToken) {
-            navigator(MAIN_PATH());
+            navigator(AUTH_PATH());
             return;
         }
         if (!boardNumber) return;
         getBoardRequest(boardNumber).then(getBoardResponse);
-        setEditorState(createEditorStateWithText(content));
     }, [boardNumber]);
 
     //  render: 게시물 수정 화면 컴포넌트 렌더링 //
@@ -206,8 +219,10 @@ export default function BoardWrite() {
                                         <BlockquoteButton {...externalProps} />
                                         <CodeBlockButton {...externalProps} />
                                         <Separator />
-                                        <TextColorButton getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <BackgroundColorButton getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <ColorButton
+                                            getEditorState={getEditorState}
+                                            setEditorState={setEditorStateHandler}
+                                        />
                                     </>
                                 )}
                             </InlineToolbar>
@@ -215,7 +230,7 @@ export default function BoardWrite() {
                                 editorState={editorState}
                                 onChange={onEditorChangeHandler}
                                 plugins={plugins}
-                                customStyleMap={styleMap}
+                                customStyleMap={customStyleMap}
                             />
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
