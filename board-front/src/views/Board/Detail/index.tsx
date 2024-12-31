@@ -30,7 +30,7 @@ import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
 import {usePagination} from 'hooks';
 import {Editor, EditorState, convertFromRaw} from 'draft-js';
-import {ColorMap} from 'types/enum';
+import {customStyleMap} from '../../../plugins';
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
@@ -40,17 +40,6 @@ export default function BoardDetail() {
     const { loginUser } = useLoginUserStore();
     //  state: 쿠키 상태 //
     const [cookies, setCookies] = useCookies();
-
-    //  function: color 추출 함수 //
-    const customStyleMap = Object.keys(ColorMap).reduce((map, key) => {
-        const value = ColorMap[key as keyof typeof ColorMap];
-        if (key.startsWith("CUSTOM_COLOR_")) {
-            map[key] = { color: value }; // 텍스트 색상 설정
-        } else if (key.startsWith("CUSTOM_BACKGROUND_")) {
-            map[key] = { backgroundColor: value }; // 배경색 설정
-        }
-        return map;
-    }, {} as Record<string, { color?: string; backgroundColor?: string }>);
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();

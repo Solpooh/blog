@@ -8,7 +8,7 @@ import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
-import {convertFromRaw, convertToRaw, EditorState} from 'draft-js';
+import {convertFromRaw, convertToRaw, EditorState, Modifier, RichUtils} from 'draft-js';
 import Editor from '@draft-js-plugins/editor';
 import createInlineToolbarPlugin, {
     Separator,
@@ -29,7 +29,7 @@ import {
 } from '@draft-js-plugins/buttons';
 import editorStyles from './editorStyles.module.css';
 import {ColorButton} from '../../../components/ColorButton';
-import {ColorMap} from 'types/enum';
+import {customStyleMap} from '../../../plugins';
 
 //  플러그인 설정
 const inlineToolbarPlugin = createInlineToolbarPlugin();
@@ -69,17 +69,6 @@ export default function BoardWrite() {
     const getEditorState = () => editorState;
     const setEditorStateHandler = (newState: EditorState) => setEditorState(newState);
 
-    //  function: color 추출 함수 //
-    const customStyleMap = Object.keys(ColorMap).reduce((map, key) => {
-        const value = ColorMap[key as keyof typeof ColorMap];
-        if (key.startsWith("CUSTOM_COLOR_")) {
-            map[key] = { color: value }; // 텍스트 색상 설정
-        } else if (key.startsWith("CUSTOM_BACKGROUND_")) {
-            map[key] = { backgroundColor: value }; // 배경색 설정
-        }
-        return map;
-    }, {} as Record<string, { color?: string; backgroundColor?: string }>);
-
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
 
@@ -113,6 +102,48 @@ export default function BoardWrite() {
         contentRef.current.style.height = 'auto';
         contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
+
+    //  function: handleReturn => 엔터키, 탭키 동작 제어 함수 //
+    const handleReturnOrTab = (event: { key: string }) => {
+        const currentContent = editorState.getCurrentContent();
+        const selection = editorState.getSelection();
+        const blockType = RichUtils.getCurrentBlockType(editorState);
+
+        if (blockType === 'code-block') {
+            if (!selection.isCollapsed()) {
+                return 'not-handled'; // 선택 영역이 비어있지 않은 경우 무시
+            }
+
+            if (event.key === 'Enter') {
+                const newContent = Modifier.insertText(currentContent, selection, '\n');
+                setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
+                return 'handled';
+            } else if (event.key === 'Tab') {
+                const newContent = Modifier.replaceText(currentContent, selection, '    ');
+                setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
+                return 'handled';
+            }
+        }
+        return 'not-handled';
+    };
+
+    // function: Tab 키를 감지하는 함수 //
+    const keyBindingFn = (event: { key: string; }) => {
+        if (event.key === 'Tab') {
+            return 'tab'; // 커스텀 명령 반환
+        }
+        if (event.key === 'Enter') {
+            return 'enter'; // Enter 키 커스텀 명령 반환
+        }
+    };
+
+    //  function: 커스텀 명령 처리 //
+    const handleKeyCommand = (command: string) => {
+        if (command === 'tab' || command === 'enter') {
+            return handleReturnOrTab({ key: command === 'tab' ? 'Tab' : 'Enter' });
+        }
+        return 'not-handled';
+    };
 
     //  event handler: 카테고리 변경 이벤트 처리  //
     const onCategoryChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -201,8 +232,15 @@ export default function BoardWrite() {
                     </div>
                     <div className='divider'></div>
                     <div className='board-update-content-box'>
-                        {/*<textarea ref={contentRef} className='board-update-content-textarea' placeholder='내용을 작성해주세요.' value={content} onChange={onContentChangeHandler} />*/}
                         <div className={editorStyles.editor}>
+                            <Editor
+                                editorState={editorState}
+                                onChange={onEditorChangeHandler}
+                                keyBindingFn={keyBindingFn}
+                                handleKeyCommand={handleKeyCommand}
+                                plugins={plugins}
+                                customStyleMap={customStyleMap}
+                            />
                             <InlineToolbar>
                                 {(externalProps) => (
                                     <>
@@ -226,12 +264,6 @@ export default function BoardWrite() {
                                     </>
                                 )}
                             </InlineToolbar>
-                            <Editor
-                                editorState={editorState}
-                                onChange={onEditorChangeHandler}
-                                plugins={plugins}
-                                customStyleMap={customStyleMap}
-                            />
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
                             <div className='icon image-box-light-icon'></div>
