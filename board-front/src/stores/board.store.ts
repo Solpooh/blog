@@ -1,14 +1,15 @@
 import {create} from 'zustand';
+import {BoardImageFile} from 'types/interface';
 
 interface BoardStore {
     title: string;
     content: string;
     category: string;
-    boardImageFileList: File[];
+    boardImageFileList: BoardImageFile[];
     setTitle: (title: string) => void;
     setContent: (content: string) => void;
     setCategory: (category: string) => void;
-    setBoardImageFileList: (boardImageFileList: File[]) => void;
+    setBoardImageFileList: (boardImageFileList: BoardImageFile[]) => void;
     resetBoard: () => void;
 }
 

@@ -2,11 +2,8 @@ package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.service.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 @RestController
 @RequestMapping("/file")
 @RequiredArgsConstructor

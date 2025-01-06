@@ -8,12 +8,12 @@ import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
-import {convertFromRaw, convertToRaw, EditorState, Modifier, RichUtils} from 'draft-js';
+import {convertFromRaw, convertToRaw, EditorState, getDefaultKeyBinding, Modifier, RichUtils} from 'draft-js';
 import Editor from '@draft-js-plugins/editor';
-import createInlineToolbarPlugin, {
+import createToolbarPlugin, {
     Separator,
-} from '@draft-js-plugins/inline-toolbar';
-import '@draft-js-plugins/inline-toolbar/lib/plugin.css';
+} from '@draft-js-plugins/static-toolbar';
+import '@draft-js-plugins/static-toolbar/lib/plugin.css';
 import {
     ItalicButton,
     BoldButton,
@@ -32,9 +32,9 @@ import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
 
 //  플러그인 설정
-const inlineToolbarPlugin = createInlineToolbarPlugin();
-const { InlineToolbar } = inlineToolbarPlugin;
-const plugins = [inlineToolbarPlugin];
+const toolbarPlugin = createToolbarPlugin();
+const { Toolbar } = toolbarPlugin;
+const plugins = [toolbarPlugin];
 
 //  component: 게시물 수정 화면 컴포넌트 //
 export default function BoardWrite() {
@@ -64,6 +64,8 @@ export default function BoardWrite() {
 
     //  state: Editor State 상태 //
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
+    const editorRef = useRef<Editor | null>(null);
 
     //  function: EditorState 접근 함수 //
     const getEditorState = () => editorState;
@@ -103,46 +105,52 @@ export default function BoardWrite() {
         contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
     }
 
-    //  function: handleReturn => 엔터키, 탭키 동작 제어 함수 //
-    const handleReturnOrTab = (event: { key: string }) => {
-        const currentContent = editorState.getCurrentContent();
-        const selection = editorState.getSelection();
+    //  function: CodeBlock에서 'Enter' 및 'Tab' 키 처리 함수 //
+    const handleKeyCommand = (command: string): 'handled' | 'not-handled' => {
         const blockType = RichUtils.getCurrentBlockType(editorState);
 
         if (blockType === 'code-block') {
-            if (!selection.isCollapsed()) {
-                return 'not-handled'; // 선택 영역이 비어있지 않은 경우 무시
-            }
+            const currentContent = editorState.getCurrentContent();
+            const selection = editorState.getSelection();
 
-            if (event.key === 'Enter') {
+            if (command === 'enter') {
                 const newContent = Modifier.insertText(currentContent, selection, '\n');
                 setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
                 return 'handled';
-            } else if (event.key === 'Tab') {
+            }
+
+            if (command === 'tab') {
                 const newContent = Modifier.replaceText(currentContent, selection, '    ');
                 setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
                 return 'handled';
             }
+            if (command === 'shift-enter') {
+                const newEditorState = EditorState.push(
+                    editorState,
+                    Modifier.splitBlock(currentContent, selection),
+                    'split-block'
+                );
+                setEditorState(RichUtils.toggleBlockType(newEditorState, 'unstyled'));
+                return 'handled';
+            }
         }
-        return 'not-handled';
+        // 기본 동작 유지
+        return RichUtils.handleKeyCommand(editorState, command)
+            ? 'handled'
+            : 'not-handled';
     };
 
-    // function: Tab 키를 감지하는 함수 //
-    const keyBindingFn = (event: { key: string; }) => {
-        if (event.key === 'Tab') {
-            return 'tab'; // 커스텀 명령 반환
-        }
-        if (event.key === 'Enter') {
-            return 'enter'; // Enter 키 커스텀 명령 반환
-        }
-    };
+    //  function: 키 바인딩 함수 //
+    const keyBindingFn = (event: React.KeyboardEvent): string | undefined => {
+        const blockType = RichUtils.getCurrentBlockType(editorState);
 
-    //  function: 커스텀 명령 처리 //
-    const handleKeyCommand = (command: string) => {
-        if (command === 'tab' || command === 'enter') {
-            return handleReturnOrTab({ key: command === 'tab' ? 'Tab' : 'Enter' });
+        if (blockType === 'code-block') {
+            if (event.key === 'Enter' && event.shiftKey) return 'shift-enter'; // Code Block 벗어나기
+            if (event.key === 'Enter') return 'enter';
+            if (event.key === 'Tab') return 'tab';
         }
-        return 'not-handled';
+        // 기본 동작을 유지하기 위해 기본 키 바인딩 반환
+        return getDefaultKeyBinding(event) || undefined;
     };
 
     //  event handler: 카테고리 변경 이벤트 처리  //
@@ -212,6 +220,9 @@ export default function BoardWrite() {
         }
         if (!boardNumber) return;
         getBoardRequest(boardNumber).then(getBoardResponse);
+        if (editorRef.current) {
+            editorRef.current.focus();
+        }
     }, [boardNumber]);
 
     //  render: 게시물 수정 화면 컴포넌트 렌더링 //
@@ -241,21 +252,31 @@ export default function BoardWrite() {
                                 plugins={plugins}
                                 customStyleMap={customStyleMap}
                             />
-                            <InlineToolbar>
+                            <div className='board-update-images-box'>
+                                {imageUrls.map((imageUrl, index) =>
+                                    <div key={index} className='board-update-image-box'>
+                                        <img className='board-update-image'src={imageUrl} />
+                                        <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>
+                                            <div className='icon close-icon'></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <Toolbar>
                                 {(externalProps) => (
                                     <>
-                                        <BoldButton {...externalProps} />
-                                        <ItalicButton {...externalProps} />
-                                        <UnderlineButton {...externalProps} />
-                                        <CodeButton {...externalProps} />
+                                        <BoldButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <ItalicButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <UnderlineButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <CodeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
                                         <Separator />
-                                        <HeadlineOneButton {...externalProps} />
-                                        <HeadlineTwoButton {...externalProps} />
-                                        <HeadlineThreeButton {...externalProps} />
-                                        <UnorderedListButton {...externalProps} />
-                                        <OrderedListButton {...externalProps} />
-                                        <BlockquoteButton {...externalProps} />
-                                        <CodeBlockButton {...externalProps} />
+                                        <HeadlineOneButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <HeadlineTwoButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <HeadlineThreeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <UnorderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <OrderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <BlockquoteButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        <CodeBlockButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
                                         <Separator />
                                         <ColorButton
                                             getEditorState={getEditorState}
@@ -263,22 +284,12 @@ export default function BoardWrite() {
                                         />
                                     </>
                                 )}
-                            </InlineToolbar>
+                            </Toolbar>
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
                             <div className='icon image-box-light-icon'></div>
                         </div>
                         <input ref={imageInputRef} type='file' accept='image/*' style={{ display: 'none' }} onChange={onImageChangeHandler} />
-                    </div>
-                    <div className='board-update-images-box'>
-                        {imageUrls.map((imageUrl, index) =>
-                            <div key={index} className='board-update-image-box'>
-                                <img className='board-update-image'src={imageUrl} />
-                                <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>
-                                    <div className='icon close-icon'></div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

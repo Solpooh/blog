@@ -43,7 +43,7 @@ blockquote {
 }
 
 /* 코드 블록 스타일 */
-code-block, pre {
+pre {
     display: block;
     background-color: #2e3440; /* 다크 배경 */
     color: #d8dee9; /* 텍스트 색상 */

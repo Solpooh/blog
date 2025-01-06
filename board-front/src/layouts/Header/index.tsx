@@ -16,6 +16,7 @@ import {fileUploadRequest, patchBoardRequest, postBoardRequest} from '../../apis
 import {PatchBoardRequestDto, PostBoardRequestDto} from '../../apis/request/board';
 import {PatchBoardResponseDto, PostBoardResponseDto} from '../../apis/response/board';
 import {ResponseDto} from '../../apis/response';
+import {ContentBlock, convertToRaw, EditorState} from 'draft-js';
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -163,6 +164,11 @@ export default function Header() {
         const { boardNumber } = useParams();
         //  state: 게시물 상태 //
         const { title, content, category, boardImageFileList, resetBoard } = useBoardStore();
+        //  state: EditorState 상태 //
+        const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
+
+        //  function: 네비게이트 함수 //
+        const navigator = useNavigate();
 
         //  function: post board response 처리 함수 //
         const postBoardResponse = (responseBody: PostBoardResponseDto | ResponseDto | null) => {
@@ -197,24 +203,73 @@ export default function Header() {
             if (!confirm("게시글을 업로드 하시겠습니까?")) return;
 
             const accessToken = cookies.accessToken;
-            if (!accessToken) return;
+            if (!accessToken) {
+                alert("로그인 정보가 만료되었습니다.");
+                navigator(AUTH_PATH());
+                return;
+            }
 
             const boardImageList: string[] = [];
 
             for (const file of boardImageFileList) {
                 const data = new FormData();
-                data.append('file', file);
+                data.append('file', file.file);
 
                 // 서버에서 url로 응답
                 const url = await fileUploadRequest(data);
                 if (url) boardImageList.push(url);
             }
 
+            // 기존 editorState에서 이미지 URL을 실제 S3 URL로 교체
+            let newEditorState = editorState;
+
+            const contentState = newEditorState.getCurrentContent();
+            const blockMap = contentState.getBlockMap();
+
+            // 기존의 AtomicBlock을 찾아서 업로드된 URL로 변경
+            blockMap.forEach((block) => {
+                // @ts-ignore
+                const entityKey = block.getEntityAt(0);
+
+                if (entityKey) {
+                    const entity = contentState.getEntity(entityKey);
+                    const entityData = entity.getData();
+
+                    // 이미지를 포함하는 블록이라면, URL 교체
+                    if (entity.getType() === 'IMAGE') {
+                        const newImageUrl = boardImageList.shift(); // 업로드된 이미지 URL을 가져옴
+                        if (newImageUrl && entityData.id) {
+                            const newEntityData = { ...entityData, src: newImageUrl }; // 새로운 URL로 데이터 변경
+
+                            // 새로운 엔티티로 업데이트
+                            const contentStateWithUpdatedEntity = contentState.replaceEntityData(entityKey, newEntityData);
+
+                            // 새로운 에디터 상태 생성
+                            newEditorState = EditorState.push(
+                                newEditorState,
+                                contentStateWithUpdatedEntity,
+                                'apply-entity'
+                            );
+                        }
+                    }
+                }
+            });
+
+            // setEditorState(newEditorState);
+
+            // JSON 변환
+            const updatedContent = JSON.stringify(
+                convertToRaw(editorState.getCurrentContent())
+            );
+
             // write or update
             const isWritePage = pathname === BOARD_PATH() + '/' + BOARD_WRITE_PATH();
             if (isWritePage) {
                 const requestBody: PostBoardRequestDto = {
-                    title, content, category, boardImageList
+                    title,
+                    content: updatedContent, // 업데이트된 content 반영
+                    category,
+                    boardImageList
                 }
                 postBoardRequest(requestBody, accessToken).then(postBoardResponse);
             } else {

@@ -81,7 +81,7 @@ export default function BoardDetail() {
             const board: Board = { ...responseBody as GetBoardResponseDto };
             setBoard(board);
 
-            // content => EditorState
+            // JSON 데이터를 draft.js 형식으로 변환
             const contentState = convertFromRaw(JSON.parse(board.content));
             const editorState = EditorState.createWithContent(contentState); // ContentState -> EditorState
             setEditorState(editorState);
