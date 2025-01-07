@@ -5,7 +5,7 @@ import {CommentListItem, FavoriteListItem} from 'types/interface';
 import CommentItem from 'components/CommentItem';
 import Pagination from 'components/Pagination';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
-import {useLoginUserStore} from 'stores';
+import {useEditorStore, useLoginUserStore} from 'stores';
 import {useNavigate, useParams} from 'react-router-dom';
 import {BOARD_PATH, BOARD_UPDATE_PATH, MAIN_PATH, USER_PATH} from '../../../constants';
 import {Board} from 'types/interface';
@@ -29,7 +29,7 @@ import dayjs from 'dayjs';
 import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
 import {usePagination} from 'hooks';
-import {Editor, EditorState, convertFromRaw} from 'draft-js';
+import {Editor, EditorState, convertFromRaw, ContentBlock} from 'draft-js';
 import {customStyleMap} from '../../../plugins';
 
 //  component: 게시물 상세 화면 컴포넌트 //
@@ -57,8 +57,8 @@ export default function BoardDetail() {
         const [isWriter, setWriter] = useState<boolean>(false);
         //  state: board 상태 //
         const [board, setBoard] = useState<Board | null>(null);
-        //  state: editor 상태 //
-        const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
+        //  state: EditorState 상태 //
+        const { editorState, setEditorState } = useEditorStore();
         //  state: more 버튼 상태 //
         const [showMore, setShowMore] = useState<boolean>(false);
 
@@ -143,6 +143,26 @@ export default function BoardDetail() {
             getBoardRequest(boardNumber).then(getBoardResponse)
         }, [boardNumber]);
 
+        //  render: 이미지 블록 렌더링 //
+        const blockRendererFn = (block: ContentBlock) => {
+            if (block.getType() === 'atomic') {
+                return {
+                    component: AtomicBlockRenderer,
+                    editable: false,
+                };
+            }
+            return null;
+        };
+
+        const AtomicBlockRenderer = ({ contentState, block }: any) => {
+            const entity = contentState.getEntity(block.getEntityAt(0));
+            const { src } = entity.getData();
+
+            return (
+                <img className='board-detail-main-image' src={src} alt="Uploaded" />
+            );
+        };
+
         //  render: 게시물 상세 상단 컴포넌트 렌더링 //
         if (!board) return <></>
         return (
@@ -175,11 +195,11 @@ export default function BoardDetail() {
                     <div className='board-detail-main-text'>
                         <Editor editorState={editorState}
                                 onChange={() => {}}
+                                blockRendererFn={blockRendererFn}
                                 customStyleMap={customStyleMap}
                                 readOnly={true}
                         />
                     </div>
-                    {board.boardImageList.map((image, index) => <img key={index} className='board-detail-main-image' src={image} />)}
                 </div>
             </div>
         );

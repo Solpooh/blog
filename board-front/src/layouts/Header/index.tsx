@@ -11,7 +11,7 @@ import {
     USER_PATH
 } from '../../constants';
 import {useCookies} from 'react-cookie';
-import {useBoardStore, useLoginUserStore} from '../../stores';
+import {useBoardStore, useEditorStore, useLoginUserStore} from '../../stores';
 import {fileUploadRequest, patchBoardRequest, postBoardRequest} from '../../apis';
 import {PatchBoardRequestDto, PostBoardRequestDto} from '../../apis/request/board';
 import {PatchBoardResponseDto, PostBoardResponseDto} from '../../apis/response/board';
@@ -165,7 +165,7 @@ export default function Header() {
         //  state: 게시물 상태 //
         const { title, content, category, boardImageFileList, resetBoard } = useBoardStore();
         //  state: EditorState 상태 //
-        const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
+        const { editorState, setEditorState } = useEditorStore();
 
         //  function: 네비게이트 함수 //
         const navigator = useNavigate();

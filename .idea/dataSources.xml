@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="devhub@seong-mysql.cvu4mmqqa5if.ap-northeast-2.rds.amazonaws.com" uuid="972b319e-fdc3-497c-ae4a-3ac66140954c">
+    <data-source source="LOCAL" name="devhub@seong-mysql.cvu4mmqqa5if.ap-northeast-2.rds.amazonaws.com" uuid="cd726d70-eb54-4444-8e59-650a7958bb87">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://seong-mysql.cvu4mmqqa5if.ap-northeast-2.rds.amazonaws.com:3306/devhub?serverTimezone=UTC&amp;characterEncoding=UTF-8:3306</jdbc-url>
+      <jdbc-url>jdbc:mysql://seong-mysql.cvu4mmqqa5if.ap-northeast-2.rds.amazonaws.com:3306/devhub</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

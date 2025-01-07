@@ -8,7 +8,15 @@ import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {convertUrlsToFile} from 'utils';
-import {convertFromRaw, convertToRaw, EditorState, getDefaultKeyBinding, Modifier, RichUtils} from 'draft-js';
+import {
+    AtomicBlockUtils, ContentBlock,
+    convertFromRaw,
+    convertToRaw,
+    EditorState,
+    getDefaultKeyBinding,
+    Modifier,
+    RichUtils, SelectionState
+} from 'draft-js';
 import Editor from '@draft-js-plugins/editor';
 import createToolbarPlugin, {
     Separator,
@@ -30,6 +38,8 @@ import {
 import editorStyles from './editorStyles.module.css';
 import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
+import {ImageUrl} from 'types/interface';
+import ImageBlock from "../../../components/ImageBlock";
 
 //  플러그인 설정
 const toolbarPlugin = createToolbarPlugin();
@@ -60,7 +70,7 @@ export default function BoardWrite() {
     const [cookies, setCookies] = useCookies();
 
     //  state: 게시물 이미지 미리보기 URL 상태 //
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [imageUrls, setImageUrls] = useState<ImageUrl[]>([]);
 
     //  state: Editor State 상태 //
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
@@ -177,18 +187,37 @@ export default function BoardWrite() {
     //  event handler: 이미지 변경 이벤트 처리 //
     const onImageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || !event.target.files.length) return;
-        const file = event.target.files[0];
+        const files = event.target.files;
 
-        // 이미지 미리보기용 URL 만들기
-        const imageUrl = URL.createObjectURL(file);
-        const newImageUrls = imageUrls.map(item => item);
-        newImageUrls.push(imageUrl);
+        const newImageUrls: ImageUrl[] = [...imageUrls]; // 기존 이미지 URL 복사
+        const newBoardImageFileList = [...boardImageFileList]; // 요청 보낼 File 객체 리스트
+
+        let newEditorState = editorState;
+
+        Array.from(files).forEach((file) => {
+            const id = `image_${Date.now()}`; // 고유 ID 생성
+            const imageUrl = URL.createObjectURL(file);
+
+            newImageUrls.push({ id, url: imageUrl });
+            newBoardImageFileList.push({ id, file });
+
+            // Entity 생성
+            const contentStateWithEntity = newEditorState
+                .getCurrentContent()
+                .createEntity('IMAGE', 'IMMUTABLE', { src: imageUrl, id: id });
+            const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+            // AtomicBlock 삽입
+            newEditorState = AtomicBlockUtils.insertAtomicBlock(
+                EditorState.set(newEditorState, { currentContent: contentStateWithEntity }),
+                entityKey,
+                ' ', // AtomicBlock 뒤에 삽입할 공백
+            );
+        });
+
         setImageUrls(newImageUrls);
-
-        // 이미지 업로드용
-        const newBoardImageFileList = boardImageFileList.map(item => item);
-        newBoardImageFileList.push(file);
         setBoardImageFileList(newBoardImageFileList);
+        setEditorState(newEditorState);
 
         if (!imageInputRef.current) return;
         // 똑같은 이미지 새로운 등록을 위해 초기화
@@ -200,16 +229,82 @@ export default function BoardWrite() {
         imageInputRef.current.click();
     }
     //  event handler: 이미지 닫기 버튼 클릭 이벤트 처리 //
-    const onImageCloseButtonClickHandler = (deleteIndex: number) => {
+    const onImageCloseButtonClickHandler = (deleteId: string) => {
         if (!imageInputRef.current) return;
         imageInputRef.current.value = '';
 
-        const newImageUrls = imageUrls.filter((url, index) => index !== deleteIndex);
+        // 미리보기 이미지 URL 삭제
+        const newImageUrls = imageUrls.filter((image) => image.id !== deleteId);
         setImageUrls(newImageUrls);
 
-        const newBoardImageFileList = boardImageFileList.filter((file, index) => index !== deleteIndex);
+        // 업로드할 파일 객체 리스트에서 해당 파일 삭제
+        const newBoardImageFileList = boardImageFileList.filter((file) => file.id !== deleteId);
         setBoardImageFileList(newBoardImageFileList);
-    }
+
+        // EditorState에서 해당 이미지를 제거 (AtomicBlock 삭제)
+        const contentState = editorState.getCurrentContent();
+        const blockMap = contentState.getBlockMap();
+
+        // blockMap에서 deleteId에 해당하는 블록 찾기
+        const blockToDelete = blockMap.find((block) => {
+            // @ts-ignore
+            const entityKey = block.getEntityAt(0);
+            if (entityKey) {
+                const entityData = contentState.getEntity(entityKey).getData();
+                return entityData?.id === deleteId;
+            }
+            return false;
+        });
+
+
+        // 삭제하려는 블록이 존재하지 않으면 종료
+        if (!blockToDelete) {
+            console.warn('Block not found for id:', deleteId);
+            return;
+        }
+
+        const blockKey = blockToDelete.getKey();
+
+        // 해당 블록의 SelectionState 생성
+        const blockSelection = SelectionState.createEmpty(blockKey).merge({
+            anchorOffset: 0,
+            focusOffset: blockToDelete.getLength(),
+        });
+
+        // Modifier를 이용해 블록 삭제
+        const contentStateWithoutBlock = Modifier.removeRange(
+            contentState,
+            blockSelection,
+            'backward'
+        );
+
+        // 삭제된 블록의 공백 제거
+        const selectionAfterDelete = SelectionState.createEmpty(blockKey).merge({
+            anchorOffset: 0,
+            focusOffset: 1, // 공백 문자를 선택
+        });
+
+        const contentStateCleaned = Modifier.removeRange(
+            contentStateWithoutBlock,
+            selectionAfterDelete,
+            'forward'
+        );
+
+        // 새로운 unstyled 블록으로 변환
+        const newContentState = Modifier.setBlockType(
+            contentStateCleaned,
+            blockSelection,
+            'unstyled'
+        );
+
+        const newEditorState = EditorState.push(
+            editorState,
+            newContentState,
+            'remove-range'
+        );
+
+        setEditorState(newEditorState);
+    };
 
     //  effect: 마운트시 실행할 함수 //
     useEffect(() => {
@@ -224,6 +319,40 @@ export default function BoardWrite() {
             editorRef.current.focus();
         }
     }, [boardNumber]);
+
+    //  render: 이미지 미리보기 컴포넌트 렌더링 //
+    const cachedSrc: Record<string, string> = {}; // 블록 데이터 캐시
+    const blockRendererFn = (contentBlock: ContentBlock) => {
+        const blockKey = contentBlock.getKey();
+        const contentState = editorState.getCurrentContent();
+        const entityKey = contentBlock.getEntityAt(0);
+
+        // 블록 타입이 'atomic'이면서 엔티티가 존재하는 경우 처리
+        if (contentBlock.getType() === "atomic" && entityKey) {
+            const entityData = contentState.getEntity(entityKey).getData();
+
+            // 이미지 src가 변경되지 않았다면 렌더링하지 않음
+            if (entityData.src === cachedSrc[blockKey]) {
+                return null;
+            }
+
+            // 새로운 src 데이터 캐싱
+            cachedSrc[blockKey] = entityData.src;
+
+            return {
+                component: (props: any) => (
+                    <ImageBlock
+                        src={entityData.src}
+                        id={entityData.id}
+                        onRemove={onImageCloseButtonClickHandler}
+                    />
+                ),
+                editable: false,
+            };
+        }
+
+        return null; // 다른 블록은 렌더링하지 않음
+    };
 
     //  render: 게시물 수정 화면 컴포넌트 렌더링 //
     return (
@@ -249,19 +378,10 @@ export default function BoardWrite() {
                                 onChange={onEditorChangeHandler}
                                 keyBindingFn={keyBindingFn}
                                 handleKeyCommand={handleKeyCommand}
+                                blockRendererFn={blockRendererFn}
                                 plugins={plugins}
                                 customStyleMap={customStyleMap}
                             />
-                            <div className='board-update-images-box'>
-                                {imageUrls.map((imageUrl, index) =>
-                                    <div key={index} className='board-update-image-box'>
-                                        <img className='board-update-image'src={imageUrl} />
-                                        <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>
-                                            <div className='icon close-icon'></div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
                             <Toolbar>
                                 {(externalProps) => (
                                     <>

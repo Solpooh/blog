@@ -1,0 +1,22 @@
+.board-write-images-box {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.board-write-image-box {
+    width: 100%;
+    position: relative;
+}
+
+.board-write-image {
+    width: 100%;
+}
+
+.image-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}

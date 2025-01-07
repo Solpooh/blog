@@ -1,6 +1,6 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
-import {useBoardStore} from '../../../stores';
+import {useBoardStore, useEditorStore} from '../../../stores';
 import {AUTH_PATH, MAIN_PATH} from '../../../constants';
 import {useNavigate} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
@@ -34,9 +34,9 @@ import {
 import editorStyles from './editorStyles.module.css';
 import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
-import Prism from 'prismjs';
 import 'prismjs/themes/prism.css';
 import {ImageUrl} from 'types/interface';
+import ImageBlock from "../../../components/ImageBlock";
 
 //  플러그인 설정
 const toolbarPlugin = createToolbarPlugin();
@@ -58,14 +58,13 @@ export default function BoardWrite() {
     const { boardImageFileList, setBoardImageFileList } = useBoardStore();
     const { resetBoard } = useBoardStore();
 
+    //  state: EditorState 상태 //
+    const { editorState, setEditorState, resetEditorState } = useEditorStore();
     //  state: 쿠키 상태 //
     const [cookies, setCookies] = useCookies();
 
     //  state: 게시물 이미지 미리보기 URL 상태 //
     const [imageUrls, setImageUrls] = useState<ImageUrl[]>([]);
-
-    //  state: EditorState 상태 //
-    const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
 
     const editorRef = useRef<Editor | null>(null);
 
@@ -131,7 +130,9 @@ export default function BoardWrite() {
     }
     //  event handler: editor 내용 변경 이벤트 처리  //
     const onEditorChangeHandler = (state: EditorState) => {
-        setEditorState(state);
+        if (editorState !== state) {
+            setEditorState(state);
+        }
 
         // JSON으로 저장해야 포맷팅 정보 포함 가능
         const rawContent = JSON.stringify(convertToRaw(state.getCurrentContent()));
@@ -150,6 +151,7 @@ export default function BoardWrite() {
         Array.from(files).forEach((file) => {
             const id = `image_${Date.now()}`; // 고유 ID 생성
             const imageUrl = URL.createObjectURL(file);
+
             newImageUrls.push({ id, url: imageUrl });
             newBoardImageFileList.push({ id, file });
 
@@ -165,11 +167,11 @@ export default function BoardWrite() {
                 entityKey,
                 ' ', // AtomicBlock 뒤에 삽입할 공백
             );
-
-            setImageUrls(newImageUrls);
-            setBoardImageFileList(newBoardImageFileList);
-            setEditorState(newEditorState);
         });
+
+        setImageUrls(newImageUrls);
+        setBoardImageFileList(newBoardImageFileList);
+        setEditorState(newEditorState);
 
         if (!imageInputRef.current) return;
         // 똑같은 이미지 새로운 등록을 위해 초기화
@@ -184,8 +186,6 @@ export default function BoardWrite() {
     const onImageCloseButtonClickHandler = (deleteId: string) => {
         if (!imageInputRef.current) return;
         imageInputRef.current.value = '';
-
-        console.log(deleteId);
 
         // 미리보기 이미지 URL 삭제
         const newImageUrls = imageUrls.filter((image) => image.id !== deleteId);
@@ -232,9 +232,28 @@ export default function BoardWrite() {
             'backward'
         );
 
+        // 삭제된 블록의 공백 제거
+        const selectionAfterDelete = SelectionState.createEmpty(blockKey).merge({
+            anchorOffset: 0,
+            focusOffset: 1, // 공백 문자를 선택
+        });
+
+        const contentStateCleaned = Modifier.removeRange(
+            contentStateWithoutBlock,
+            selectionAfterDelete,
+            'forward'
+        );
+
+        // 새로운 unstyled 블록으로 변환
+        const newContentState = Modifier.setBlockType(
+            contentStateCleaned,
+            blockSelection,
+            'unstyled'
+        );
+
         const newEditorState = EditorState.push(
             editorState,
-            contentStateWithoutBlock,
+            newContentState,
             'remove-range'
         );
 
@@ -248,46 +267,54 @@ export default function BoardWrite() {
             navigator(AUTH_PATH());
             return;
         }
-
         if (editorRef.current) {
             editorRef.current.focus();
         }
         resetBoard();
+        resetEditorState();
     }, []);
 
+    useEffect(() => {
+        return () => {
+            imageUrls.forEach(image => URL.revokeObjectURL(image.url));
+        };
+    }, [imageUrls]);
+
+
     //  render: 이미지 미리보기 컴포넌트 렌더링 //
-    const blockRendererFn = (contentBlock: any) => {
-        if (contentBlock.getType() === 'atomic') {
-            const contentState = editorState.getCurrentContent();
-            const blockMap = contentState.getBlockMap();
+    const cachedSrc: Record<string, string> = {}; // 블록 데이터 캐시
+    const blockRendererFn = (contentBlock: ContentBlock) => {
+        const blockKey = contentBlock.getKey();
+        const contentState = editorState.getCurrentContent();
+        const entityKey = contentBlock.getEntityAt(0);
 
-            // blockIndex 기반으로 deleteIndex 전달
-            const blocksArray = blockMap.valueSeq().toArray();
-            const blockIndex = blocksArray.findIndex(block => block.getKey() === contentBlock.getKey());
+        // 블록 타입이 'atomic'이면서 엔티티가 존재하는 경우 처리
+        if (contentBlock.getType() === "atomic" && entityKey) {
+            const entityData = contentState.getEntity(entityKey).getData();
 
-            if (blockIndex !== -1) {
-                const entity = contentBlock.getEntityAt(0);
-                if (entity) {
-                    const { src, id } = contentState.getEntity(entity).getData();
-
-                    return {
-                        component: (props: any) => (
-                            <div className="board-write-image-box">
-                                <img src={src} className="board-write-image" alt="Uploaded" />
-                                <div
-                                    className="icon-button image-close"
-                                    onClick={() => onImageCloseButtonClickHandler(id)}
-                                >
-                                    <div className="icon close-icon"></div>
-                                </div>
-                            </div>
-                        ),
-                        editable: false,
-                    };
-                }
+            // 이미지 src가 변경되지 않았다면 렌더링하지 않음
+            if (entityData.src === cachedSrc[blockKey]) {
+                return null;
             }
+
+            // 새로운 src 데이터 캐싱
+            cachedSrc[blockKey] = entityData.src;
+
+            return {
+                component: (props: any) => (
+                    <ImageBlock
+                        src={entityData.src}
+                        id={entityData.id}
+                        onRemove={onImageCloseButtonClickHandler}
+                    />
+                ),
+                editable: false,
+            };
         }
+
+        return null; // 다른 블록은 렌더링하지 않음
     };
+
     //  render: 게시물 작성 화면 컴포넌트 렌더링 //
     return (
         <div id='board-write-wrapper'>
@@ -340,18 +367,6 @@ export default function BoardWrite() {
                                     </>
                                 )}
                             </Toolbar>
-
-                            {/*<div className='board-write-images-box'>*/}
-                            {/*    {imageUrls.map((imageUrl, index) =>*/}
-                            {/*        <div key={index} className='board-write-image-box'>*/}
-                            {/*            <img className='board-write-image' src={imageUrl} />*/}
-                            {/*            <div className='icon-button image-close' onClick={() => onImageCloseButtonClickHandler(index)}>*/}
-                            {/*                <div className='icon close-icon'></div>*/}
-                            {/*            </div>*/}
-                            {/*        </div>*/}
-                            {/*    )}*/}
-                            {/*</div>*/}
-
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
                             <div className='icon image-box-light-icon'></div>
