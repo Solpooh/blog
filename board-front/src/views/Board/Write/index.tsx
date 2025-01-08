@@ -36,7 +36,7 @@ import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
 import 'prismjs/themes/prism.css';
 import {ImageUrl} from 'types/interface';
-import ImageBlock from "../../../components/ImageBlock";
+import ImageBlock from 'components/ImageBlock';
 
 //  플러그인 설정
 const toolbarPlugin = createToolbarPlugin();

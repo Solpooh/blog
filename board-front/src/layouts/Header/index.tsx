@@ -17,6 +17,7 @@ import {PatchBoardRequestDto, PostBoardRequestDto} from '../../apis/request/boar
 import {PatchBoardResponseDto, PostBoardResponseDto} from '../../apis/response/board';
 import {ResponseDto} from '../../apis/response';
 import {ContentBlock, convertToRaw, EditorState} from 'draft-js';
+import {ImageUrl} from "../../types/interface";
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -226,7 +227,8 @@ export default function Header() {
             const contentState = newEditorState.getCurrentContent();
             const blockMap = contentState.getBlockMap();
 
-            // 기존의 AtomicBlock을 찾아서 업로드된 URL로 변경
+            let imageIndex = 0;
+
             blockMap.forEach((block) => {
                 // @ts-ignore
                 const entityKey = block.getEntityAt(0);
@@ -235,27 +237,21 @@ export default function Header() {
                     const entity = contentState.getEntity(entityKey);
                     const entityData = entity.getData();
 
-                    // 이미지를 포함하는 블록이라면, URL 교체
-                    if (entity.getType() === 'IMAGE') {
-                        const newImageUrl = boardImageList.shift(); // 업로드된 이미지 URL을 가져옴
-                        if (newImageUrl && entityData.id) {
-                            const newEntityData = { ...entityData, src: newImageUrl }; // 새로운 URL로 데이터 변경
+                    if (entity.getType() === 'IMAGE' && boardImageList[imageIndex]) {
+                        const newImageUrl = boardImageList[imageIndex]; // index로 접근
+                        imageIndex++; // 다음 URL로 이동
 
-                            // 새로운 엔티티로 업데이트
-                            const contentStateWithUpdatedEntity = contentState.replaceEntityData(entityKey, newEntityData);
+                        const newEntityData = { ...entityData, src: newImageUrl };
+                        const contentStateWithUpdatedEntity = contentState.replaceEntityData(entityKey, newEntityData);
 
-                            // 새로운 에디터 상태 생성
-                            newEditorState = EditorState.push(
-                                newEditorState,
-                                contentStateWithUpdatedEntity,
-                                'apply-entity'
-                            );
-                        }
+                        newEditorState = EditorState.push(
+                            newEditorState,
+                            contentStateWithUpdatedEntity,
+                            'apply-entity'
+                        );
                     }
                 }
             });
-
-            // setEditorState(newEditorState);
 
             // JSON 변환
             const updatedContent = JSON.stringify(

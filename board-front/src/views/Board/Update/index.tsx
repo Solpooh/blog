@@ -7,7 +7,7 @@ import {useCookies} from 'react-cookie';
 import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
-import {convertUrlsToFile} from 'utils';
+import {convertUrlsToFile, extractImageUrls} from 'utils';
 import {
     AtomicBlockUtils, ContentBlock,
     convertFromRaw,
@@ -39,7 +39,7 @@ import editorStyles from './editorStyles.module.css';
 import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
 import {ImageUrl} from 'types/interface';
-import ImageBlock from "../../../components/ImageBlock";
+import ImageBlock from 'components/ImageBlock';
 
 //  플러그인 설정
 const toolbarPlugin = createToolbarPlugin();
@@ -96,10 +96,22 @@ export default function BoardWrite() {
         }
 
         const { title, content, category, boardImageList, writerEmail } = responseBody as GetBoardResponseDto;
+
+        // 1. JSON 파싱 후 entityMap 추출
+        let entityMap = {};
+
+        const parsedContent = JSON.parse(content); // 문자열을 JSON 객체로 변환
+        entityMap = parsedContent.entityMap; // entityMap 추출
+
+        // 2. entityMap에서 ImageUrl[] 변환
+        const imageUrls = extractImageUrls(entityMap);
+        console.log(imageUrls)
+        setImageUrls(imageUrls);
+
         setTitle(title);
         setCategory(category);
-        setImageUrls(boardImageList);
-        convertUrlsToFile(boardImageList).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
+        convertUrlsToFile(imageUrls).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
+        console.log(boardImageFileList)
 
         const contentState = convertFromRaw(JSON.parse(content));
         const editorState = EditorState.createWithContent(contentState); // ContentState -> EditorState
