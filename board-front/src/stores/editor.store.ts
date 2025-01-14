@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { EditorState } from 'draft-js';
+import {create} from 'zustand';
+import {EditorState} from 'draft-js';
 
 interface EditorStore {
     editorState: EditorState;
@@ -9,8 +9,8 @@ interface EditorStore {
 
 const useEditorStore = create<EditorStore>((set) => ({
     editorState: EditorState.createEmpty(),
-    setEditorState: (editorState) => set(() => ({ editorState })),
-    resetEditorState: () => set(() => ({ editorState: EditorState.createEmpty() })),
+    setEditorState: (editorState) => set((state) => ({ ...state, editorState })),
+    resetEditorState: () => set((state) => ({...state, editorState: EditorState.createEmpty() })),
 }));
 
 export default useEditorStore;

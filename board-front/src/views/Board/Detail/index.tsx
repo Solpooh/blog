@@ -155,12 +155,16 @@ export default function BoardDetail() {
         };
 
         const AtomicBlockRenderer = ({ contentState, block }: any) => {
-            const entity = contentState.getEntity(block.getEntityAt(0));
-            const { src } = entity.getData();
+            try {
+                // 엔티티 데이터 가져오기
+                const { src } = contentState.getEntity(block.getEntityAt(0)).getData();
 
-            return (
-                <img className='board-detail-main-image' src={src} alt="Uploaded" />
-            );
+                // 올바른 엔티티 데이터를 기반으로 이미지 렌더링
+                return <img className='board-detail-main-image' src={src} alt="Uploaded" />;
+            } catch (error) {
+                // 엔티티가 존재하지 않거나 데이터가 손상된 경우 에러 핸들링
+                console.error("Error rendering AtomicBlock: ", error);
+            }
         };
 
         //  render: 게시물 상세 상단 컴포넌트 렌더링 //

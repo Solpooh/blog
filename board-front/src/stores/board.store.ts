@@ -1,5 +1,6 @@
 import {create} from 'zustand';
 import {BoardImageFile} from 'types/interface';
+import React from 'react';
 
 interface BoardStore {
     title: string;
@@ -11,6 +12,7 @@ interface BoardStore {
     setCategory: (category: string) => void;
     setBoardImageFileList: (boardImageFileList: BoardImageFile[]) => void;
     resetBoard: () => void;
+    imageInputRef: React.RefObject<HTMLInputElement>;
 }
 
 const useBoardStore = create<BoardStore>(set => ({
@@ -23,6 +25,7 @@ const useBoardStore = create<BoardStore>(set => ({
     setCategory: (category) => set(state => ({ ...state, category })),
     setBoardImageFileList: (boardImageFileList) => set(state => ({ ...state, boardImageFileList })),
     resetBoard: () => set(state => ({ ...state, title: '', content: '', boardImageFileList: []})),
+    imageInputRef: React.createRef<HTMLInputElement>(),
 }));
 
 export default useBoardStore;

@@ -271,14 +271,17 @@ export default function Header() {
             } else {
                 if (!boardNumber) return;
                 const requestBody: PatchBoardRequestDto = {
-                    title, content, category, boardImageList
+                    title,
+                    content: updatedContent,
+                    category,
+                    boardImageList
                 }
                 patchBoardRequest(boardNumber, requestBody, accessToken).then(patchBoardResponse);
             }
         };
 
         //  render: 업로드 버튼 컴포넌트 렌더링 //
-        if (title && content)
+        if (title && content && category)
         return <div className='black-button' onClick={onUploadButtonClickHandler}>{'업로드'}</div>;
         //  render: 업로드 불가 버튼 컴포넌트 렌더링 //
         return <div className='disable-button'>{'업로드'}</div>;

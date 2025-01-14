@@ -9,14 +9,17 @@
 .board-write-image-box {
     width: 100%;
     position: relative;
+    display: inline-block;
 }
 
 .board-write-image {
     width: 100%;
+    height: auto;
 }
 
 .image-close {
     position: absolute;
     top: 20px;
     right: 20px;
+    cursor: pointer;
 }

@@ -11,28 +11,3 @@ export const customStyleMap = Object.keys(ColorMap).reduce((map, key) => {
     }
     return map;
 }, {} as Record<string, { color?: string; backgroundColor?: string }>);
-
-
-// function: prismjs blockRendererFn 정의 //
-// export const blockRendererFn = (contentBlock: { getType: () => any; }) => {
-//     const type = contentBlock.getType();
-//     if (type === "code-block") {
-//         return {
-//             component: (props: { block: any; contentState: any; }) => {
-//                 const { block, contentState } = props;
-//                 const text = block.getText();
-//                 const language = block.getData().get("language") || "java"; // 기본 언어 설정
-//                 useEffect(() => {
-//                     Prism.highlightAll(); // Prism.js로 하이라이트 적용
-//                 }, [text]);
-//                 return (
-//                     <pre className={`language-${language}`}>
-//                 <code>{text}</code>
-//                 </pre>
-//             );
-//             },
-//             editable: true,
-//         };
-//     }
-//     return null;
-// };

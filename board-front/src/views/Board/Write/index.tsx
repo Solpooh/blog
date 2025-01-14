@@ -1,17 +1,16 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import {useBoardStore, useEditorStore} from '../../../stores';
-import {AUTH_PATH, MAIN_PATH} from '../../../constants';
+import {AUTH_PATH} from '../../../constants';
 import {useNavigate} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import {
     AtomicBlockUtils, ContentBlock,
-    ContentState,
     convertToRaw,
     EditorState,
     getDefaultKeyBinding,
     Modifier,
-    RichUtils, SelectionState
+    RichUtils
 } from 'draft-js';
 import Editor from '@draft-js-plugins/editor';
 import createToolbarPlugin, {
@@ -49,8 +48,7 @@ export default function BoardWrite() {
     //  state: 제목 영역 요소 참조 상태 //
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
     //  state: 이미지 입력 요소 참조 상태 //
-    const imageInputRef = useRef<HTMLInputElement | null>(null);
-
+    const { imageInputRef } = useBoardStore();
     //  state: 게시물 상태 //
     const { title, setTitle } = useBoardStore();
     const { content, setContent } = useBoardStore();
@@ -60,6 +58,7 @@ export default function BoardWrite() {
 
     //  state: EditorState 상태 //
     const { editorState, setEditorState, resetEditorState } = useEditorStore();
+
     //  state: 쿠키 상태 //
     const [cookies, setCookies] = useCookies();
 
@@ -78,12 +77,11 @@ export default function BoardWrite() {
     //  function: CodeBlock에서 'Enter' 및 'Tab' 키 처리 함수 //
     const handleKeyCommand = (command: string): 'handled' | 'not-handled' => {
         const blockType = RichUtils.getCurrentBlockType(editorState);
+        const currentContent = editorState.getCurrentContent();
+        const selection = editorState.getSelection();
 
         // Code Block에서 Enter 및 Tab 처리
         if (blockType === 'code-block') {
-            const currentContent = editorState.getCurrentContent();
-            const selection = editorState.getSelection();
-
             if (command === 'enter') {
                 const newContent = Modifier.insertText(currentContent, selection, '\n');
                 setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
@@ -96,6 +94,7 @@ export default function BoardWrite() {
                 return 'handled';
             }
         }
+
         // 기본 동작 유지
         return RichUtils.handleKeyCommand(editorState, command)
             ? 'handled'
@@ -128,16 +127,15 @@ export default function BoardWrite() {
         titleRef.current.style.height = 'auto';
         titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
     }
+
     //  event handler: editor 내용 변경 이벤트 처리  //
     const onEditorChangeHandler = (state: EditorState) => {
-        if (editorState !== state) {
-            setEditorState(state);
-        }
+        setEditorState(state);
 
-        // JSON으로 저장해야 포맷팅 정보 포함 가능
         const rawContent = JSON.stringify(convertToRaw(state.getCurrentContent()));
         setContent(rawContent);
-    }
+    };
+
     //  event handler: 이미지 변경 이벤트 처리  //
     const onImageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || !event.target.files.length) return;
@@ -155,23 +153,26 @@ export default function BoardWrite() {
             newImageUrls.push({ id, url: imageUrl });
             newBoardImageFileList.push({ id, file });
 
-            // Entity 생성
+            // 기존 contentState를 가져오고 Entity 생성
             const contentStateWithEntity = newEditorState
                 .getCurrentContent()
                 .createEntity('IMAGE', 'IMMUTABLE', { src: imageUrl, id: id });
+
             const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
-            // AtomicBlock 삽입
-            newEditorState = AtomicBlockUtils.insertAtomicBlock(
-                EditorState.set(newEditorState, { currentContent: contentStateWithEntity }),
-                entityKey,
-                ' ', // AtomicBlock 뒤에 삽입할 공백
-            );
+            // 새로운 ContentState를 EditorState에 반영
+            const updatedEditorState = EditorState.set(newEditorState, {
+                currentContent: contentStateWithEntity,
+            });
+
+            setEditorState(
+                AtomicBlockUtils.insertAtomicBlock(updatedEditorState, entityKey, ' '),
+            )
         });
 
         setImageUrls(newImageUrls);
         setBoardImageFileList(newBoardImageFileList);
-        setEditorState(newEditorState);
+        // setEditorState(newEditorState);
 
         if (!imageInputRef.current) return;
         // 똑같은 이미지 새로운 등록을 위해 초기화
@@ -182,83 +183,6 @@ export default function BoardWrite() {
         if (!imageInputRef.current) return;
         imageInputRef.current.click();
     }
-    //  event handler: 이미지 닫기 버튼 클릭 이벤트 처리 //
-    const onImageCloseButtonClickHandler = (deleteId: string) => {
-        if (!imageInputRef.current) return;
-        imageInputRef.current.value = '';
-
-        // 미리보기 이미지 URL 삭제
-        const newImageUrls = imageUrls.filter((image) => image.id !== deleteId);
-        setImageUrls(newImageUrls);
-
-        // 업로드할 파일 객체 리스트에서 해당 파일 삭제
-        const newBoardImageFileList = boardImageFileList.filter((file) => file.id !== deleteId);
-        setBoardImageFileList(newBoardImageFileList);
-
-        // EditorState에서 해당 이미지를 제거 (AtomicBlock 삭제)
-        const contentState = editorState.getCurrentContent();
-        const blockMap = contentState.getBlockMap();
-
-        // blockMap에서 deleteId에 해당하는 블록 찾기
-        const blockToDelete = blockMap.find((block) => {
-            // @ts-ignore
-            const entityKey = block.getEntityAt(0);
-            if (entityKey) {
-                const entityData = contentState.getEntity(entityKey).getData();
-                return entityData?.id === deleteId;
-            }
-            return false;
-        });
-
-
-        // 삭제하려는 블록이 존재하지 않으면 종료
-        if (!blockToDelete) {
-            console.warn('Block not found for id:', deleteId);
-            return;
-        }
-
-        const blockKey = blockToDelete.getKey();
-
-        // 해당 블록의 SelectionState 생성
-        const blockSelection = SelectionState.createEmpty(blockKey).merge({
-            anchorOffset: 0,
-            focusOffset: blockToDelete.getLength(),
-        });
-
-        // Modifier를 이용해 블록 삭제
-        const contentStateWithoutBlock = Modifier.removeRange(
-            contentState,
-            blockSelection,
-            'backward'
-        );
-
-        // 삭제된 블록의 공백 제거
-        const selectionAfterDelete = SelectionState.createEmpty(blockKey).merge({
-            anchorOffset: 0,
-            focusOffset: 1, // 공백 문자를 선택
-        });
-
-        const contentStateCleaned = Modifier.removeRange(
-            contentStateWithoutBlock,
-            selectionAfterDelete,
-            'forward'
-        );
-
-        // 새로운 unstyled 블록으로 변환
-        const newContentState = Modifier.setBlockType(
-            contentStateCleaned,
-            blockSelection,
-            'unstyled'
-        );
-
-        const newEditorState = EditorState.push(
-            editorState,
-            newContentState,
-            'remove-range'
-        );
-
-        setEditorState(newEditorState);
-    };
 
     //  effect: 마운트시 실행할 함수 //
     useEffect(() => {
@@ -274,6 +198,7 @@ export default function BoardWrite() {
         resetEditorState();
     }, []);
 
+    //  effect: imageUrl 메모리에서 해제 //
     useEffect(() => {
         return () => {
             imageUrls.forEach(image => URL.revokeObjectURL(image.url));
@@ -282,39 +207,54 @@ export default function BoardWrite() {
 
 
     //  render: 이미지 미리보기 컴포넌트 렌더링 //
-    const cachedSrc: Record<string, string> = {}; // 블록 데이터 캐시
+    // const blockRendererFn = (contentBlock: ContentBlock) => {
+    //     const blockKey = contentBlock.getKey();
+    //     if (blockCache.current.has(blockKey)) {
+    //         return blockCache.current.get(blockKey);
+    //     }
+    //
+    //     if (contentBlock.getType() !== "atomic") return null;
+    //
+    //     const entityKey = contentBlock.getEntityAt(0);
+    //     if (!entityKey) return null;
+    //
+    //     const contentState = editorState.getCurrentContent();
+    //     const entityData = contentState.getEntity(entityKey).getData();
+    //
+    //     const block = {
+    //         component: (props: any) => (
+    //             <ImageBlock
+    //                 {...props}
+    //                 src={entityData.src}
+    //                 id={entityData.id}
+    //                 onRemove={onImageCloseButtonClickHandler}
+    //             />
+    //         ),
+    //         editable: false,
+    //     };
+    //
+    //     blockCache.current.set(blockKey, block);
+    //     return block;
+    // };
+
+    //  render: 이미지 미리보기 컴포넌트 렌더링 //
     const blockRendererFn = (contentBlock: ContentBlock) => {
-        const blockKey = contentBlock.getKey();
-        const contentState = editorState.getCurrentContent();
-        const entityKey = contentBlock.getEntityAt(0);
+        if (contentBlock.getType() === 'atomic') {
+            const contentState = editorState.getCurrentContent();
+            const entity = contentBlock.getEntityAt(0);
 
-        // 블록 타입이 'atomic'이면서 엔티티가 존재하는 경우 처리
-        if (contentBlock.getType() === "atomic" && entityKey) {
-            const entityData = contentState.getEntity(entityKey).getData();
+            if (!entity) return null;
 
-            // 이미지 src가 변경되지 않았다면 렌더링하지 않음
-            if (entityData.src === cachedSrc[blockKey]) {
-                return null;
+            const type = contentState.getEntity(entity).getType();
+            if (type === 'IMAGE') {
+                return {
+                    component: ImageBlock,
+                    editable: false,
+                }
             }
-
-            // 새로운 src 데이터 캐싱
-            cachedSrc[blockKey] = entityData.src;
-
-            return {
-                component: (props: any) => (
-                    <ImageBlock
-                        src={entityData.src}
-                        id={entityData.id}
-                        onRemove={onImageCloseButtonClickHandler}
-                    />
-                ),
-                editable: false,
-            };
         }
-
-        return null; // 다른 블록은 렌더링하지 않음
-    };
-
+        return null;
+    }
     //  render: 게시물 작성 화면 컴포넌트 렌더링 //
     return (
         <div id='board-write-wrapper'>
