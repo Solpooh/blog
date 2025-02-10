@@ -198,14 +198,6 @@ export default function BoardWrite() {
         resetEditorState();
     }, []);
 
-    //  effect: imageUrl 메모리에서 해제 //
-    useEffect(() => {
-        return () => {
-            imageUrls.forEach(image => URL.revokeObjectURL(image.url));
-        };
-    }, [imageUrls]);
-
-
     //  render: 이미지 미리보기 컴포넌트 렌더링 //
     // const blockRendererFn = (contentBlock: ContentBlock) => {
     //     const blockKey = contentBlock.getKey();
@@ -255,6 +247,14 @@ export default function BoardWrite() {
         }
         return null;
     }
+
+    const blockStyleFn = (contentBlock: any) => {
+        if (contentBlock.getType() === "code-block") {
+            return "custom-code-block";
+        }
+        return "";
+    };
+
     //  render: 게시물 작성 화면 컴포넌트 렌더링 //
     return (
         <div id='board-write-wrapper'>
@@ -265,8 +265,21 @@ export default function BoardWrite() {
                             <select className='category-select' value={category} onChange={onCategoryChangeHandler}>
                                 <option value="">게시판을 선택해 주세요</option>
                                 <option value="java">Java</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="sql">SQL</option>
                                 <option value="spring">Spring</option>
+                                <option value="spring-boot">Spring Boot</option>
+                                <option value="spring-security">Spring Security</option>
+                                <option value="mybatis">MyBatis</option>
+                                <option value="jpa">JPA</option>
+                                <option value="git">Git</option>
                                 <option value="AWS">AWS</option>
+                                <option value="computer-science">Computer Science</option>
+                                <option value="network">Network</option>
+                                <option value="문제해결">문제해결</option>
+                                <option value="동기부여">동기부여</option>
+                                <option value="알고리즘">알고리즘</option>
+                                <option value="포트폴리오">포트폴리오</option>
                             </select>
                         </div>
                         <textarea ref={titleRef} className='board-write-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler}/>
@@ -280,6 +293,7 @@ export default function BoardWrite() {
                                 keyBindingFn={keyBindingFn}
                                 handleKeyCommand={handleKeyCommand}
                                 blockRendererFn={blockRendererFn}
+                                blockStyleFn={blockStyleFn}
                                 plugins={plugins}
                                 customStyleMap={customStyleMap}
                             />

@@ -45,7 +45,7 @@ public class BoardListItem {
     // JSON 데이터를 문자열로 변환하는 메서드
     private String parseContent(String content) {
         try {
-            // JSON 문자열을 JsonNode로 파싱
+            // JSON 문자열을 JsonNode로 변환
             JsonNode parsedContent = new ObjectMapper().readTree(content);
 
             // "blocks" 필드에서 배열 데이터 추출

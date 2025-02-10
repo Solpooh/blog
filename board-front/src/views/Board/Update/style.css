@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap');
+
 #board-update-wrapper {
     border-top: 1px solid rgba(0, 0, 0, 0.2);
 
@@ -125,4 +127,16 @@
 .headlineButton:hover,
 .headlineButton:focus {
     background: #f3f3f3;
+}
+
+.custom-code-block {
+    font-family: "JetBrains Mono", "Source Code Pro", monospace;
+    font-size: 17px;
+    background: #282c34;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #4d4d4d;
+    line-height: 1.2;
+    overflow-x: auto;
 }

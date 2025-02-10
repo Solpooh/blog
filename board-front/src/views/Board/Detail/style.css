@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap');
+
 #board-detail-wrapper {
     padding: 100px 0;
 
@@ -255,4 +257,16 @@
 .board-detail-bottom-comment-button-box {
     display: flex;
     justify-content: flex-end;
+}
+
+.custom-code-block {
+    font-family: "JetBrains Mono", "Source Code Pro", monospace;
+    font-size: 17px;
+    background: #282c34;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #4d4d4d;
+    line-height: 1.2;
+    overflow-x: auto;
 }

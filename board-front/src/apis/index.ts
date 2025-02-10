@@ -29,8 +29,8 @@ import {
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
 
-const DOMAIN = 'http://localhost:4000/api';
-// const DOMAIN = 'https://devhubs.site/api';
+// const DOMAIN = 'http://localhost:4000/api';
+const DOMAIN = 'https://devhubs.site/api';
 const API_DOMAIN = `${DOMAIN}/v1`;
 
 const authorization = (accessToken: string) => {
@@ -365,8 +365,8 @@ export const patchProfileImageRequest = async (requestBody: PatchProfileImageReq
     return result;
 };
 
-//const FILE_DOMAIN = 'https://devhubs.site/file';
-const FILE_DOMAIN = `http://localhost:4000/file`;
+const FILE_DOMAIN = 'https://devhubs.site/file';
+// const FILE_DOMAIN = `http://localhost:4000/file`;
 
 const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;
 

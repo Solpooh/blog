@@ -167,6 +167,13 @@ export default function BoardDetail() {
             }
         };
 
+        const blockStyleFn = (contentBlock: any) => {
+            if (contentBlock.getType() === "code-block") {
+                return "custom-code-block";
+            }
+            return "";
+        };
+
         //  render: 게시물 상세 상단 컴포넌트 렌더링 //
         if (!board) return <></>
         return (
@@ -200,6 +207,7 @@ export default function BoardDetail() {
                         <Editor editorState={editorState}
                                 onChange={() => {}}
                                 blockRendererFn={blockRendererFn}
+                                blockStyleFn={blockStyleFn}
                                 customStyleMap={customStyleMap}
                                 readOnly={true}
                         />

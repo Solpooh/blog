@@ -28,7 +28,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'mysql:mysql-connector-java:8.0.33'  // 최신 버전으로 업데이트 가능
+    // Hibernate 관련 추가
+    implementation 'org.hibernate:hibernate-core:6.5.2.Final'
+    implementation 'org.hibernate.common:hibernate-commons-annotations:6.0.6.Final'
 
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
@@ -42,7 +44,6 @@ dependencies {
 
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
     implementation 'software.amazon.awssdk:s3:2.29.29'
-
 }
 
 tasks.named('test') {

@@ -17,6 +17,7 @@ public class ImageBatch {
     private final ImageRepository imageRepository;
 
     @Scheduled(cron = "0 0 12 * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
     public void cleanUpImages() {
         System.out.println("Batch 작업 실행 !!");
         List<ImageEntity> deleteImages = imageRepository.getDeleteImage();

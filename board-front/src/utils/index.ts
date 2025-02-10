@@ -26,10 +26,10 @@ export const convertUrlToFile = async (s3Url: string) => {
 };
 
 export const convertUrlsToFile = async (s3Urls: ImageUrl[]) => {
-    const files: BoardImageFile[] = [];
-    for (const { id, url } of s3Urls) {
-        const file = await convertUrlToFile(url);
-        files.push({ id, file });
-    }
-    return files;
+    const filePromises = s3Urls.map(async ({ id, url }) => ({
+        id,
+        file: await convertUrlToFile(url),
+    }));
+
+    return Promise.all(filePromises);
 }
