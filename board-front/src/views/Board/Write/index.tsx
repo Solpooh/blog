@@ -276,6 +276,7 @@ export default function BoardWrite() {
                                 <option value="AWS">AWS</option>
                                 <option value="computer-science">Computer Science</option>
                                 <option value="network">Network</option>
+                                <option value="react">React</option>
                                 <option value="문제해결">문제해결</option>
                                 <option value="동기부여">동기부여</option>
                                 <option value="알고리즘">알고리즘</option>
