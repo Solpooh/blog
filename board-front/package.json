@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@draft-js-plugins/anchor": "^4.2.1",
     "@draft-js-plugins/editor": "^4.1.4",
     "@draft-js-plugins/inline-toolbar": "^4.2.1",
     "@draft-js-plugins/static-toolbar": "^4.1.4",

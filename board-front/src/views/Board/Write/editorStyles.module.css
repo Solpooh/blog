@@ -55,3 +55,12 @@ pre {
     margin: 16px 0; /* 위아래 간격 */
     line-height: 1.5; /* 줄 간격 */
 }
+
+.toolbarContainer {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1000;
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+}

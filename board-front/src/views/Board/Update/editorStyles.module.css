@@ -41,3 +41,25 @@ blockquote {
     background-color: #f9f9f9; /* 배경색 추가 */
     color: #333; /* 텍스트 색상 */
 }
+/* 코드 블록 스타일 */
+pre {
+    display: block;
+    background-color: #2e3440; /* 다크 배경 */
+    color: #d8dee9; /* 텍스트 색상 */
+    padding: 16px; /* 여백 */
+    border-radius: 4px; /* 모서리 둥글게 */
+    font-family: 'Courier New', Courier, monospace; /* 고정폭 폰트 */
+    font-size: 14px; /* 폰트 크기 */
+    overflow-x: auto; /* 가로 스크롤 활성화 */
+    margin: 16px 0; /* 위아래 간격 */
+    line-height: 1.5; /* 줄 간격 */
+}
+
+.toolbarContainer {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1000;
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+}

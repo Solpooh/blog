@@ -320,39 +320,43 @@ export default function BoardWrite() {
                     <div className='divider'></div>
                     <div className='board-update-content-box'>
                         <div className={editorStyles.editor}>
-                            <Editor
-                                editorState={editorState}
-                                onChange={onEditorChangeHandler}
-                                keyBindingFn={keyBindingFn}
-                                handleKeyCommand={handleKeyCommand}
-                                blockRendererFn={blockRendererFn}
-                                blockStyleFn={blockStyleFn}
-                                plugins={plugins}
-                                customStyleMap={customStyleMap}
-                            />
-                            <Toolbar>
-                                {(externalProps) => (
-                                    <>
-                                        <BoldButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <ItalicButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <UnderlineButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <CodeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <Separator />
-                                        <HeadlineOneButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <HeadlineTwoButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <HeadlineThreeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <UnorderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <OrderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <BlockquoteButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <CodeBlockButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
-                                        <Separator />
-                                        <ColorButton
-                                            getEditorState={getEditorState}
-                                            setEditorState={setEditorStateHandler}
-                                        />
-                                    </>
-                                )}
-                            </Toolbar>
+                            {/* 🛠️ 툴바를 고정하는 컨테이너 */}
+                            <div className={editorStyles.toolbarContainer}>
+                                <Toolbar>
+                                    {(externalProps) => (
+                                        <>
+                                            <BoldButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <ItalicButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <UnderlineButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <CodeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <Separator />
+                                            <HeadlineOneButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <HeadlineTwoButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <HeadlineThreeButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <UnorderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <OrderedListButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <BlockquoteButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <CodeBlockButton {...externalProps} getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                            <Separator />
+                                            <ColorButton getEditorState={getEditorState} setEditorState={setEditorStateHandler} />
+                                        </>
+                                    )}
+                                </Toolbar>
+                            </div>
+
+                            {/* ✍️ 에디터 영역 */}
+                            <div className={editorStyles.editor}>
+                                <Editor
+                                    editorState={editorState}
+                                    onChange={onEditorChangeHandler}
+                                    keyBindingFn={keyBindingFn}
+                                    handleKeyCommand={handleKeyCommand}
+                                    blockRendererFn={blockRendererFn}
+                                    blockStyleFn={blockStyleFn}
+                                    plugins={plugins}
+                                    customStyleMap={customStyleMap}
+                                />
+                            </div>
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>
                             <div className='icon image-box-light-icon'></div>
