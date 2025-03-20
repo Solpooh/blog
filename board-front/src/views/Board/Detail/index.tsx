@@ -398,15 +398,15 @@ export default function BoardDetail() {
     };
 
     //  effect: 게시물 번호 path variable이 바뀔때마다 게시물 조회수 증가 //
-    let effectFlag = true;
+    let effectFlag = false;
     useEffect(() => {
         if (!boardNumber) return;
         if (effectFlag) {
-            effectFlag = false;
             return;
         }
 
         increaseViewCountRequest(boardNumber).then(increaseViewCountResponse);
+        effectFlag = true;
     }, [boardNumber])
 
     //  render: 게시물 상세 화면 컴포넌트 렌더링 //

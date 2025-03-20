@@ -16,8 +16,7 @@ import {fileUploadRequest, patchBoardRequest, postBoardRequest} from '../../apis
 import {PatchBoardRequestDto, PostBoardRequestDto} from '../../apis/request/board';
 import {PatchBoardResponseDto, PostBoardResponseDto} from '../../apis/response/board';
 import {ResponseDto} from '../../apis/response';
-import {ContentBlock, convertToRaw, EditorState} from 'draft-js';
-import {ImageUrl} from "../../types/interface";
+import { convertToRaw, EditorState} from 'draft-js';
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -210,78 +209,84 @@ export default function Header() {
                 return;
             }
 
-            try {
-                // 모든 업로드 요청을 병렬로 처리
-                const uploadPromises = boardImageFileList.map((file) => {
-                    const data = new FormData();
-                    data.append('file', file.file);
-                    return fileUploadRequest(data); // 비동기 업로드 요청
-                });
+            const boardImageList: string[] = [];
 
-                // 업로드 결과 URL 리스트를 boardImageList에 할당
-                const uploadResults = await Promise.all(uploadPromises);
-                const boardImageList = uploadResults.filter(
-                    (url): url is string => url !== null
-                );
+            for (const file of boardImageFileList) {
+                const data = new FormData();
+                data.append('file', file.file);
 
-                // 기존 editorState에서 이미지 URL을 실제 S3 URL로 교체
-                let newEditorState = editorState;
-                const contentState = newEditorState.getCurrentContent();
-                const blockMap = contentState.getBlockMap();
+                const url = await fileUploadRequest(data);
+                if (url) boardImageList.push(url);
+            }
+            // // 모든 업로드 요청을 병렬로 처리
+            // const uploadPromises = boardImageFileList.map((file) => {
+            //     const data = new FormData();
+            //     data.append('file', file.file);
+            //     return fileUploadRequest(data); // 비동기 업로드 요청
+            // });
+            // console.log(uploadPromises)
+            //
+            // // 업로드 결과 URL 리스트를 boardImageList에 할당
+            // const uploadResults = await Promise.all(uploadPromises);
+            // console.log(uploadResults)
+            // const boardImageList = uploadResults.filter(
+            //     (url): url is string => url !== null
+            // );
 
-                let imageIndex = 0;
+            // 기존 editorState에서 이미지 URL을 실제 S3 URL로 교체
+            let newEditorState = editorState;
+            const contentState = newEditorState.getCurrentContent();
+            const blockMap = contentState.getBlockMap();
 
-                blockMap.forEach((block: any) => {
-                    const entityKey = block.getEntityAt(0);
+            let imageIndex = 0;
 
-                    if (entityKey) {
-                        const entity = contentState.getEntity(entityKey);
-                        const entityData = entity.getData();
+            blockMap.forEach((block: any) => {
+                const entityKey = block.getEntityAt(0);
 
-                        if (entity.getType() === 'IMAGE' && boardImageList[imageIndex]) {
-                            const newImageUrl = boardImageList[imageIndex]; // index로 접근
-                            imageIndex++; // 다음 URL로 이동
+                if (entityKey) {
+                    const entity = contentState.getEntity(entityKey);
+                    const entityData = entity.getData();
 
-                            const newEntityData = { ...entityData, src: newImageUrl };
-                            const contentStateWithUpdatedEntity = contentState.replaceEntityData(entityKey, newEntityData);
+                    if (entity.getType() === 'IMAGE' && boardImageList[imageIndex]) {
+                        const newImageUrl = boardImageList[imageIndex]; // index로 접근
+                        imageIndex++; // 다음 URL로 이동
 
-                            newEditorState = EditorState.push(
-                                newEditorState,
-                                contentStateWithUpdatedEntity,
-                                'apply-entity'
-                            );
-                        }
+                        const newEntityData = {...entityData, src: newImageUrl};
+                        const contentStateWithUpdatedEntity = contentState.replaceEntityData(entityKey, newEntityData);
+
+                        newEditorState = EditorState.push(
+                            newEditorState,
+                            contentStateWithUpdatedEntity,
+                            'apply-entity'
+                        );
                     }
-                });
-
-                // JSON 변환
-                const updatedContent = JSON.stringify(
-                    convertToRaw(newEditorState.getCurrentContent())
-                );
-
-                // 작성 페이지 여부 확인 후 요청 전송
-                const isWritePage = pathname === BOARD_PATH() + '/' + BOARD_WRITE_PATH();
-                if (isWritePage) {
-                    const requestBody: PostBoardRequestDto = {
-                        title,
-                        content: updatedContent, // 업데이트된 content 반영
-                        category,
-                        boardImageList,
-                    };
-                    postBoardRequest(requestBody, accessToken).then(postBoardResponse);
-                } else {
-                    if (!boardNumber) return;
-                    const requestBody: PatchBoardRequestDto = {
-                        title,
-                        content: updatedContent,
-                        category,
-                        boardImageList,
-                    };
-                    patchBoardRequest(boardNumber, requestBody, accessToken).then(patchBoardResponse);
                 }
-            } catch (error) {
-                console.error("파일 업로드 중 오류 발생:", error);
-                alert("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+            });
+
+            // JSON 변환
+            const updatedContent = JSON.stringify(
+                convertToRaw(newEditorState.getCurrentContent())
+            );
+
+            // 작성 페이지 여부 확인 후 요청 전송
+            const isWritePage = pathname === BOARD_PATH() + '/' + BOARD_WRITE_PATH();
+            if (isWritePage) {
+                const requestBody: PostBoardRequestDto = {
+                    title,
+                    content: updatedContent, // 업데이트된 content 반영
+                    category,
+                    boardImageList,
+                };
+                postBoardRequest(requestBody, accessToken).then(postBoardResponse);
+            } else {
+                if (!boardNumber) return;
+                const requestBody: PatchBoardRequestDto = {
+                    title,
+                    content: updatedContent,
+                    category,
+                    boardImageList,
+                };
+                patchBoardRequest(boardNumber, requestBody, accessToken).then(patchBoardResponse);
             }
         };
 

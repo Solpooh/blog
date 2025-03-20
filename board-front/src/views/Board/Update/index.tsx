@@ -85,7 +85,7 @@ export default function BoardWrite() {
     const navigator = useNavigate();
 
     //  function: get board response 처리 함수 //
-    const getBoardResponse = (responseBody: GetBoardResponseDto | ResponseDto | null) => {
+    const getBoardResponse = async (responseBody: GetBoardResponseDto | ResponseDto | null) => {
         if (!responseBody) return;
         const { code } = responseBody;
         if (code === 'NB') alert('존재하지 않는 게시물입니다.');
@@ -113,7 +113,9 @@ export default function BoardWrite() {
         setTitle(title);
         setCategory(category);
         // convertUrlsToFile(imageUrls).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
-        console.log(boardImageFileList)
+        // const boardImageFileList = await convertUrlsToFile(imageUrls);
+        // console.log(boardImageFileList)
+        // setBoardImageFileList(boardImageFileList);
 
         const contentState = convertFromRaw(JSON.parse(content));
         const editorState = EditorState.createWithContent(contentState); // ContentState -> EditorState
@@ -257,9 +259,9 @@ export default function BoardWrite() {
         }
     }, [boardNumber]);
 
-    useEffect(() => {
-        convertUrlsToFile(imageUrls).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
-    }, [imageUrls]);
+    // useEffect(() => {
+    //     convertUrlsToFile(imageUrls).then(boardImageFileList => setBoardImageFileList(boardImageFileList));
+    // }, []);
 
     //  render: 이미지 미리보기 컴포넌트 렌더링 //
     const blockRendererFn = (contentBlock: ContentBlock) => {

@@ -33,7 +33,6 @@ import {
 import editorStyles from './editorStyles.module.css';
 import {ColorButton} from '../../../components/ColorButton';
 import {customStyleMap} from '../../../plugins';
-import 'prismjs/themes/prism.css';
 import {ImageUrl} from 'types/interface';
 import ImageBlock from 'components/ImageBlock';
 
@@ -44,7 +43,6 @@ const plugins = [toolbarPlugin];
 
 //  component: 게시물 작성 화면 컴포넌트 //
 export default function BoardWrite() {
-
     //  state: 제목 영역 요소 참조 상태 //
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
     //  state: 이미지 입력 요소 참조 상태 //
@@ -134,6 +132,8 @@ export default function BoardWrite() {
 
         const rawContent = JSON.stringify(convertToRaw(state.getCurrentContent()));
         setContent(rawContent);
+
+        // console.log(editorState.getCurrentContent().getPlainText());
     };
 
     //  event handler: 이미지 변경 이벤트 처리  //
@@ -197,37 +197,6 @@ export default function BoardWrite() {
         resetBoard();
         resetEditorState();
     }, []);
-
-    //  render: 이미지 미리보기 컴포넌트 렌더링 //
-    // const blockRendererFn = (contentBlock: ContentBlock) => {
-    //     const blockKey = contentBlock.getKey();
-    //     if (blockCache.current.has(blockKey)) {
-    //         return blockCache.current.get(blockKey);
-    //     }
-    //
-    //     if (contentBlock.getType() !== "atomic") return null;
-    //
-    //     const entityKey = contentBlock.getEntityAt(0);
-    //     if (!entityKey) return null;
-    //
-    //     const contentState = editorState.getCurrentContent();
-    //     const entityData = contentState.getEntity(entityKey).getData();
-    //
-    //     const block = {
-    //         component: (props: any) => (
-    //             <ImageBlock
-    //                 {...props}
-    //                 src={entityData.src}
-    //                 id={entityData.id}
-    //                 onRemove={onImageCloseButtonClickHandler}
-    //             />
-    //         ),
-    //         editable: false,
-    //     };
-    //
-    //     blockCache.current.set(blockKey, block);
-    //     return block;
-    // };
 
     //  render: 이미지 미리보기 컴포넌트 렌더링 //
     const blockRendererFn = (contentBlock: ContentBlock) => {
