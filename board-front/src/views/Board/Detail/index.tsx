@@ -397,7 +397,7 @@ export default function BoardDetail() {
         );
     };
 
-    //  effect: 게시물 번호 path variable이 바뀔때마다 게시물 조회수 증가 //
+    //  effect: 게시물 번호 path variable이 바뀔때마다 게시물 조회수 증가  //
     let effectFlag = false;
     useEffect(() => {
         if (!boardNumber) return;

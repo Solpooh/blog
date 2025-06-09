@@ -29,6 +29,8 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 140%;
+
+    cursor: pointer;
 }
 
 .comment-list-item-divider {

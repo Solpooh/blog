@@ -47,22 +47,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // JWT 클레임에서 email 추출
             String email = jwtProvider.validate(token);
             if (email == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
-
+            // Spring Security의 인증 객체 생성
             AbstractAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.NO_AUTHORITIES);
-            // 웹인증 세부정보 구축
+            // 요청(Request)과 연결된 세부 인증 정보 설정
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // context 생성
+            // SecurityContext 생성 및 인증 정보 설정
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authenticationToken);
 
-            // 외부에서 사용가능하도록
+            // 외부에서 사용 가능하도록 컨텍스트 설정
             SecurityContextHolder.setContext(securityContext);
         } catch (Exception exception) {
             exception.printStackTrace();

@@ -1,5 +1,6 @@
 package com.solpooh.boardback.dto.object;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solpooh.boardback.entity.BoardListViewEntity;
@@ -47,7 +48,6 @@ public class BoardListItem {
         try {
             // JSON 문자열을 JsonNode로 변환
             JsonNode parsedContent = new ObjectMapper().readTree(content);
-
             // "blocks" 필드에서 배열 데이터 추출
             JsonNode blocks = parsedContent.get("blocks");
 
@@ -56,7 +56,7 @@ public class BoardListItem {
                     .map(block -> block.get("text").asText())
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(" "));
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             // JSON 파싱 실패 시 원본 content 반환
             return content;
         }

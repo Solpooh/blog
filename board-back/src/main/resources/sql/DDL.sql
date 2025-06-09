@@ -14,6 +14,7 @@ CREATE TABLE `board`
     `board_number`   INT         NOT NULL AUTO_INCREMENT COMMENT '게시물 번호' PRIMARY KEY,
     `title`          TEXT        NOT NULL COMMENT '게시물 제목',
     `content`        TEXT        NOT NULL COMMENT '게시물 내용',
+    `category`       TEXT        NOT NULL COMMENT '게시물 유형',
     `write_datetime` DATETIME    NOT NULL COMMENT '게시물 작성 날짜',
     `favorite_count` INT         NOT NULL DEFAULT 0 COMMENT '게시물 좋아요 수',
     `comment_count`  INT         NOT NULL DEFAULT 0 COMMENT '게시물 댓글 수',

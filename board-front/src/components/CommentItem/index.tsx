@@ -11,6 +11,8 @@ import {deleteCommentRequest, patchCommentRequest} from 'apis';
 import {PatchCommentResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import {DeleteCommentResponseDto} from '../../apis/response/board';
+import {USER_PATH} from "../../constants";
+import {Board} from "../../types/interface";
 
 interface Props {
     commentListItem: CommentListItem;
@@ -18,6 +20,8 @@ interface Props {
 
 //  component: Comment List Item 컴포넌트 //
 export default function CommentItem({ commentListItem }: Props) {
+    //  function:  네비게이트 함수  //
+    const navigator = useNavigate();
     //  function: 작성일 경과시간 함수  //
     const getElapsedTime = () => {
         const now = dayjs().add(9, 'hour');   // 한국과의 시차
@@ -33,6 +37,8 @@ export default function CommentItem({ commentListItem }: Props) {
 
     //  state: 로그인 상태  //
     const { loginUser } = useLoginUserStore();
+    //  state: board 상태  //
+    const [board, setBoard] = useState<Board | null>(null);
     //  state: properties  //
     const { commentNumber, nickname, profileImage, writeDatetime, content, userEmail } = commentListItem;
     //  state: 댓글 textarea 참조 상태  //
@@ -118,7 +124,12 @@ export default function CommentItem({ commentListItem }: Props) {
 
         deleteCommentRequest(boardNumber, commentNumber, accessToken).then(deleteCommentResponse);
     }
-
+    //  event handler: 닉네임 클릭 이벤트 처리 //
+    const onNicknameClickHandler = () => {
+        if (!board) return;
+        navigator(USER_PATH(board.writerEmail));
+    }
+    //  effect: 댓글 내용 수정 시마다 새롭게 시간 갱신  //
     useEffect(() => {
         setElapsedTime(getElapsedTime()); // 댓글 수정 후, 시간 갱신
     }, [editContent]);
@@ -149,7 +160,7 @@ export default function CommentItem({ commentListItem }: Props) {
                     <div className='comment-list-item-profile-box'>
                         <div className='comment-list-item-profile-image' style={{ backgroundImage: `url(${profileImage ? profileImage : defaultProfileImage})` }}></div>
                     </div>
-                    <div className='comment-list-item-nickname'>{nickname}</div>
+                    <div className='comment-list-item-nickname' onClick={onNicknameClickHandler}>{nickname}</div>
                     <div className='comment-list-item-divider'>{'\|'}</div>
                     <div className='comment-list-item-time'>{getElapsedTime()}</div>
                     {loginUser && loginUser.email === userEmail &&

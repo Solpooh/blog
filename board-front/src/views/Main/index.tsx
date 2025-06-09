@@ -70,12 +70,12 @@ export default function Main() {
         //  state: 선택한 카테고리 상태  //
         const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-        //  state: 페이지네이션 관련 상태 //
+        //  state: 페이지네이션 관련 상태  //
         const {
             currentPage, setCurrentPage, currentSection, setCurrentSection, viewList,
             viewPageList, totalSection, setTotalList
         } = usePagination<BoardListItem>(5);
-        //  state: 인기 검색어 리스트 상태 //
+        //  state: 인기 검색어 리스트 상태  //
         const [popularWordList, setPopularWordList] = useState<string[]>([]);
 
         //  function: get latest board list response 처리 함수 //
