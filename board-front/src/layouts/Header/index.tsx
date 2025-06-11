@@ -300,12 +300,16 @@ export default function Header() {
     return (
         <div id='header'>
             <div className='header-container'>
-                <div className='header-left-box' onClick={onLogoClickHandler}>
+                <div className='header-leftOne-box' onClick={onLogoClickHandler}>
                     <div className='icon-box'>
                         <div className='icon logo-dark-icon'></div>
                     </div>
                     <div className='header-logo'>{'DevHub'}</div>
                 </div>
+                <div className='header-leftTwo-box'>
+                    <div className='header-logo'>{'DevTube'}</div>
+                </div>
+
                 <div className='header-right-box'>
                     {(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}
                     {(isMainPage || isSearchPage || isBoardDetailPage || isUserPage) && <MyPageButton />}
