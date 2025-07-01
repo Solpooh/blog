@@ -1,0 +1,39 @@
+//  component: 유튜브 메인 화면 컴포넌트  //
+import {VideoListItem} from 'types/interface';
+import {useEffect, useState} from 'react';
+import VideoItem from 'components/VideoItem';
+import {getVideoListRequest} from "../../apis";
+import {GetVideoListResponseDto} from "../../apis/response/board";
+import {ResponseDto} from "../../apis/response";
+import "./style.css";
+export default function Youtube() {
+    //  state: 유튜브 최신 비디오 리스트 상태  //
+    const [videoList, setVideoList] = useState<VideoListItem[]>([]);
+
+    //  function: videoList response 처리 함수 //
+    const getVideoListResponse = (responseBody: GetVideoListResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') alert('데이터베이스 오류입니다.');
+        if (code !== 'SU') return;
+
+        const { videoList } = responseBody as GetVideoListResponseDto;
+        setVideoList(videoList);
+    }
+
+    //  effect: 첫 마운트 시 실행될 함수 //
+    useEffect(() => {
+        getVideoListRequest().then(getVideoListResponse);
+    }, []);
+
+    return (
+        <div className="youtube-wrapper">
+            <div className="youtube-header">
+                <h2>추천 유튜브 영상</h2>
+            </div>
+            <div className="video-grid">
+                {videoList.map(videoItem => <VideoItem key={videoItem.videoId} videoItem={videoItem} />)}
+            </div>
+        </div>
+    );
+}

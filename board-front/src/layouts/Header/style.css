@@ -10,18 +10,28 @@
     justify-content: space-between;
     align-items: center;
 }
-
-.header-leftOne-box {
+.header-left-box {
     display: flex;
     align-items: center;
-    gap: 4px;
-
+}
+.header-leftOne-box, .header-leftTwo-box {
+    display: flex;
+    align-items: center;
+    padding-right: 24px;
+    position: relative;
     cursor: pointer;
 }
-
+.header-leftTwo-box::before {
+    content: '|';
+    position: absolute;
+    right: 125px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+}
 .header-logo {
     color: rgba(0, 0, 0, 1);
-    font-family: 'GimhaeGaya';
+    font-family: 'GimhaeGaya', serif;
     font-size: 20px;
     font-weight: 400;
     line-height: 140%;
@@ -30,7 +40,6 @@
 
 .header-right-box {
     display: flex;
-    align-items: center;
     gap: 15px;
 }
 

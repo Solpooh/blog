@@ -15,15 +15,16 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH
+    USER_PATH, YOUTUBE_PATH
 } from './constants';
 import {Cookies, useCookies} from 'react-cookie';
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {useLoginUserStore} from './stores';
 import {getSignInUserRequest} from './apis';
 import {GetSignInUserResponseDto} from './apis/response/user';
 import {ResponseDto} from './apis/response';
 import {User} from './types/interface';
+import Youtube from './views/Youtube';
 
 
 //  component: Application 컴포넌트 //
@@ -63,22 +64,24 @@ function App() {
     //  description: 게시물 상세보기 : '/board/detail/:boardNumber' - BoardDetail //
     //  description: 게시물 작성하기 : '/board/write' - BoardWrite //
     //  description: 게시물 수정하기 : '/board/update/:boardNumber' - BoardUpdate //
-  return (
-      <Routes>
-          <Route element={<Container />}>
-              <Route path={MAIN_PATH()} element={<Main />} />
-              <Route path={AUTH_PATH()} element={<Authentication />} />
-              <Route path={SEARCH_PATH(':searchWord')} element={<Search />} />
-              <Route path={USER_PATH(':userEmail')} element={<UserP />} />x
-              <Route path={BOARD_PATH()}>
-                  <Route path={BOARD_WRITE_PATH()} element={<BoardWrite />} />
-                  <Route path={BOARD_DETAIL_PATH(':boardNumber')} element={<BoardDetail />} />
-                  <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate />} />
-              </Route>
-              <Route path='*' element={<h1>404 NOT FOUND</h1>} />
-          </Route>
-      </Routes>
-  );
+    //  description: 유튜브 비디오 화면 : '/youtube' - Youtube //
+    return (
+        <Routes>
+            <Route element={<Container/>}>
+                <Route path={MAIN_PATH()} element={<Main/>}/>
+                <Route path={AUTH_PATH()} element={<Authentication/>}/>
+                <Route path={SEARCH_PATH(':searchWord')} element={<Search/>}/>
+                <Route path={USER_PATH(':userEmail')} element={<UserP/>}/>x
+                <Route path={BOARD_PATH()}>
+                    <Route path={BOARD_WRITE_PATH()} element={<BoardWrite/>}/>
+                    <Route path={BOARD_DETAIL_PATH(':boardNumber')} element={<BoardDetail/>}/>
+                    <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
+                </Route>
+                <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
+                <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
+            </Route>
+        </Routes>
+    );
 }
 
 export default App;

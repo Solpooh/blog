@@ -8,7 +8,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH
+    USER_PATH, YOUTUBE_PATH
 } from '../../constants';
 import {useCookies} from 'react-cookie';
 import {useBoardStore, useEditorStore, useLoginUserStore} from '../../stores';
@@ -37,6 +37,7 @@ export default function Header() {
     const isBoardWritePage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_WRITE_PATH());
     const isBoardUpdatePage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_UPDATE_PATH(''));
     const isUserPage = pathname.startsWith(USER_PATH(''));
+    const isYoutubePage = pathname.startsWith(YOUTUBE_PATH());
 
     //  function: 네비게이트 함수 //
     const navigate = useNavigate();
@@ -44,6 +45,9 @@ export default function Header() {
     //  event handler: 로고 클릭 이벤트 처리 함수 //
     const onLogoClickHandler = () => {
         navigate(MAIN_PATH());
+    }
+    const onYoutubeClickHandler = () => {
+        navigate(YOUTUBE_PATH())
     }
 
     //  component: 검색 버튼 컴포넌트 //
@@ -218,20 +222,6 @@ export default function Header() {
                 const url = await fileUploadRequest(data);
                 if (url) boardImageList.push(url);
             }
-            // // 모든 업로드 요청을 병렬로 처리
-            // const uploadPromises = boardImageFileList.map((file) => {
-            //     const data = new FormData();
-            //     data.append('file', file.file);
-            //     return fileUploadRequest(data); // 비동기 업로드 요청
-            // });
-            // console.log(uploadPromises)
-            //
-            // // 업로드 결과 URL 리스트를 boardImageList에 할당
-            // const uploadResults = await Promise.all(uploadPromises);
-            // console.log(uploadResults)
-            // const boardImageList = uploadResults.filter(
-            //     (url): url is string => url !== null
-            // );
 
             // 기존 editorState에서 이미지 URL을 실제 S3 URL로 교체
             let newEditorState = editorState;
@@ -300,19 +290,20 @@ export default function Header() {
     return (
         <div id='header'>
             <div className='header-container'>
-                <div className='header-leftOne-box' onClick={onLogoClickHandler}>
-                    <div className='icon-box'>
-                        <div className='icon logo-dark-icon'></div>
+                <div className='header-left-box'>
+                    <div className='header-leftOne-box' onClick={onLogoClickHandler}>
+                        <div className='icon-box'>
+                            <div className='icon logo-dark-icon'></div>
+                        </div>
+                        <div className='header-logo'>{'DevHub'}</div>
                     </div>
-                    <div className='header-logo'>{'DevHub'}</div>
+                    <div className='header-leftTwo-box'>
+                        <div className='header-logo' onClick={onYoutubeClickHandler}>{'DevTube'}</div>
+                    </div>
                 </div>
-                <div className='header-leftTwo-box'>
-                    <div className='header-logo'>{'DevTube'}</div>
-                </div>
-
                 <div className='header-right-box'>
-                    {(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}
-                    {(isMainPage || isSearchPage || isBoardDetailPage || isUserPage) && <MyPageButton />}
+                    {(isMainPage || isSearchPage || isBoardDetailPage || isYoutubePage) && <SearchButton />}
+                    {(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}
                     {(isBoardWritePage || isBoardUpdatePage) && <UploadButton />}
                 </div>
             </div>

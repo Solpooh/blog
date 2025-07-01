@@ -1,4 +1,4 @@
-import { SignInRequestDto, SignUpRequestDto } from './request/auth';
+import {SignInRequestDto, SignUpRequestDto} from './request/auth';
 import axios from 'axios';
 import {SignInResponseDto, SignUpResponseDto} from './response/auth';
 import {ResponseDto} from './response';
@@ -8,26 +8,32 @@ import {
     PatchNicknameResponseDto,
     PatchProfileImageResponseDto
 } from './response/user';
-import {PatchBoardRequestDto, PostBoardRequestDto, PostCommentRequestDto, PatchCommentRequestDto} from './request/board';
 import {
-    PostBoardResponseDto,
-    GetBoardResponseDto,
-    IncreaseViewCountResponseDto,
-    GetFavoriteListResponseDto,
-    GetCommentListResponseDto,
-    PutFavoriteResponseDto,
-    PostCommentResponseDto,
+    PatchBoardRequestDto,
+    PatchCommentRequestDto,
+    PostBoardRequestDto,
+    PostCommentRequestDto
+} from './request/board';
+import {
     DeleteBoardResponseDto,
     DeleteCommentResponseDto,
+    GetBoardResponseDto,
+    GetCommentListResponseDto,
+    GetFavoriteListResponseDto,
+    GetLatestBoardListResponseDto,
+    GetSearchBoardListResponseDto,
+    GetTop3BoardListResponseDto,
+    GetUserBoardListResponseDto,
+    IncreaseViewCountResponseDto,
     PatchBoardResponseDto,
     PatchCommentResponseDto,
-    GetLatestBoardListResponseDto,
-    GetTop3BoardListResponseDto,
-    GetSearchBoardListResponseDto,
-    GetUserBoardListResponseDto
+    PostBoardResponseDto,
+    PostCommentResponseDto,
+    PutFavoriteResponseDto
 } from './response/board';
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
+import GetVideoListResponseDto from "./response/board/get-video-list.response.dto";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -383,3 +389,19 @@ export const fileUploadRequest = async (data: FormData) => {
         });
     return result;
 }
+
+const GET_VIDEO_LIST_URL = () => `${API_DOMAIN}/video`;
+
+export const getVideoListRequest = async () => {
+    const result = await axios.get(GET_VIDEO_LIST_URL())
+        .then(response => {
+            const responseBody: GetVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};

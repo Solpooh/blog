@@ -144,3 +144,11 @@ UPDATE user SET nickname = '수정 닉네임' WHERE email = 'email@email.com';
 
 -- 프로필 이미지 수정
 UPDATE user SET profile_image = 'url2' WHERE email = 'email@email.com';
+
+-- 최신 비디오 리스트 불러오기
+SELECT c.thumbnail, c.title, v.thumbnail, v.title, v.published_at
+FROM channel c
+INNER JOIN video v ON c.channel_id = v.channel_id
+WHERE c.category = 'dev' and  c.lang = 'ko'
+ORDER BY v.published_at DESC
+LIMIT 0, 20;

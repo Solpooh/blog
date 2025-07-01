@@ -13,7 +13,7 @@ import GetUserBoardListResponseDto from './get-user-board-list.response.dto';
 import IncreaseViewCountResponseDto from './increase-view-cout.response.dto';
 import GetLatestBoardListResponseDto from './get-latest-board-list.response.dto';
 import GetSearchBoardListResponseDto from './get-search-board-list.response.dto';
-
+import GetVideoListResponseDto from "./get-video-list.response.dto";
 export type {
     GetBoardResponseDto,
     PostBoardResponseDto,
@@ -23,6 +23,7 @@ export type {
     DeleteBoardResponseDto,
     PatchCommentResponseDto,
     DeleteCommentResponseDto,
+    GetVideoListResponseDto,
     GetCommentListResponseDto,
     GetFavoriteListResponseDto,
     GetTop3BoardListResponseDto,
