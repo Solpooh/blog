@@ -60,8 +60,6 @@ export default function Pagination(props: Props) {
                     <div className='icon expand-right-icon'></div>
                 </div>
             </div>
-
-
         </div>
     )
 }

@@ -3,6 +3,7 @@ package com.solpooh.boardback.service.implement;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.ActivityListResponse;
+import com.google.api.services.youtube.model.Video;
 import com.solpooh.boardback.dto.response.board.GetVideoListResponseDto;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
@@ -13,6 +14,8 @@ import com.solpooh.boardback.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +35,16 @@ public class VideoServiceImplement implements VideoService {
     private final ChannelRepository channelRepository;
 
     // GET: 모든 채널의 비디오 정보 가져오기
-    @Override
-    public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList() {
-        List<VideoEntity> videoEntities = videoRepository.findVideosByCategoryAndLang("dev", "ko");
+//    @Override
+//    public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList() {
+//        List<VideoEntity> videoEntities = videoRepository.getLatestVideo("dev", "ko");
+//
+//        return GetVideoListResponseDto.success(videoEntities);
+//    }
 
+    @Override
+    public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(Pageable pageable) {
+        Page<VideoEntity> videoEntities = videoRepository.getLatestVideo(pageable, "dev", "ko");
         return GetVideoListResponseDto.success(videoEntities);
     }
 

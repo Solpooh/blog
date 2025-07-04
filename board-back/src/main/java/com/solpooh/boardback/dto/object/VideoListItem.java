@@ -4,6 +4,7 @@ import com.solpooh.boardback.entity.VideoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoListItem {
+public class VideoListItem { // VideoDTO
     private String videoId;
     private String title;
     private String thumbnail;
@@ -30,7 +31,7 @@ public class VideoListItem {
         this.channelThumbnail = videoEntity.getChannel().getThumbnail();
     }
 
-    public static List<VideoListItem> getList(List<VideoEntity> videoEntities) {
+    public static List<VideoListItem> getPagedList(Page<VideoEntity> videoEntities) {
         List<VideoListItem> videoList = new ArrayList<>();
         for (VideoEntity videoEntity : videoEntities) {
             videoList.add(new VideoListItem(videoEntity));

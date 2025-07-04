@@ -2,10 +2,10 @@
 import {VideoListItem} from 'types/interface';
 import {useEffect, useState} from 'react';
 import VideoItem from 'components/VideoItem';
-import {getVideoListRequest} from "../../apis";
-import {GetVideoListResponseDto} from "../../apis/response/board";
-import {ResponseDto} from "../../apis/response";
-import "./style.css";
+import {getVideoListRequest} from 'apis';
+import {GetVideoListResponseDto} from 'apis/response/board';
+import {ResponseDto} from 'apis/response';
+import './style.css';
 export default function Youtube() {
     //  state: 유튜브 최신 비디오 리스트 상태  //
     const [videoList, setVideoList] = useState<VideoListItem[]>([]);
@@ -17,8 +17,8 @@ export default function Youtube() {
         if (code === 'DBE') alert('데이터베이스 오류입니다.');
         if (code !== 'SU') return;
 
-        const { videoList } = responseBody as GetVideoListResponseDto;
-        setVideoList(videoList);
+        const { pagination } = responseBody as GetVideoListResponseDto;
+        setVideoList(pagination.content);
     }
 
     //  effect: 첫 마운트 시 실행될 함수 //
