@@ -3,7 +3,7 @@ import './style.css';
 import FavoriteItem from 'components/FavoriteItem';
 import {CommentListItem, FavoriteListItem} from 'types/interface';
 import CommentItem from 'components/CommentItem';
-import Pagination from 'components/Pagination';
+import Pagination from 'components/Paging';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
 import {useEditorStore, useLoginUserStore} from 'stores';
 import {useNavigate, useParams} from 'react-router-dom';

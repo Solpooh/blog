@@ -3,7 +3,6 @@ import './style.css';
 import Top3Item from 'components/Top3Item';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
-import Pagination from 'components/Pagination';
 import {useNavigate} from 'react-router-dom';
 import {SEARCH_PATH} from '../../constants';
 import {
@@ -13,8 +12,9 @@ import {
 } from 'apis';
 import {GetLatestBoardListResponseDto, GetTop3BoardListResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
-import {usePagination} from 'hooks';
 import {GetPopularListResponseDto} from 'apis/response/search';
+import Pagination from 'types/interface/pagination.interface';
+import Paging from 'components/Paging';
 
 //  component: 메인 화면 컴포넌트 //
 export default function Main() {
@@ -70,11 +70,12 @@ export default function Main() {
         //  state: 선택한 카테고리 상태  //
         const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-        //  state: 페이지네이션 관련 상태  //
-        const {
-            currentPage, setCurrentPage, currentSection, setCurrentSection, viewList,
-            viewPageList, totalSection, setTotalList
-        } = usePagination<BoardListItem>(5);
+        //  state: 페이지네이션 상태 //
+        const [pagination, setPagination] = useState<Pagination<BoardListItem> | null>(null)
+        //  state: 현재 페이지 상태 //
+        const [currentPage, setCurrentPage] = useState<number>(1);
+        //  state: 최신글 리스트 상태  //
+        const [latestBoardList, setLatestBoardList] = useState<BoardListItem[]>([]);
         //  state: 인기 검색어 리스트 상태  //
         const [popularWordList, setPopularWordList] = useState<string[]>([]);
 
@@ -86,21 +87,21 @@ export default function Main() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { latestList } = responseBody as GetLatestBoardListResponseDto;
-
+            const { pagination } = responseBody as GetLatestBoardListResponseDto;
+            console.log(pagination.content);
             if (categoryName === 'All') {
                 const categoryMap: { [key: string]: number } = {};
 
                 // 카테고리 정보 업데이트
-                latestList.forEach((item) => {
+                pagination.content.forEach((item) => {
                     categoryMap[item.category] = (categoryMap[item.category] || 0) + 1;
                 });
 
                 const updatedCategories = Object.entries(categoryMap).map(([name, count]) => ({ name, count }));
-                setCategories([{ name: 'All', count: latestList.length }, ...updatedCategories]);
+                setCategories([{ name: 'All', count: pagination.totalElements }, ...updatedCategories]);
             }
-
-            setTotalList(latestList);
+            setLatestBoardList(pagination.content);
+            setPagination(pagination);
         };
 
         //  function: get popular list response 처리 함수 //
@@ -118,7 +119,7 @@ export default function Main() {
         const onCategoryClickHandler = (categoryName: string | null) => {
             const targetCategory = categoryName || 'All';
             setSelectedCategory(targetCategory);
-            getLatestBoardListRequest(categoryName).then((responseBody) =>
+            getLatestBoardListRequest(categoryName, currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, targetCategory)
             );
         };
@@ -129,11 +130,11 @@ export default function Main() {
 
         //  effect: 첫 마운트 시 실행될 함수 //
         useEffect(() => {
-            getLatestBoardListRequest("All").then((responseBody) =>
+            getLatestBoardListRequest("All", currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, 'All')
             );
             getPopularListRequest().then(getPopularListResponse);
-        }, []);
+        }, [currentPage]);
         
         //  render: 메인 화면 하단 컴포넌트 렌더링 //
         return (
@@ -144,7 +145,9 @@ export default function Main() {
                         <div className="main-bottom-category-popular-box">
                             <div className="main-bottom-category-box">
                                 {categories.map((category) => (
-                                    <div className={`category-item ${selectedCategory === category.name ? 'selected' : ''}`} key={category.name} onClick={() => onCategoryClickHandler(category.name)}>
+                                    <div
+                                        className={`category-item ${selectedCategory === category.name ? 'selected' : ''}`}
+                                        key={category.name} onClick={() => onCategoryClickHandler(category.name)}>
                                         {`${category.name} (${category.count})`}
                                     </div>
                                 ))}
@@ -155,7 +158,8 @@ export default function Main() {
                                 <div className="main-bottom-popular-card-title">{'인기 검색어'}</div>
                                 <div className="main-bottom-popular-card-contents">
                                     {popularWordList.map((word) => (
-                                        <div className="word-badge" key={word} onClick={() => onPopularWordClickHandler(word)}>
+                                        <div className="word-badge" key={word}
+                                             onClick={() => onPopularWordClickHandler(word)}>
                                             {word}
                                         </div>
                                     ))}
@@ -165,10 +169,10 @@ export default function Main() {
 
                         {/* 현재 컨텐츠 */}
                         <div className="main-bottom-current-contents">
-                            {viewList.map((boardListItem, index) => (
+                            {latestBoardList.map((boardListItem, index) => (
                                 <div key={boardListItem.boardNumber} className="board-item">
-                                    <BoardItem boardListItem={boardListItem} />
-                                    {index !== viewList.length - 1 && (
+                                    <BoardItem boardListItem={boardListItem}/>
+                                    {index !== latestBoardList.length - 1 && (
                                         <div className="divider"></div>
                                     )}
                                 </div>
@@ -178,16 +182,15 @@ export default function Main() {
                 </div>
 
                 {/* Pagination */}
-                <div className="main-bottom-pagination-box">
-                    <Pagination
-                        currentPage={currentPage}
-                        currentSection={currentSection}
-                        setCurrentPage={setCurrentPage}
-                        setCurrentSection={setCurrentSection}
-                        viewPageList={viewPageList}
-                        totalSection={totalSection}
-                    />
-                </div>
+                {pagination && (
+                    <div className="main-bottom-pagination-box">
+                        <Paging
+                            currentPage={currentPage}
+                            totalPages={pagination.totalPages}
+                            onPageChange={(page) => setCurrentPage(page)}
+                        />
+                    </div>
+                )}
             </div>
         );
     }

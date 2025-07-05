@@ -26,5 +26,5 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
             "WHERE board_number = ?1 ",
             nativeQuery = true
     )
-    GetBoardResultSet getBoard(Integer boardNumber);
+    GetBoardResultSet getBoardDetail(Integer boardNumber);
 }

@@ -18,11 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class VideoController {
     private final VideoService videoService;
 
-//    @GetMapping("")
-//    public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList() {
-//        ResponseEntity<? super GetVideoListResponseDto> response = videoService.getLatestVideoList();
-//        return response;
-//    }
     @GetMapping("")
     public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(
             @PageableDefault(size = 50, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable

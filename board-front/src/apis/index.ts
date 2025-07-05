@@ -74,7 +74,7 @@ export const signUpRequest = async (requestBody: SignUpRequestDto) => {
 }
 
 const GET_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
-const GET_LATEST_BOARD_LIST_URL = (category: string | null) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}`;
+const GET_LATEST_BOARD_LIST_URL = (category: string | null, page: number = 0) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}?page=${page}`;
 const GET_TOP_3_BOARD_LIST_URL = () => `${API_DOMAIN}/board/top-3`;
 const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}`;
 const GET_USER_BOARD_LIST_URL = (email: string) => `${API_DOMAIN}/board/user-board-list/${email}`;
@@ -101,8 +101,8 @@ export const getBoardRequest = async (boardNumber: number | string) => {
         })
     return result;
 };
-export const getLatestBoardListRequest = async (category: string | null) => {
-    const result = await axios.get(GET_LATEST_BOARD_LIST_URL(category))
+export const getLatestBoardListRequest = async (category: string | null, page: number = 0) => {
+    const result = await axios.get(GET_LATEST_BOARD_LIST_URL(category, page))
         .then(response => {
             const responseBody: GetLatestBoardListResponseDto = response.data;
             return responseBody;
@@ -390,10 +390,10 @@ export const fileUploadRequest = async (data: FormData) => {
     return result;
 }
 
-const GET_VIDEO_LIST_URL = () => `${API_DOMAIN}/video`;
+const GET_VIDEO_LIST_URL = (page: number = 0) => `${API_DOMAIN}/video?page=${page}`;
 
-export const getVideoListRequest = async () => {
-    const result = await axios.get(GET_VIDEO_LIST_URL())
+export const getVideoListRequest = async (page: number = 0) => {
+    const result = await axios.get(GET_VIDEO_LIST_URL(page))
         .then(response => {
             const responseBody: GetVideoListResponseDto = response.data;
             return responseBody;

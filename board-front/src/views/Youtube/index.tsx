@@ -6,9 +6,16 @@ import {getVideoListRequest} from 'apis';
 import {GetVideoListResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
 import './style.css';
+import Pagination from 'types/interface/pagination.interface';
+import Paging from 'components/Paging';
+
 export default function Youtube() {
     //  state: 유튜브 최신 비디오 리스트 상태  //
     const [videoList, setVideoList] = useState<VideoListItem[]>([]);
+    //  state: 페이지네이션 상태 //
+    const [pagination, setPagination] = useState<Pagination<VideoListItem> | null>(null)
+    //  state: 현재 페이지 상태 //
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
     //  function: videoList response 처리 함수 //
     const getVideoListResponse = (responseBody: GetVideoListResponseDto | ResponseDto | null) => {
@@ -19,12 +26,13 @@ export default function Youtube() {
 
         const { pagination } = responseBody as GetVideoListResponseDto;
         setVideoList(pagination.content);
+        setPagination(pagination);
     }
 
     //  effect: 첫 마운트 시 실행될 함수 //
     useEffect(() => {
-        getVideoListRequest().then(getVideoListResponse);
-    }, []);
+        getVideoListRequest(currentPage - 1).then(getVideoListResponse);
+    }, [currentPage]);
 
     return (
         <div className="youtube-wrapper">
@@ -34,6 +42,16 @@ export default function Youtube() {
             <div className="video-grid">
                 {videoList.map(videoItem => <VideoItem key={videoItem.videoId} videoItem={videoItem} />)}
             </div>
+
+            {pagination && (
+                <div className="main-bottom-pagination-box">
+                    <Paging
+                        currentPage={currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
         </div>
     );
 }

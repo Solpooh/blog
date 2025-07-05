@@ -4,7 +4,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
 import {SEARCH_PATH} from "../../constants";
-import Pagination from 'components/Pagination';
+import Pagination from 'components/Paging';
 import {getRelationListRequest, getSearchBoardListRequest} from 'apis';
 import {GetSearchBoardListResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';

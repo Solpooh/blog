@@ -1,40 +1,38 @@
-import React, {Dispatch, SetStateAction} from 'react';
+import React from 'react';
 import './style.css'
 
 //  interface: 페이지네이션 컴포넌트 properties //
 interface Props {
-    currentPage: number;
-    currentSection: number;
-    setCurrentPage: Dispatch<SetStateAction<number>>;
-    setCurrentSection: Dispatch<SetStateAction<number>>;
+    currentPage: number;  // 현재 페이지 (1부터 시작)
+    totalPages: number;    // 전체 페이지 수
+    onPageChange: (page: number) => void;  // 페이지 변경 이벤트 핸들러
 
-    viewPageList: number[];
-    totalSection: number;
 }
 
 //  component: 페이지네이션 컴포넌트 //
-export default function Pagination(props: Props) {
+export default function Paging({ currentPage, totalPages, onPageChange }: Props) {
+    // 한 섹션당 보여줄 페이지 수 (1~10, 11~20 등)
+    const PAGES_PER_SECTION = 10;
 
-    //  state: Properties //
-    const { currentPage, currentSection, viewPageList, totalSection } = props;
-    const { setCurrentPage, setCurrentSection } = props;
+    const currentSection = Math.ceil(currentPage / PAGES_PER_SECTION);
+    const totalSections = Math.ceil(totalPages / PAGES_PER_SECTION);
 
-    //  event handler: 페이지 클릭 이벤트 처리 //
-    const onPageClickHandler = (page: number) => {
-        setCurrentPage(page);
-    }
-    //  event handler: 이전 클릭 이벤트 처리 //
+    const startPage = (currentSection - 1) * PAGES_PER_SECTION + 1;
+    const endPage = Math.min(startPage + PAGES_PER_SECTION - 1, totalPages);
+    const viewPageList = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
+    //  function: 페이지 변경 핸들러 //
     const onPreviousClickHandler = () => {
         if (currentSection === 1) return;
-        setCurrentPage((currentSection - 1) * 10);
-        setCurrentSection(currentSection - 1);
-    }
-    //  event handler: 다음 클릭 이벤트 처리 //
+        const prevPage = (currentSection - 1) * PAGES_PER_SECTION;
+        onPageChange(prevPage);
+    };
+
     const onNextClickHandler = () => {
-        if (currentSection === totalSection) return;
-        setCurrentPage(currentSection * 10 + 1);
-        setCurrentSection(currentSection + 1);
-    }
+        if (currentSection === totalSections) return;
+        const nextPage = currentSection * PAGES_PER_SECTION + 1;
+        onPageChange(nextPage);
+    };
 
     //  render: 페이지네이션 컴포넌트 렌더링 //
     return (
@@ -50,7 +48,7 @@ export default function Pagination(props: Props) {
             {viewPageList.map(page =>
             page === currentPage ?
                 <div key={page} className='pagination-text-active'>{page}</div> :
-                <div key={page} className='pagination-text' onClick={() => onPageClickHandler(page)}>{page}</div>
+                <div key={page} className='pagination-text' onClick={() => onPageChange(page)}>{page}</div>
             )}
 
             {/*<div className='pagination-divider'>{'\|'}</div>*/}

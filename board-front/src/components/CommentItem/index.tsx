@@ -24,7 +24,7 @@ export default function CommentItem({ commentListItem }: Props) {
     const navigator = useNavigate();
     //  function: 작성일 경과시간 함수  //
     const getElapsedTime = () => {
-        const now = dayjs().add(9, 'hour');   // 한국과의 시차
+        const now = dayjs();   // 한국과의 시차
         const writeTime = dayjs(writeDatetime);
 
         const gap = now.diff(writeTime, 's');

@@ -85,7 +85,7 @@ FROM comment AS C
                     ON C.user_email = U.email
 WHERE C.board_number = 1
 ORDER BY write_datetime DESC;
-
+LIMIT 0, 5;
 -- 최신 게시물 리스트 불러오기
 SELECT *
 FROM board_list_view
@@ -117,6 +117,7 @@ SELECT *
 FROM board_list_view
 WHERE writer_email = 'email@email.com'
 ORDER BY write_datetime DESC;
+LIMIT 0, 5;
 
 -- 인기 검색어 리스트
 SELECT search_word, count(search_word) AS count

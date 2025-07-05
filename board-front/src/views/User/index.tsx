@@ -19,7 +19,7 @@ import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from 'apis/request
 import {useCookies} from 'react-cookie';
 import {usePagination} from 'hooks';
 import {GetUserBoardListResponseDto} from 'apis/response/board';
-import Pagination from 'components/Pagination';
+import Pagination from 'components/Paging';
 
 //  component: 유저 화면 컴포넌트 //
 export default function User() {

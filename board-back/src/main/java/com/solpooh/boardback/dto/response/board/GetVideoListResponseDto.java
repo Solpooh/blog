@@ -15,7 +15,6 @@ import java.util.List;
 
 @Getter
 public class GetVideoListResponseDto extends ResponseDto {
-//    private List<VideoListItem> videoList;
     private Pagination<VideoListItem> pagination;
 
     private GetVideoListResponseDto(Page<VideoEntity> videoEntities) {

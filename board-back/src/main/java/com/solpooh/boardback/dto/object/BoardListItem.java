@@ -7,6 +7,7 @@ import com.solpooh.boardback.entity.BoardListViewEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +63,7 @@ public class BoardListItem {
         }
     }
 
-    public static List<BoardListItem> getList(List<BoardListViewEntity> boardListViewEntities) {
+    public static List<BoardListItem> getList(Page<BoardListViewEntity> boardListViewEntities) {
         return boardListViewEntities.stream()
                 .map(BoardListItem::new) // 변환된 생성자 호출
                 .collect(Collectors.toList());

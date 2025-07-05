@@ -8,6 +8,8 @@ import com.solpooh.boardback.dto.response.board.*;
 import com.solpooh.boardback.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ public class BoardController {
     public ResponseEntity<? super GetBoardResponseDto> getBoard(
             @PathVariable("boardNumber") Integer boardNumber
     ) {
-        ResponseEntity<? super GetBoardResponseDto> response = boardService.getBoard(boardNumber);
+        ResponseEntity<? super GetBoardResponseDto> response = boardService.getBoardDetail(boardNumber);
         return response;
     }
 
@@ -52,34 +54,35 @@ public class BoardController {
 
     @GetMapping("/latest-list/{category}")
     public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(
-            @PathVariable(required = false) String category
+            @PathVariable(required = false) String category,
+            @PageableDefault(size = 5) Pageable pageable
     ) {
-        ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList(category);
+        ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList(category, pageable);
         return response;
     }
 
-    @GetMapping("/top-3")
-    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
-        ResponseEntity<? super GetTop3BoardListResponseDto> response = boardService.getTop3BoardList();
-        return response;
-    }
-
-    @GetMapping(value = {"/search-list/{searchWord}", "/search-list/{searchWord}/{preSearchWord}"})
-    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(
-            @PathVariable("searchWord") String searchWord,
-            @PathVariable(value = "preSearchWord", required = false) String preSearchWord
-    ) {
-        ResponseEntity<? super GetSearchBoardListResponseDto> response = boardService.getSearchBoardList(searchWord, preSearchWord);
-        return response;
-    }
-
-    @GetMapping("/user-board-list/{email}")
-    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(
-            @PathVariable("email") String email
-    ) {
-        ResponseEntity<? super GetUserBoardListResponseDto> response = boardService.getUserBoardList(email);
-        return response;
-    }
+//    @GetMapping("/top-3")
+//    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
+//        ResponseEntity<? super GetTop3BoardListResponseDto> response = boardService.getTop3BoardList();
+//        return response;
+//    }
+//
+//    @GetMapping(value = {"/search-list/{searchWord}", "/search-list/{searchWord}/{preSearchWord}"})
+//    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(
+//            @PathVariable("searchWord") String searchWord,
+//            @PathVariable(value = "preSearchWord", required = false) String preSearchWord
+//    ) {
+//        ResponseEntity<? super GetSearchBoardListResponseDto> response = boardService.getSearchBoardList(searchWord, preSearchWord);
+//        return response;
+//    }
+//
+//    @GetMapping("/user-board-list/{email}")
+//    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(
+//            @PathVariable("email") String email
+//    ) {
+//        ResponseEntity<? super GetUserBoardListResponseDto> response = boardService.getUserBoardList(email);
+//        return response;
+//    }
 
     @PostMapping("")
     public ResponseEntity<? super PostBoardResponseDto> postBoard(

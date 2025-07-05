@@ -13,6 +13,8 @@ import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
 import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +37,12 @@ public class BoardServiceImplement implements BoardService {
     private final BoardListViewRepository boardListViewRepository;
 
     @Override
-    public ResponseEntity<? super GetBoardResponseDto> getBoard(Integer boardNumber) {
+    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(Integer boardNumber) {
         GetBoardResultSet resultSet = null;
         List<ImageEntity> imageEntities = new ArrayList<>();
 
         try {
-            resultSet = boardRepository.getBoard(boardNumber);
+            resultSet = boardRepository.getBoardDetail(boardNumber);
             if (resultSet == null) return GetBoardResponseDto.noExistBoard();
 
             imageEntities = imageRepository.findByBoardNumberAndDeleted(boardNumber, false);
@@ -88,14 +90,14 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category) {
-        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category, Pageable pageable) {
+        Page<BoardListViewEntity> boardListViewEntities;
 
         try {
             if ("All".equals(category) || category == null) {
-                boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc();
+                boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc(pageable);
             } else {
-                boardListViewEntities = boardListViewRepository.findByCategoryOrderByWriteDatetimeDesc(category);
+                boardListViewEntities = boardListViewRepository.findByCategoryOrderByWriteDatetimeDesc(category, pageable);
             }
 
         } catch (Exception e) {
@@ -106,65 +108,65 @@ public class BoardServiceImplement implements BoardService {
         return GetLatestBoardListResponseDto.success(boardListViewEntities);
     }
 
-    @Override
-    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
-        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
-        try {
-
-            Date beforeWeek = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String sevenDaysAgo = simpleDateFormat.format(beforeWeek);
-
-            boardListViewEntities = boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(sevenDaysAgo);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetTop3BoardListResponseDto.success(boardListViewEntities);
-    }
-
-    @Override
-    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord) {
-        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
-
-        try {
-            // title or content
-            boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
-
-            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
-            searchLogRepository.save(searchLogEntity);
-
-            boolean relation = (preSearchWord != null);
-            if (relation) {
-                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, true);
-                searchLogRepository.save(searchLogEntity);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetSearchBoardListResponseDto.success(boardListViewEntities);
-    }
-
-    @Override
-    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email) {
-        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
-
-        try {
-
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return GetUserBoardListResponseDto.noExistUser();
-
-            boardListViewEntities = boardListViewRepository.findByWriterEmailOrderByWriteDatetimeDesc(email);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetUserBoardListResponseDto.success(boardListViewEntities);
-    }
+//    @Override
+//    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
+//        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+//        try {
+//
+//            Date beforeWeek = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
+//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            String sevenDaysAgo = simpleDateFormat.format(beforeWeek);
+//
+//            boardListViewEntities = boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(sevenDaysAgo);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseDto.databaseError();
+//        }
+//        return GetTop3BoardListResponseDto.success(boardListViewEntities);
+//    }
+//
+//    @Override
+//    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord) {
+//        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+//
+//        try {
+//            // title or content
+//            boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
+//
+//            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
+//            searchLogRepository.save(searchLogEntity);
+//
+//            boolean relation = (preSearchWord != null);
+//            if (relation) {
+//                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, true);
+//                searchLogRepository.save(searchLogEntity);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseDto.databaseError();
+//        }
+//
+//        return GetSearchBoardListResponseDto.success(boardListViewEntities);
+//    }
+//
+//    @Override
+//    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email) {
+//        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+//
+//        try {
+//
+//            boolean existedUser = userRepository.existsByEmail(email);
+//            if (!existedUser) return GetUserBoardListResponseDto.noExistUser();
+//
+//            boardListViewEntities = boardListViewRepository.findByWriterEmailOrderByWriteDatetimeDesc(email);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseDto.databaseError();
+//        }
+//        return GetUserBoardListResponseDto.success(boardListViewEntities);
+//    }
 
     @Override
     public ResponseEntity<? super PostBoardResponseDto> postBoard(PostBoardRequestDto dto, String email) {
