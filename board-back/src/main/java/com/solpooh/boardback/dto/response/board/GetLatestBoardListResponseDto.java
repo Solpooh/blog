@@ -16,15 +16,17 @@ import java.util.List;
 @Getter
 public class GetLatestBoardListResponseDto extends ResponseDto {
     private Pagination<BoardListItem> pagination;
+    private List<CategoryResponseDto> categoryCounts;
 
-    private GetLatestBoardListResponseDto(Page<BoardListViewEntity> boardEntities) {
+    private GetLatestBoardListResponseDto(Page<BoardListViewEntity> boardEntities, List<CategoryResponseDto> categoryCounts) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         List<BoardListItem> latestList = BoardListItem.getList(boardEntities);
         this.pagination = Pagination.of(boardEntities, latestList);
+        this.categoryCounts = categoryCounts;
     }
 
-    public static ResponseEntity<GetLatestBoardListResponseDto> success(Page<BoardListViewEntity> boardEntities) {
-        GetLatestBoardListResponseDto result = new GetLatestBoardListResponseDto(boardEntities);
+    public static ResponseEntity<GetLatestBoardListResponseDto> success(Page<BoardListViewEntity> boardEntities, List<CategoryResponseDto> categoryCounts) {
+        GetLatestBoardListResponseDto result = new GetLatestBoardListResponseDto(boardEntities, categoryCounts);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

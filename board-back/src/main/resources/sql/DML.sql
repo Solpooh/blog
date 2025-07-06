@@ -86,6 +86,7 @@ FROM comment AS C
 WHERE C.board_number = 1
 ORDER BY write_datetime DESC;
 LIMIT 0, 5;
+
 -- 최신 게시물 리스트 불러오기
 SELECT *
 FROM board_list_view
@@ -99,11 +100,12 @@ WHERE category = 'java'
 ORDER BY write_datetime DESC
 LIMIT 0, 5;
 
--- 검색어 리스트 불러오기
+-- 검색 게시물 리스트 불러오기
 SELECT *
 FROM board_list_view
 WHERE title LIKE '%수정%' OR content LIKE '%수정%'
-ORDER BY write_datetime DESC;
+ORDER BY write_datetime DESC
+LIMIT 0, 5;
 
 -- 주간 상위 3개 게시물
 SELECT *

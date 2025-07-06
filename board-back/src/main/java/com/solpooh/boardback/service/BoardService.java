@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity;
 public interface BoardService {
     ResponseEntity<? super GetBoardResponseDto> getBoardDetail(Integer boardNumber);
     ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Integer boardNumber);
-    ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber);
+    ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber, Pageable pageable);
     ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category, Pageable pageable);
-//    ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList();
-//    ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord);
-//    ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email);
+    ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList();
+    ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord, Pageable pageable);
+    ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email, Pageable pageable);
     ResponseEntity<? super PostBoardResponseDto> postBoard(PostBoardRequestDto dto, String email);
     ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber, String email);
 

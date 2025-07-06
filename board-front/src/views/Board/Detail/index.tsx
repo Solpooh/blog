@@ -1,9 +1,8 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import FavoriteItem from 'components/FavoriteItem';
-import {CommentListItem, FavoriteListItem} from 'types/interface';
+import {BoardListItem, CommentListItem, FavoriteListItem} from 'types/interface';
 import CommentItem from 'components/CommentItem';
-import Pagination from 'components/Paging';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
 import {useEditorStore, useLoginUserStore} from 'stores';
 import {useNavigate, useParams} from 'react-router-dom';
@@ -28,9 +27,10 @@ import {
 import dayjs from 'dayjs';
 import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
-import {usePagination} from 'hooks';
 import {Editor, EditorState, convertFromRaw, ContentBlock} from 'draft-js';
 import {customStyleMap} from '../../../plugins';
+import Pagination from "../../../types/interface/pagination.interface";
+import Paging from "../../../components/Paging";
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
@@ -221,11 +221,12 @@ export default function BoardDetail() {
     const BoardDetailBottom = () => {
         //  state: 댓글 textarea 참조 상태 //
         const commentRef = useRef<HTMLTextAreaElement | null>(null);
-        //  state: 페이지네이션 관련 상태 //
-        const {
-            currentPage, currentSection, viewList, viewPageList, totalSection,
-            setCurrentPage, setCurrentSection, setTotalList
-        } = usePagination<CommentListItem>(5);
+        //  state: 페이지네이션 상태 //
+        const [pagination, setPagination] = useState<Pagination<CommentListItem> | null>(null)
+        //  state: 현재 페이지 상태 //
+        const [currentPage, setCurrentPage] = useState<number>(1);
+        //  state: 댓글 리스트 상태 //
+        const [commentList, setCommentList] = useState<CommentListItem[]>([]);
 
         //  state: 좋아요 리스트 상태 //
         const [favoriteList, setFavoriteList] = useState<FavoriteListItem[]>([]);
@@ -264,9 +265,11 @@ export default function BoardDetail() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { commentList } = responseBody as GetCommentListResponseDto;
-            setTotalList(commentList);
-            setTotalCommentCount(commentList.length);
+            const { pagination } = responseBody as GetCommentListResponseDto;
+
+            setPagination(pagination);
+            setCommentList(pagination.content);
+            setTotalCommentCount(pagination.totalElements);
         }
         //  function: put favorite response 처리 함수 //
         const putFavoriteResponse = (responseBody: PutFavoriteResponseDto | ResponseDto | null) => {
@@ -325,8 +328,8 @@ export default function BoardDetail() {
         useEffect(() => {
             if (!boardNumber) return;
             getFavoriteListRequest(boardNumber).then(getFavoriteListResponse);
-            getCommentListRequest(boardNumber).then(getCommentListResponse);
-        }, [boardNumber]);
+            getCommentListRequest(boardNumber, currentPage - 1).then(getCommentListResponse);
+        }, [boardNumber, currentPage]);
 
         //  render: 게시물 상세 하단 컴포넌트 렌더링 //
         return (
@@ -367,20 +370,19 @@ export default function BoardDetail() {
                 <div className='board-detail-bottom-comment-box'>
                     <div className='board-detail-bottom-comment-container'>
                         <div className='board-detail-bottom-comment-list-container'>
-                            {viewList.map(item => <CommentItem commentListItem={item} />)}
+                            {commentList.map(item => <CommentItem commentListItem={item} />)}
                         </div>
                     </div>
 
                     <div className='divider'></div>
                     <div className='board-detail-bottom-comment-pagination-box'>
-                        <Pagination
-                        currentPage={currentPage}
-                        currentSection={currentSection}
-                        setCurrentPage={setCurrentPage}
-                        setCurrentSection={setCurrentSection}
-                        viewPageList={viewPageList}
-                        totalSection={totalSection}
-                        />
+                        {pagination &&
+                            <Paging
+                                currentPage={currentPage}
+                                totalPages={pagination.totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        }
                     </div>
                     {loginUser !== null &&
                     <div className='board-detail-bottom-comment-input-box'>

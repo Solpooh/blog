@@ -87,18 +87,14 @@ export default function Main() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { pagination } = responseBody as GetLatestBoardListResponseDto;
-            console.log(pagination.content);
-            if (categoryName === 'All') {
-                const categoryMap: { [key: string]: number } = {};
+            const { pagination, categoryCounts } = responseBody as GetLatestBoardListResponseDto;
+            if (categoryName === 'All' && categoryCounts) {
+                const updatedCategories = categoryCounts.map(({ name, count }) => ({name, count}));
 
-                // 카테고리 정보 업데이트
-                pagination.content.forEach((item) => {
-                    categoryMap[item.category] = (categoryMap[item.category] || 0) + 1;
-                });
-
-                const updatedCategories = Object.entries(categoryMap).map(([name, count]) => ({ name, count }));
-                setCategories([{ name: 'All', count: pagination.totalElements }, ...updatedCategories]);
+                setCategories([
+                    { name: 'All', count: pagination.totalElements},
+                    ...updatedCategories
+                ]);
             }
             setLatestBoardList(pagination.content);
             setPagination(pagination);
@@ -119,6 +115,8 @@ export default function Main() {
         const onCategoryClickHandler = (categoryName: string | null) => {
             const targetCategory = categoryName || 'All';
             setSelectedCategory(targetCategory);
+            // 카테고리 선택 시 currentPage를 무조건 1페이지로 초기화
+            setCurrentPage(1);
             getLatestBoardListRequest(categoryName, currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, targetCategory)
             );
@@ -128,13 +126,13 @@ export default function Main() {
             navigate(SEARCH_PATH(word));
         }
 
-        //  effect: 첫 마운트 시 실행될 함수 //
+        //  effect: selectedCategory 또는 currentPage가 바뀔 때마다 실행될 함수 //
         useEffect(() => {
-            getLatestBoardListRequest("All", currentPage - 1).then((responseBody) =>
-                getLatestBoardListResponse(responseBody, 'All')
+            getLatestBoardListRequest(selectedCategory, currentPage - 1).then((responseBody) =>
+                getLatestBoardListResponse(responseBody, selectedCategory)
             );
             getPopularListRequest().then(getPopularListResponse);
-        }, [currentPage]);
+        }, [selectedCategory, currentPage]);
         
         //  render: 메인 화면 하단 컴포넌트 렌더링 //
         return (
@@ -187,7 +185,7 @@ export default function Main() {
                         <Paging
                             currentPage={currentPage}
                             totalPages={pagination.totalPages}
-                            onPageChange={(page) => setCurrentPage(page)}
+                            onPageChange={setCurrentPage}
                         />
                     </div>
                 )}

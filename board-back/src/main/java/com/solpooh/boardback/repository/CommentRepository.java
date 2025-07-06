@@ -3,6 +3,8 @@ package com.solpooh.boardback.repository;
 import com.solpooh.boardback.entity.BoardEntity;
 import com.solpooh.boardback.entity.CommentEntity;
 import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,10 +30,9 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Integer>
             "ORDER BY C.comment_number ",
             nativeQuery = true
     )
-    List<GetCommentListResultSet> getCommentList(Integer boardNumber);
+    Page<GetCommentListResultSet> getCommentList(Integer boardNumber, Pageable pageable);
     @Transactional
     void deleteByBoardNumber(Integer boardNumber);
-
     // 댓글 삭제
     @Transactional
     void deleteByBoardNumberAndCommentNumber(Integer boardNumber, Integer commentNumber);

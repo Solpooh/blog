@@ -38,9 +38,10 @@ public class BoardController {
 
     @GetMapping("/{boardNumber}/comment-list")
     public ResponseEntity<? super GetCommentListResponseDto> getCommentList(
-            @PathVariable("boardNumber") Integer boardNumber
+            @PathVariable("boardNumber") Integer boardNumber,
+            @PageableDefault(size = 5) Pageable pageable
     ) {
-        ResponseEntity<? super GetCommentListResponseDto> response = boardService.getCommentList(boardNumber);
+        ResponseEntity<? super GetCommentListResponseDto> response = boardService.getCommentList(boardNumber, pageable);
         return response;
     }
 
@@ -61,28 +62,30 @@ public class BoardController {
         return response;
     }
 
-//    @GetMapping("/top-3")
-//    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
-//        ResponseEntity<? super GetTop3BoardListResponseDto> response = boardService.getTop3BoardList();
-//        return response;
-//    }
-//
-//    @GetMapping(value = {"/search-list/{searchWord}", "/search-list/{searchWord}/{preSearchWord}"})
-//    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(
-//            @PathVariable("searchWord") String searchWord,
-//            @PathVariable(value = "preSearchWord", required = false) String preSearchWord
-//    ) {
-//        ResponseEntity<? super GetSearchBoardListResponseDto> response = boardService.getSearchBoardList(searchWord, preSearchWord);
-//        return response;
-//    }
-//
-//    @GetMapping("/user-board-list/{email}")
-//    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(
-//            @PathVariable("email") String email
-//    ) {
-//        ResponseEntity<? super GetUserBoardListResponseDto> response = boardService.getUserBoardList(email);
-//        return response;
-//    }
+    @GetMapping("/top-3")
+    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
+        ResponseEntity<? super GetTop3BoardListResponseDto> response = boardService.getTop3BoardList();
+        return response;
+    }
+
+    @GetMapping(value = {"/search-list/{searchWord}", "/search-list/{searchWord}/{preSearchWord}"})
+    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(
+            @PathVariable("searchWord") String searchWord,
+            @PathVariable(value = "preSearchWord", required = false) String preSearchWord,
+            @PageableDefault(size = 5) Pageable pageable
+    ) {
+        ResponseEntity<? super GetSearchBoardListResponseDto> response = boardService.getSearchBoardList(searchWord, preSearchWord, pageable);
+        return response;
+    }
+
+    @GetMapping("/user-board-list/{email}")
+    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(
+            @PathVariable("email") String email,
+            @PageableDefault(size = 5) Pageable pageable
+    ) {
+        ResponseEntity<? super GetUserBoardListResponseDto> response = boardService.getUserBoardList(email, pageable);
+        return response;
+    }
 
     @PostMapping("")
     public ResponseEntity<? super PostBoardResponseDto> postBoard(

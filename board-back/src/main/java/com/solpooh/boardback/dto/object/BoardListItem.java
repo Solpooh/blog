@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -63,10 +64,13 @@ public class BoardListItem {
         }
     }
 
-    public static List<BoardListItem> getList(Page<BoardListViewEntity> boardListViewEntities) {
-        return boardListViewEntities.stream()
-                .map(BoardListItem::new) // 변환된 생성자 호출
-                .collect(Collectors.toList());
+    // Page<T>과 List<T> 타입을 모두 인자로 받기 위한 Iterable
+    public static List<BoardListItem> getList(Iterable<BoardListViewEntity> boardListViewEntities) {
+        List<BoardListItem> result = new ArrayList<>();
+        for (BoardListViewEntity entity : boardListViewEntities) {
+            result.add(new BoardListItem(entity));
+        }
+        return result;
     }
 
 }

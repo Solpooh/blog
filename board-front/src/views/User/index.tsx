@@ -17,9 +17,9 @@ import {GetUserResponseDto, PatchNicknameResponseDto, PatchProfileImageResponseD
 import {ResponseDto} from 'apis/response';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from 'apis/request/user';
 import {useCookies} from 'react-cookie';
-import {usePagination} from 'hooks';
 import {GetUserBoardListResponseDto} from 'apis/response/board';
-import Pagination from 'components/Paging';
+import Pagination from 'types/interface/pagination.interface';
+import Paging from 'components/Paging';
 
 //  component: 유저 화면 컴포넌트 //
 export default function User() {
@@ -184,13 +184,14 @@ export default function User() {
     //  component: 유저 화면 하단 컴포넌트 //
     const UserBottom = () => {
 
-        //  state: 페이지네이션 관련 상태 //
-        const {
-            currentPage, setCurrentPage, currentSection, setCurrentSection, viewList,
-            viewPageList, totalSection, setTotalList
-        } = usePagination<BoardListItem>(5);
+        //  state: 페이지네이션 상태 //
+        const [pagination, setPagination] = useState<Pagination<BoardListItem> | null>(null)
+        //  state: 유저 게시글 리스트 상태 //
+        const [userBoardList, setUserBoardList] = useState<BoardListItem[]>([]);
+        //  state: 현재 페이지 상태 //
+        const [currentPage, setCurrentPage] = useState<number>(1);
         //  state: 게시물 개수 상태 //
-        const [count, setCount] = useState<number>(2);
+        const [count, setCount] = useState<number>(0);
 
         //  function: get user board list response 처리 함수 //
         const getUserBoardListResponse = (responseBody: GetUserBoardListResponseDto | ResponseDto | null) => {
@@ -204,9 +205,11 @@ export default function User() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { userBoardList } = responseBody as GetUserBoardListResponseDto;
-            setTotalList(userBoardList);
-            setCount(userBoardList.length);
+            const { pagination } = responseBody as GetUserBoardListResponseDto;
+
+            setPagination(pagination);
+            setUserBoardList(pagination.content);
+            setCount(pagination.totalElements);
         };
 
         //  event handler: 사이드 카드 클릭 이벤트 처리 //
@@ -218,8 +221,8 @@ export default function User() {
         //  effect: userEmail path variable 이 변경될 때마다 실행할 함수 //
         useEffect(() => {
             if (!userEmail) return;
-            getUserBoardListRequest(userEmail).then(getUserBoardListResponse);
-        }, [userEmail]);
+            getUserBoardListRequest(userEmail, currentPage - 1).then(getUserBoardListResponse);
+        }, [userEmail, currentPage]);
 
         //  render: 유저 화면 하단 컴포넌트 렌더링 //
         return (
@@ -230,7 +233,7 @@ export default function User() {
                         {count === 0 ?
                             <div className='user-bottom-contents-nothing'>{'작성한 게시글이 없습니다.'}</div> :
                             <div className='user-bottom-contents'>
-                                {viewList.map(boardListItem => <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem} />)}
+                                {userBoardList.map(boardListItem => <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem} />)}
                             </div>
                         }
                         <div className='user-bottom-side-box'>
@@ -255,14 +258,11 @@ export default function User() {
                         </div>
                     </div>
                     <div className='user-bottom-pagination-box'>
-                        {count !== 0 &&
-                            <Pagination
+                        {count !== 0 && pagination &&
+                            <Paging
                                 currentPage={currentPage}
-                                currentSection={currentSection}
-                                setCurrentPage={setCurrentPage}
-                                setCurrentSection={setCurrentSection}
-                                viewPageList={viewPageList}
-                                totalSection={totalSection}
+                                totalPages={pagination.totalPages}
+                                onPageChange={setCurrentPage}
                             />}
                     </div>
                 </div>

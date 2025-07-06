@@ -76,11 +76,11 @@ export const signUpRequest = async (requestBody: SignUpRequestDto) => {
 const GET_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
 const GET_LATEST_BOARD_LIST_URL = (category: string | null, page: number = 0) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}?page=${page}`;
 const GET_TOP_3_BOARD_LIST_URL = () => `${API_DOMAIN}/board/top-3`;
-const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}`;
-const GET_USER_BOARD_LIST_URL = (email: string) => `${API_DOMAIN}/board/user-board-list/${email}`;
+const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null, page: number = 0) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}?page=${page}`;
+const GET_USER_BOARD_LIST_URL = (email: string, page: number = 0) => `${API_DOMAIN}/board/user-board-list/${email}?page=${page}`;
 const INCREASE_VIEW_COUNT_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/increase-view-count`;
 const GET_FAVORITE_LIST_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/favorite-list`;
-const GET_COMMENT_LIST_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment-list`;
+const GET_COMMENT_LIST_URL = (boardNumber: number | string, page: number = 0) => `${API_DOMAIN}/board/${boardNumber}/comment-list?page=${page}`;
 const POST_BOARD_URL = () => `${API_DOMAIN}/board`;
 const POST_COMMENT_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment`;
 const PATCH_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
@@ -127,8 +127,8 @@ export const getTop3BoardListRequest = async () => {
         });
     return result;
 }
-export const getSearchBoardListRequest = async (searchWord: string, preSearchWord: string | null) => {
-    const result = await axios.get(GET_SEARCH_BOARD_LIST_URL(searchWord, preSearchWord))
+export const getSearchBoardListRequest = async (searchWord: string, preSearchWord: string | null, page: number = 0) => {
+    const result = await axios.get(GET_SEARCH_BOARD_LIST_URL(searchWord, preSearchWord, page))
         .then(response => {
             const responseBody: GetSearchBoardListResponseDto = response.data;
             return responseBody;
@@ -140,8 +140,8 @@ export const getSearchBoardListRequest = async (searchWord: string, preSearchWor
         });
     return result;
 };
-export const getUserBoardListRequest = async (email: string) => {
-    const result = await axios.get(GET_USER_BOARD_LIST_URL(email))
+export const getUserBoardListRequest = async (email: string, page: number = 0) => {
+    const result = await axios.get(GET_USER_BOARD_LIST_URL(email, page))
         .then(response => {
             const responseBody: GetUserBoardListResponseDto = response.data;
             return responseBody;
@@ -179,8 +179,8 @@ export const getFavoriteListRequest = async (boardNumber: number | string) => {
         });
     return result;
 }
-export const getCommentListRequest = async (boardNumber: number | string) => {
-    const result = await axios.get(GET_COMMENT_LIST_URL(boardNumber))
+export const getCommentListRequest = async (boardNumber: number | string, page: number = 0) => {
+    const result = await axios.get(GET_COMMENT_LIST_URL(boardNumber, page))
         .then(response => {
             const responseBody: GetCommentListResponseDto = response.data;
             return responseBody;

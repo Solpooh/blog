@@ -14,6 +14,7 @@ import IncreaseViewCountResponseDto from './increase-view-cout.response.dto';
 import GetLatestBoardListResponseDto from './get-latest-board-list.response.dto';
 import GetSearchBoardListResponseDto from './get-search-board-list.response.dto';
 import GetVideoListResponseDto from "./get-video-list.response.dto";
+import CategoryCountResponseDto from "./category-count.response.dto";
 export type {
     GetBoardResponseDto,
     PostBoardResponseDto,
@@ -28,6 +29,7 @@ export type {
     GetFavoriteListResponseDto,
     GetTop3BoardListResponseDto,
     GetUserBoardListResponseDto,
+    CategoryCountResponseDto,
     IncreaseViewCountResponseDto,
     GetLatestBoardListResponseDto,
     GetSearchBoardListResponseDto
