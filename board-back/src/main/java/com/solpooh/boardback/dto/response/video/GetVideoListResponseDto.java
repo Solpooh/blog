@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.response.board;
+package com.solpooh.boardback.dto.response.video;
 
 import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseCode;

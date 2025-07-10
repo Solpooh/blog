@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import './style.css'
 
 //  interface: 페이지네이션 컴포넌트 properties //
@@ -6,7 +6,6 @@ interface Props {
     currentPage: number;  // 현재 페이지 (1부터 시작)
     totalPages: number;    // 전체 페이지 수
     onPageChange: (page: number) => void;  // 페이지 변경 이벤트 핸들러
-
 }
 
 //  component: 페이지네이션 컴포넌트 //
@@ -33,6 +32,11 @@ export default function Paging({ currentPage, totalPages, onPageChange }: Props)
         const nextPage = currentSection * PAGES_PER_SECTION + 1;
         onPageChange(nextPage);
     };
+
+    //  effect: 페이지 변경 시 화면 상단으로 스크롤 이동 //
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
 
     //  render: 페이지네이션 컴포넌트 렌더링 //
     return (

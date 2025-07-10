@@ -39,3 +39,6 @@ out/
 # Environment-specific configuration files
 application.properties
 application-*.properties
+
+# logging
+logs/

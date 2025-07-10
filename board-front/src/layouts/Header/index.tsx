@@ -297,8 +297,8 @@ export default function Header() {
                         </div>
                         <div className='header-logo'>{'DevHub'}</div>
                     </div>
-                    <div className='header-leftTwo-box'>
-                        <div className='header-logo' onClick={onYoutubeClickHandler}>{'DevTube'}</div>
+                    <div className='header-leftTwo-box' onClick={onYoutubeClickHandler}>
+                        <div className='header-logo'>{'DevTube'}</div>
                     </div>
                 </div>
                 <div className='header-right-box'>

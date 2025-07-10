@@ -30,7 +30,4 @@ public class ImageBatch {
         }
         imageRepository.deleteAll(imageEntities);
     }
-
-    // search log도 batch 작업 도입
-
 }
