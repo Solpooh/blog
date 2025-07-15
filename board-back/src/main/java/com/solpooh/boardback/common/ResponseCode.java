@@ -12,6 +12,8 @@ public interface ResponseCode {
     String NOT_EXISTED_USER = "NU";
     String NOT_EXISTED_BOARD = "NB";
     String NOT_EXISTED_COMMENT = "NC";
+    String NOT_EXISTED_CHANNEL = "NEC";
+    String NOT_EXISTED_VIDEO = "NV";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "SF";

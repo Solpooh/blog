@@ -1,7 +1,7 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.response.video.GetVideoListResponseDto;
-import com.solpooh.boardback.dto.response.video.PostVideoResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
+import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
 import com.solpooh.boardback.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +20,10 @@ public class VideoController {
     public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(
             @PageableDefault(size = 52, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        ResponseEntity<? super GetVideoListResponseDto> response = videoService.getLatestVideoList(pageable);
-        return response;
+        return videoService.getLatestVideoList(pageable);
     }
     @PostMapping("")
     public ResponseEntity<? super PostVideoResponseDto> postVideo() {
-        return ResponseEntity.ok(videoService.postVideo());
+        return videoService.postVideo();
     }
 }

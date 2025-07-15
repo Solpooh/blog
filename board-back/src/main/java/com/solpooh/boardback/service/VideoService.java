@@ -1,7 +1,7 @@
 package com.solpooh.boardback.service;
 
-import com.solpooh.boardback.dto.response.video.GetVideoListResponseDto;
-import com.solpooh.boardback.dto.response.video.PostVideoResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
+import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 

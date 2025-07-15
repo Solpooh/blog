@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.response.video;
+package com.solpooh.boardback.dto.response.youtube;
 
 import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseCode;
@@ -25,5 +25,9 @@ public class GetVideoListResponseDto extends ResponseDto {
     public static ResponseEntity<GetVideoListResponseDto> success(Page<VideoEntity> videoEntities) {
         GetVideoListResponseDto result = new GetVideoListResponseDto(videoEntities);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+    public static ResponseEntity<ResponseDto> videoNotFound() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.NOT_EXISTED_VIDEO, ResponseMessage.NOT_EXISTED_VIDEO);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
     }
 }

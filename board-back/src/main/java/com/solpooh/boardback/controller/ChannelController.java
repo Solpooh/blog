@@ -1,5 +1,7 @@
 package com.solpooh.boardback.controller;
 
+import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
+import com.solpooh.boardback.dto.response.youtube.PostChannelResponseDto;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.service.ChannelService;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +15,13 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @GetMapping("/{channelId}")
-    public ResponseEntity<ChannelEntity> getChannel(
+    public ResponseEntity<? super GetChannelResponseDto> getChannel(
             @PathVariable("channelId") String channelId
     ) {
-        ChannelEntity channelEntity = channelService.getChannel(channelId);
-        return ResponseEntity.ok(channelEntity);
+        return channelService.getChannel(channelId);
     }
     @PostMapping("")
-    public ResponseEntity<String> postChannel() {
+    public ResponseEntity<? super PostChannelResponseDto> postChannel() {
         return channelService.postChannel();
     }
 }

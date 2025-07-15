@@ -3,11 +3,13 @@ package com.solpooh.boardback.service.implement;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.ActivityListResponse;
-import com.solpooh.boardback.dto.response.video.GetVideoListResponseDto;
-import com.solpooh.boardback.dto.response.video.PostVideoResponseDto;
+import com.solpooh.boardback.converter.VideoConverter;
+import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
+import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
-import com.solpooh.boardback.provider.ChannelList;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.VideoService;
@@ -20,10 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Profile("dev")
 @Service
@@ -37,62 +40,75 @@ public class VideoServiceImplement implements VideoService {
 
     @Override
     public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(Pageable pageable) {
-        Page<VideoEntity> videoEntities = videoRepository.getLatestVideo(pageable, "dev", "ko");
+        Page<VideoEntity> videoEntities;
+
+        try {
+
+            videoEntities = videoRepository.getLatestVideo(pageable, "dev", "ko");
+            if (videoEntities.isEmpty()) return GetVideoListResponseDto.videoNotFound();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
         return GetVideoListResponseDto.success(videoEntities);
     }
 
     // POST: 해당 채널의 비디오 정보 저장하기
     @Override
     public ResponseEntity<? super PostVideoResponseDto> postVideo() {
-        // 1. 하드 코딩한 channelList에서 channelEntity 추출
-        for (String channelId : ChannelList.CHANNEL_IDS) {
-            try {
-                ChannelEntity channel = channelRepository.findById(channelId)
-                        .orElseThrow(() -> new IllegalArgumentException("채널이 존재하지 않습니다: " + channelId));
-                saveVideoList(channel);
-            } catch (Exception e) {
-                log.info("❌ 채널 처리 실패 ({}): {}", channelId, e.getMessage());
-//                webhookNotifier.notifyError("채널 처리 실패: " + channelId, e);
-            }
+        try {
+
+            List<ChannelEntity> channelList = channelRepository.findAll();
+            if (channelList.isEmpty()) return GetChannelResponseDto.channelNotFound();
+
+            channelList.forEach(this::saveVideoEntity);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
         }
 
         return PostVideoResponseDto.success();
     }
 
-    private void saveVideoList(ChannelEntity channel) throws IOException {
-        YouTube.Activities.List request = youtube.activities()
-                .list("snippet, contentDetails")
-                .setChannelId(channel.getChannelId())
-                .setMaxResults(10L) // 유튜버가 매일 10개 영상을 올릴 가능성이 없음.
-                .setKey(apiKey);
+    private List<Activity> fetchVideoList(String channelId) {
+        try {
 
-        ActivityListResponse response = request.execute();
-        List<Activity> items = response.getItems();
+            YouTube.Activities.List request = youtube.activities()
+                    .list("snippet, contentDetails")
+                    .setChannelId(channelId)
+                    .setMaxResults(10L) // 유튜버가 매일 10개 영상을 올릴 가능성이 없음.
+                    .setKey(apiKey);
 
+            return request.execute().getItems();
 
-        for (Activity activity : items) {
-            if (activity.getContentDetails().getUpload() != null) {
-                String videoId = activity.getContentDetails().getUpload().getVideoId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
 
-                if (!videoRepository.existsById(videoId)) {
-                    try {
-                        VideoEntity video = VideoEntity.builder()
-                                .videoId(videoId)
-                                .title(activity.getSnippet().getTitle())
-                                .thumbnail(activity.getSnippet().getThumbnails().getHigh().getUrl())
-                                .publishedAt(LocalDateTime.parse(activity.getSnippet().getPublishedAt().toStringRfc3339(), DateTimeFormatter.ISO_DATE_TIME))
-                                .channel(channel)
-                                .build();
+    private void saveVideoEntity(ChannelEntity channel) {
+        String channelId = channel.getChannelId();
 
+        try {
+            // 채널 정보를 통해 API 요청 후 응답받기
+            List<Activity> activities = fetchVideoList(channelId);
+
+            activities.stream()
+                    .map(activity -> VideoConverter.toVideoEntity(activity, channel))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(video -> !videoRepository.existsById(video.getVideoId()))
+                    .forEach(video -> {
                         videoRepository.save(video);
-                        log.info("✅ 새 비디오 저장됨: {}", videoId);
+                        log.info("✅ 저장된 영상: {}", video.getVideoId());
+                    });
 
-                    } catch (Exception e) {
-                        log.info("❌ 비디오 저장 실패 ({}): {}", videoId, e.getMessage());
-//                        webhookNotifier.notifyError("비디오 저장 실패: " + videoId, e);
-                    }
-                }
-            }
+        } catch (Exception e) {
+            log.error("비디오 저장 에러 발생", e);
         }
     }
 }

@@ -2,9 +2,11 @@ package com.solpooh.boardback.provider;
 
 import java.util.List;
 
-public class ChannelList {
+public class ChannelProvider {
+
     // 유틸리티 클래스의 의도 명확히
-    private ChannelList() {}
+    private ChannelProvider() {}
+
     public static final List<String> CHANNEL_IDS = List.of(
             "UCajnLt9NyrPI8txIiefinzw",
             "UCHbXBo1fQAg7j0D7HKKYHJg",

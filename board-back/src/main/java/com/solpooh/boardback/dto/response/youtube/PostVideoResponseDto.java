@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.response.video;
+package com.solpooh.boardback.dto.response.youtube;
 
 import com.solpooh.boardback.common.ResponseCode;
 import com.solpooh.boardback.common.ResponseMessage;
