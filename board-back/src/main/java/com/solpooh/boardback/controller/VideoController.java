@@ -1,5 +1,6 @@
 package com.solpooh.boardback.controller;
 
+import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponseDto;
 import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
 import com.solpooh.boardback.service.VideoService;
@@ -25,5 +26,11 @@ public class VideoController {
     @PostMapping("")
     public ResponseEntity<? super PostVideoResponseDto> postVideo() {
         return videoService.postVideo();
+    }
+    @DeleteMapping("/{videoId}")
+    public ResponseEntity<? super DeleteVideoResponseDto> deleteVideo(
+            @PathVariable("videoId") String videoId
+    ) {
+        return videoService.deleteVideo(videoId);
     }
 }

@@ -10,6 +10,8 @@ enum ResponseCode {
     NOT_EXISTED_USER = "NU",
     NOT_EXISTED_BOARD = "NB",
     NOT_EXISTED_COMMENT = "NC",
+    NOT_EXISTED_CHANNEL = "NEC",
+    NOT_EXISTED_VIDEO = "NV",
 
     // HTTP Status 401
     SIGN_IN_FAIL = "SF",

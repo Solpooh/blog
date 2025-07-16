@@ -3,7 +3,7 @@ import {VideoListItem} from 'types/interface';
 import {useEffect, useState} from 'react';
 import VideoItem from 'components/VideoItem';
 import {getVideoListRequest} from 'apis';
-import {GetVideoListResponseDto} from 'apis/response/board';
+import {GetVideoListResponseDto} from 'apis/response/youtube';
 import {ResponseDto} from 'apis/response';
 import './style.css';
 import Pagination from 'types/interface/pagination.interface';

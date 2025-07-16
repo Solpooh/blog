@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 public class VideoBatch {
     private final VideoService videoService;
 
-//    @Scheduled(cron = "0 0 3 * * *")
-    @Scheduled(cron = "0 0 */1 * * *")
+    @Scheduled(cron = "0 0 3 * * *")
+//    @Scheduled(cron = "0 0 */1 * * *")
     public void postDailyVideo() {
         log.info("▶ 비디오 배치 시작");
         ResponseEntity<? super PostVideoResponseDto> result = videoService.postVideo();

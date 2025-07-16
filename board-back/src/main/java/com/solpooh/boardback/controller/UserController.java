@@ -23,30 +23,26 @@ public class UserController {
     public ResponseEntity<? super GetUserResponseDto> getUser(
             @PathVariable("email") String email
     ) {
-        ResponseEntity<? super GetUserResponseDto> response = userService.getUser(email);
-        return response;
+        return userService.getUser(email);
     }
     @GetMapping("")
     public ResponseEntity<? super GetSignInUserResponseDto> getSignInUser(
             @AuthenticationPrincipal String email
     ) {
-        ResponseEntity<? super GetSignInUserResponseDto> response = userService.getSignInUser(email);
-        return response;
+        return userService.getSignInUser(email);
     }
     @PatchMapping("/nickname")
     public ResponseEntity<? super PatchNicknameResponseDto> patchNickname(
             @RequestBody @Valid PatchNicknameRequestDto requestBody,
             @AuthenticationPrincipal String email
     ) {
-        ResponseEntity<? super PatchNicknameResponseDto> response = userService.patchNickname(requestBody, email);
-        return response;
+        return userService.patchNickname(requestBody, email);
     }
     @PatchMapping("/profile-image")
     public ResponseEntity<? super PatchProfileImageResponseDto> patchProfileImage(
             @RequestBody @Valid PatchProfileImageRequestDto requestBody,
             @AuthenticationPrincipal String email
     ) {
-        ResponseEntity<? super PatchProfileImageResponseDto> response = userService.patchProfileImage(requestBody, email);
-        return response;
+        return userService.patchProfileImage(requestBody, email);
     }
 }

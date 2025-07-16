@@ -15,8 +15,7 @@ public class FileController {
     public String upload(
             @RequestParam("file") MultipartFile file
     ) {
-        String url = fileService.uploadToS3(file);
-        return url;
+        return fileService.uploadToS3(file);
     }
 
     // 이미지 URL 반환

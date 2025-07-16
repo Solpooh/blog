@@ -33,7 +33,7 @@ import {
 } from './response/board';
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
-import GetVideoListResponseDto from "./response/board/get-video-list.response.dto";
+import {GetVideoListResponseDto, DeleteVideoResponseDto} from "./response/youtube";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -396,6 +396,21 @@ export const getVideoListRequest = async (page: number = 0) => {
     const result = await axios.get(GET_VIDEO_LIST_URL(page))
         .then(response => {
             const responseBody: GetVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+const DELETE_VIDEO_URL = (videoId: string) => `${API_DOMAIN}/video/${videoId}`;
+export const deleteVideoRequest = async (videoId: string) => {
+    const result = await axios.delete(DELETE_VIDEO_URL(videoId))
+        .then(response => {
+            const responseBody: DeleteVideoResponseDto = response.data;
             return responseBody;
         })
         .catch(error => {

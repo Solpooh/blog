@@ -18,15 +18,13 @@ public class SearchController {
 
     @GetMapping("/popular-list")
     public ResponseEntity<? super GetPopularListResponseDto> getPopularList() {
-        ResponseEntity<? super GetPopularListResponseDto> response = searchService.getPopularList();
-        return response;
+        return searchService.getPopularList();
     }
 
     @GetMapping("/{searchWord}/relation-list")
     public ResponseEntity<? super GetRelationListResponseDto> getRelationList(
             @PathVariable("searchWord") String searchWord
     ) {
-        ResponseEntity<? super GetRelationListResponseDto> response = searchService.getRelationList(searchWord);
-        return response;
+        return searchService.getRelationList(searchWord);
     }
 }

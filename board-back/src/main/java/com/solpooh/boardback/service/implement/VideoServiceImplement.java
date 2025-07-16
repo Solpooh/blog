@@ -5,6 +5,7 @@ import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.ActivityListResponse;
 import com.solpooh.boardback.converter.VideoConverter;
 import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponseDto;
 import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
 import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
@@ -55,7 +56,7 @@ public class VideoServiceImplement implements VideoService {
         return GetVideoListResponseDto.success(videoEntities);
     }
 
-    // POST: 해당 채널의 비디오 정보 저장하기
+    // POST: 모든 채널의 비디오 정보 저장하기
     @Override
     public ResponseEntity<? super PostVideoResponseDto> postVideo() {
         try {
@@ -71,6 +72,24 @@ public class VideoServiceImplement implements VideoService {
         }
 
         return PostVideoResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super DeleteVideoResponseDto> deleteVideo(String videoId) {
+        try {
+
+            VideoEntity videoEntity = videoRepository.findByVideoId(videoId);
+            if (videoEntity == null) return DeleteVideoResponseDto.noExistVideo();
+
+            videoRepository.delete(videoEntity);
+            log.info("VideoEntity 삭제 성공");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return DeleteVideoResponseDto.success();
     }
 
     private List<Activity> fetchVideoList(String channelId) {
