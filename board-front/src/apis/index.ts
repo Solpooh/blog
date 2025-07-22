@@ -33,7 +33,7 @@ import {
 } from './response/board';
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
-import {GetVideoListResponseDto, DeleteVideoResponseDto} from "./response/youtube";
+import {GetVideoListResponseDto, DeleteVideoResponseDto, GetSearchVideoListResponseDto} from "./response/youtube";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -391,7 +391,7 @@ export const fileUploadRequest = async (data: FormData) => {
 }
 
 const GET_VIDEO_LIST_URL = (page: number = 0) => `${API_DOMAIN}/video?page=${page}`;
-
+const GET_SEARCH_VIDEO_LIST_URL = (searchWord: string, type: string, page: number = 0) => `${API_DOMAIN}/video/search-list/${searchWord}?type=${type}&page=${page}`;
 export const getVideoListRequest = async (page: number = 0) => {
     const result = await axios.get(GET_VIDEO_LIST_URL(page))
         .then(response => {
@@ -405,7 +405,19 @@ export const getVideoListRequest = async (page: number = 0) => {
         });
     return result;
 };
-
+export const getSearchVideoListRequest = async (searchWord: string, type: string, page: number = 0) => {
+    const result = await axios.get(GET_SEARCH_VIDEO_LIST_URL(searchWord, type, page))
+        .then(response => {
+            const responseBody: GetSearchVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
 const DELETE_VIDEO_URL = (videoId: string) => `${API_DOMAIN}/video/${videoId}`;
 export const deleteVideoRequest = async (videoId: string) => {
     const result = await axios.delete(DELETE_VIDEO_URL(videoId))

@@ -77,7 +77,7 @@ export default function Header() {
         //  event handler: 검색 버튼 클릭 이벤트 처리 함수 //
         const onSearchButtonClickHandler = () => {
             if (!word) {
-                alert('검색어를 입력해주세요.')
+                alert('검색어를 입력해주세요.');
                 return;
             }
             if (!status) {
@@ -302,7 +302,7 @@ export default function Header() {
                     </div>
                 </div>
                 <div className='header-right-box'>
-                    {(isMainPage || isSearchPage || isBoardDetailPage || isYoutubePage) && <SearchButton />}
+                    {(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}
                     {(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}
                     {(isBoardWritePage || isBoardUpdatePage) && <UploadButton />}
                 </div>

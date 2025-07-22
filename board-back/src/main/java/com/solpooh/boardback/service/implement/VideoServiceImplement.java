@@ -5,10 +5,7 @@ import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.ActivityListResponse;
 import com.solpooh.boardback.converter.VideoConverter;
 import com.solpooh.boardback.dto.response.ResponseDto;
-import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponseDto;
-import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
-import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
-import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
+import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.repository.ChannelRepository;
@@ -54,6 +51,23 @@ public class VideoServiceImplement implements VideoService {
         }
 
         return GetVideoListResponseDto.success(videoEntities);
+    }
+
+    @Override
+    public ResponseEntity<? super GetSearchVideoListResponseDto> getSearchVideoList(String searchWord, String type, Pageable pageable) {
+        Page<VideoEntity> videoEntities;
+
+        try {
+
+            videoEntities = videoRepository.getSearchListVideo(searchWord, type, pageable);
+            if (videoEntities.isEmpty()) return GetSearchVideoListResponseDto.videoNotFound();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return GetSearchVideoListResponseDto.success(videoEntities);
     }
 
     // POST: 모든 채널의 비디오 정보 저장하기

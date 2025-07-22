@@ -7,6 +7,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface VideoRepositoryIf {
-    List<VideoEntity> getLatestVideo(String category, String lang);
     Page<VideoEntity> getLatestVideo(Pageable pageable, String category, String lang);
+    Page<VideoEntity> getSearchListVideo(String searchWord, String type, Pageable pageable);
 }

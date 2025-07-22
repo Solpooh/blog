@@ -7,3 +7,4 @@ export const BOARD_DETAIL_PATH = (boardNumber: string | number) => `detail/${boa
 export const BOARD_WRITE_PATH = () => 'write';
 export const BOARD_UPDATE_PATH = (boardNumber: string | number) => `update/${boardNumber}`;
 export const YOUTUBE_PATH = () => '/youtube';
+export const YOUTUBE_SEARCH_PATH = (searchWord: string) => `/youtube/${searchWord}`;

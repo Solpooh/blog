@@ -1,6 +1,7 @@
 package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponseDto;
 import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
 import com.solpooh.boardback.service.VideoService;
@@ -23,6 +24,15 @@ public class VideoController {
     ) {
         return videoService.getLatestVideoList(pageable);
     }
+    @GetMapping("/search-list/{searchWord}")
+    public ResponseEntity<? super GetSearchVideoListResponseDto> getSearchVideoList(
+            @PathVariable("searchWord") String searchWord,
+            String type,
+            @PageableDefault(size = 52) Pageable pageable
+    ) {
+        return videoService.getSearchVideoList(searchWord, type, pageable);
+    }
+
     @PostMapping("")
     public ResponseEntity<? super PostVideoResponseDto> postVideo() {
         return videoService.postVideo();

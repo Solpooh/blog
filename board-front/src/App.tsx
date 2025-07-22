@@ -15,7 +15,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH, YOUTUBE_PATH
+    USER_PATH, YOUTUBE_PATH, YOUTUBE_SEARCH_PATH
 } from './constants';
 import {Cookies, useCookies} from 'react-cookie';
 import React, {useEffect} from 'react';
@@ -78,6 +78,7 @@ function App() {
                     <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
                 </Route>
                 <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
+                <Route path={YOUTUBE_SEARCH_PATH(':searchWord')} element={<Youtube />} />
                 <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
             </Route>
         </Routes>
