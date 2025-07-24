@@ -42,4 +42,3 @@ application-*.properties
 
 # logging
 logs/
-.gz/

@@ -7,7 +7,7 @@ import {useCookies} from 'react-cookie';
 import {getBoardRequest} from 'apis';
 import {GetBoardResponseDto} from 'apis/response/board';
 import {ResponseDto} from 'apis/response';
-import {convertUrlsToFile, extractImageUrls} from 'utils';
+import {extractImageUrls} from 'utils';
 import {
     AtomicBlockUtils, ContentBlock,
     convertFromRaw,
@@ -15,7 +15,7 @@ import {
     EditorState,
     getDefaultKeyBinding,
     Modifier,
-    RichUtils, SelectionState
+    RichUtils
 } from 'draft-js';
 import Editor from '@draft-js-plugins/editor';
 import createToolbarPlugin, {
@@ -253,7 +253,7 @@ export default function BoardWrite() {
             return;
         }
         if (!boardNumber) return;
-        getBoardRequest(boardNumber).then(getBoardResponse);
+        getBoardRequest(category, boardNumber).then(getBoardResponse);
         if (editorRef.current) {
             editorRef.current.focus();
         }

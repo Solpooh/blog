@@ -73,7 +73,7 @@ export const signUpRequest = async (requestBody: SignUpRequestDto) => {
     return result;
 }
 
-const GET_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
+const GET_BOARD_URL = (category: string, boardNumber: number | string) => `${API_DOMAIN}/board/${category}/${boardNumber}`;
 const GET_LATEST_BOARD_LIST_URL = (category: string | null, page: number = 0) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}?page=${page}`;
 const GET_TOP_3_BOARD_LIST_URL = () => `${API_DOMAIN}/board/top-3`;
 const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null, page: number = 0) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}?page=${page}`;
@@ -88,8 +88,8 @@ const PATCH_COMMENT_URL = (boardNumber: number | string, commentNumber: number |
 const PUT_FAVORITE_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/favorite`;
 const DELETE_BOARD_URL = (boardNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}`;
 const DELETE_COMMENT_URL = (boardNumber: number | string, commentNumber: number | string) => `${API_DOMAIN}/board/${boardNumber}/comment/${commentNumber}`;
-export const getBoardRequest = async (boardNumber: number | string) => {
-    const result = await axios.get(GET_BOARD_URL(boardNumber))
+export const getBoardRequest = async (category: string, boardNumber: number | string) => {
+    const result = await axios.get(GET_BOARD_URL(category, boardNumber))
         .then(response => {
             const responseBody: GetBoardResponseDto = response.data;
             return responseBody;

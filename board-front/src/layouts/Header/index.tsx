@@ -33,7 +33,7 @@ export default function Header() {
     const isAuthPage = pathname.startsWith(AUTH_PATH());
     const isMainPage = pathname === MAIN_PATH();
     const isSearchPage = pathname.startsWith(SEARCH_PATH(''));
-    const isBoardDetailPage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(''));
+    const isBoardDetailPage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_DETAIL_PATH('', ''));
     const isBoardWritePage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_WRITE_PATH());
     const isBoardUpdatePage = pathname.startsWith(BOARD_PATH() + '/' + BOARD_UPDATE_PATH(''));
     const isUserPage = pathname.startsWith(USER_PATH(''));
@@ -198,7 +198,7 @@ export default function Header() {
             if (code !== 'SU') return;
 
             if (!boardNumber) return;
-            navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(boardNumber));
+            navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(category, boardNumber));
         }
 
         //  event handler: 업로드 버튼 클릭 이벤트 처리 함수 //

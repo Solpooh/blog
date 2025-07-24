@@ -6,6 +6,7 @@ import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.entity.ImageEntity;
 import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
 import lombok.Getter;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

@@ -3,7 +3,7 @@ import './style.css';
 import Top3Item from 'components/Top3Item';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
 import {SEARCH_PATH} from '../../constants';
 import {
     getLatestBoardListRequest,
@@ -31,11 +31,11 @@ export default function Main() {
         //  function: get top 3 board list response 처리 함수 //
         const getTop3BoardListResponse = (responseBody: GetTop3BoardListResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { top3List } = responseBody as GetTop3BoardListResponseDto;
+            const {top3List} = responseBody as GetTop3BoardListResponseDto;
 
             setTop3BoardList(top3List);
         };
@@ -55,7 +55,8 @@ export default function Main() {
                     <div className='main-top-contents-box'>
                         <div className='main-top-contents-title'>{'주간 TOP 3 게시글'}</div>
                         <div className='main-top-contents'>
-                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem} />)}
+                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber}
+                                                                         top3ListItem={top3ListItem}/>)}
                         </div>
                     </div>
                 </div>
@@ -65,15 +66,21 @@ export default function Main() {
 
     //  component: 메인 화면 하단 컴포넌트 //
     const MainBottom = () => {
+        const {category = 'All', page = '1'} = useParams();
+        const [searchParams] = useSearchParams();
+        const pageParam = parseInt(searchParams.get('page') || '1');
+
         //  state: 카테고리 상태  //
         const [categories, setCategories] = useState<{ name: string; count: number }[]>([]);
         //  state: 선택한 카테고리 상태  //
-        const [selectedCategory, setSelectedCategory] = useState<string>('All');
+        const [selectedCategory, setSelectedCategory] = useState<string>(category);
+
+        const [totalBoardCount, setTotalBoardCount] = useState<number>(0);
 
         //  state: 페이지네이션 상태 //
         const [pagination, setPagination] = useState<Pagination<BoardListItem> | null>(null)
         //  state: 현재 페이지 상태 //
-        const [currentPage, setCurrentPage] = useState<number>(1);
+        const [currentPage, setCurrentPage] = useState<number>(pageParam);
         //  state: 최신글 리스트 상태  //
         const [latestBoardList, setLatestBoardList] = useState<BoardListItem[]>([]);
         //  state: 인기 검색어 리스트 상태  //
@@ -83,19 +90,26 @@ export default function Main() {
         const getLatestBoardListResponse = (responseBody: GetLatestBoardListResponseDto | ResponseDto | null,
                                             categoryName: string) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { pagination, categoryCounts } = responseBody as GetLatestBoardListResponseDto;
-            if (categoryName === 'All' && categoryCounts) {
-                const updatedCategories = categoryCounts.map(({ name, count }) => ({name, count}));
-
-                setCategories([
-                    { name: 'All', count: pagination.totalElements},
-                    ...updatedCategories
-                ]);
+            const {pagination, categoryCounts} = responseBody as GetLatestBoardListResponseDto;
+            // ✅ All일 때만 전체 게시글 수를 따로 저장
+            if (categoryName === 'All') {
+                setTotalBoardCount(pagination.totalElements);
+                console.log(totalBoardCount);
             }
+
+            // ✅ 'All' 카테고리는 항상 저장된 totalBoardCount 사용
+            const allCategory = { name: 'All', count: totalBoardCount };
+
+            // ✅ 서버 응답에서 나머지 카테고리
+            const otherCategories = categoryCounts
+                .filter(({ name }) => name !== 'All')
+                .map(({ name, count }) => ({ name, count }));
+
+            setCategories([allCategory, ...otherCategories]);
             setLatestBoardList(pagination.content);
             setPagination(pagination);
         };
@@ -103,37 +117,43 @@ export default function Main() {
         //  function: get popular list response 처리 함수 //
         const getPopularListResponse = (responseBody: GetPopularListResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { popularWordList } = responseBody as GetPopularListResponseDto;
+            const {popularWordList} = responseBody as GetPopularListResponseDto;
             setPopularWordList(popularWordList);
         }
 
         //  event handler: 카테고리 클릭 이벤트 처리  //
-        const onCategoryClickHandler = (categoryName: string | null) => {
-            const targetCategory = categoryName || 'All';
-            setSelectedCategory(targetCategory);
-            // 카테고리 선택 시 currentPage를 무조건 1페이지로 초기화
-            setCurrentPage(1);
-            getLatestBoardListRequest(categoryName, currentPage - 1).then((responseBody) =>
-                getLatestBoardListResponse(responseBody, targetCategory)
-            );
+        const onCategoryClickHandler = (categoryName: string) => {
+            navigate(`/${categoryName}?page=1`);
         };
+
         //  event handler: 인기 검색어 클릭 이벤트 처리  //
         const onPopularWordClickHandler = (word: string) => {
             navigate(SEARCH_PATH(word));
         }
 
-        //  effect: selectedCategory 또는 currentPage가 바뀔 때마다 실행될 함수 //
+        //  effect: URL이 바뀔 때마다 카테고리/페이지 설정
+        useEffect(() => {
+            setSelectedCategory(category);
+            setCurrentPage(pageParam);
+        }, [category, pageParam]);
+
+        //  effect: 데이터 요청 //
         useEffect(() => {
             getLatestBoardListRequest(selectedCategory, currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, selectedCategory)
             );
             getPopularListRequest().then(getPopularListResponse);
         }, [selectedCategory, currentPage]);
-        
+
+        // ✅ 페이지 변경
+        const onPageChange = (page: number) => {
+            navigate(`/${selectedCategory}?page=${page}`);
+        };
+
         //  render: 메인 화면 하단 컴포넌트 렌더링 //
         return (
             <div id="main-bottom-wrapper">
@@ -185,7 +205,7 @@ export default function Main() {
                         <Paging
                             currentPage={currentPage}
                             totalPages={pagination.totalPages}
-                            onPageChange={setCurrentPage}
+                            onPageChange={onPageChange}
                         />
                     </div>
                 )}
@@ -197,8 +217,8 @@ export default function Main() {
     //  render: 메인 화면 컴포넌트 렌더링 //
     return (
         <>
-            <MainTop />
-            <MainBottom />
+            <MainTop/>
+            <MainBottom/>
         </>
     )
 };

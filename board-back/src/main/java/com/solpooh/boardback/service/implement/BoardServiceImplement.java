@@ -37,7 +37,7 @@ public class BoardServiceImplement implements BoardService {
     private final BoardListViewRepository boardListViewRepository;
 
     @Override
-    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(Integer boardNumber) {
+    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(String category, Integer boardNumber) {
         GetBoardResultSet resultSet = null;
         List<ImageEntity> imageEntities = new ArrayList<>();
 

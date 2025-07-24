@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
     private final BoardService boardService;
 
-    @GetMapping("/{boardNumber}")
+    @GetMapping("/{category}/{boardNumber}")
     public ResponseEntity<? super GetBoardResponseDto> getBoard(
+            @PathVariable("category") String category,
             @PathVariable("boardNumber") Integer boardNumber
     ) {
-        return boardService.getBoardDetail(boardNumber);
+        return boardService.getBoardDetail(category, boardNumber);
     }
 
     @GetMapping("/{boardNumber}/favorite-list")

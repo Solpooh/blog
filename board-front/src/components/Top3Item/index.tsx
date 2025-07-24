@@ -3,7 +3,7 @@ import './style.css';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
 import defaultTitleImage from 'assets/image/default-title-image.jpg';
 import { BoardListItem } from 'types/interface';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {BOARD_DETAIL_PATH, BOARD_PATH} from '../../constants';
 
 interface Props {
@@ -13,16 +13,17 @@ interface Props {
 //  component: Top 3 List Item 컴포넌트 //
 export default function Top3Item({ top3ListItem }: Props) {
 
-    const { boardNumber, title, content, boardTitleImage } = top3ListItem;
+    const { boardNumber, title, category, content, boardTitleImage } = top3ListItem;
     const { favoriteCount, commentCount, viewCount } = top3ListItem;
     const { writeDatetime, writerNickname, writerProfileImage } = top3ListItem;
 
     //  function: 네비게이트 함수 //
     const navigate = useNavigate();
+    const { page } = useParams();
 
     //  event handler: 게시물 아이템 클릭 이벤트 처리 함수 //
     const onClickHandler = () => {
-        navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(boardNumber));
+        navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(category, boardNumber) + '?page=' + page);
     }
 
     //  render: Top 3 List Item 컴포넌트 렌더링 //

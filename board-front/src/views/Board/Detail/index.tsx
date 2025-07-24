@@ -29,13 +29,13 @@ import {useCookies} from 'react-cookie';
 import {PostCommentRequestDto} from 'apis/request/board';
 import {Editor, EditorState, convertFromRaw, ContentBlock} from 'draft-js';
 import {customStyleMap} from '../../../plugins';
-import Pagination from "../../../types/interface/pagination.interface";
-import Paging from "../../../components/Paging";
+import Pagination from 'types/interface/pagination.interface';
+import Paging from 'components/Paging';
 
 //  component: 게시물 상세 화면 컴포넌트 //
 export default function BoardDetail() {
     //  state: 게시물 번호 path variable 상태 //
-    const { boardNumber } = useParams();
+    const { boardNumber, category } = useParams();
     //  state: 로그인 유저 상태 //
     const { loginUser } = useLoginUserStore();
     //  state: 쿠키 상태 //
@@ -136,11 +136,11 @@ export default function BoardDetail() {
 
         //  effect: 게시물 번호 path variable이 바뀔때마다 게시물 불러오기 //
         useEffect(() => {
-            if (!boardNumber) {
+            if (!boardNumber || !category) {
                 navigator(MAIN_PATH());
                 return;
             }
-            getBoardRequest(boardNumber).then(getBoardResponse)
+            getBoardRequest(category, boardNumber).then(getBoardResponse)
         }, [boardNumber]);
 
         //  render: 이미지 블록 렌더링 //

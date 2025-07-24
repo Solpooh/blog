@@ -20,7 +20,7 @@ public class VideoController {
 
     @GetMapping("")
     public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(
-            @PageableDefault(size = 52, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 52, sort = "publishedAt") Pageable pageable
     ) {
         return videoService.getLatestVideoList(pageable);
     }

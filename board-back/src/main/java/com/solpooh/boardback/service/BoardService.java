@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public interface BoardService {
-    ResponseEntity<? super GetBoardResponseDto> getBoardDetail(Integer boardNumber);
+    ResponseEntity<? super GetBoardResponseDto> getBoardDetail(String category, Integer boardNumber);
     ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Integer boardNumber);
     ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber, Pageable pageable);
     ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category, Pageable pageable);

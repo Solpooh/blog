@@ -1,5 +1,5 @@
 import './App.css';
-import {Route, Routes} from 'react-router-dom';
+import {Navigate, Route, Routes} from 'react-router-dom';
 import Main from 'views/Main';
 import Authentication from 'views/Authentication';
 import Search from 'views/Search';
@@ -68,13 +68,17 @@ function App() {
     return (
         <Routes>
             <Route element={<Container/>}>
-                <Route path={MAIN_PATH()} element={<Main/>}/>
+                {/* 기본 접속 시 all 카테고리로 리다이렉트 */}
+                <Route path="/" element={<Main />} />
+
+                {/* 게시글 카테고리 별 메인 목록 */}
+                <Route path={MAIN_PATH(':category')} element={<Main />} />
                 <Route path={AUTH_PATH()} element={<Authentication/>}/>
                 <Route path={SEARCH_PATH(':searchWord')} element={<Search/>}/>
                 <Route path={USER_PATH(':userEmail')} element={<UserP/>}/>x
                 <Route path={BOARD_PATH()}>
                     <Route path={BOARD_WRITE_PATH()} element={<BoardWrite/>}/>
-                    <Route path={BOARD_DETAIL_PATH(':boardNumber')} element={<BoardDetail/>}/>
+                    <Route path={BOARD_DETAIL_PATH(':category', ':boardNumber')} element={<BoardDetail/>}/>
                     <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
                 </Route>
                 <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
