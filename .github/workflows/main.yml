@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      - name: Check key length
+        run: echo "${{ secrets.DEPLOY_KEY }}" | wc -c
+        
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
