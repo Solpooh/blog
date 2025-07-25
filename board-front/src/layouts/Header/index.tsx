@@ -44,7 +44,7 @@ export default function Header() {
 
     //  event handler: 로고 클릭 이벤트 처리 함수 //
     const onLogoClickHandler = () => {
-        navigate(MAIN_PATH());
+        navigate('/');
     }
     const onYoutubeClickHandler = () => {
         navigate(YOUTUBE_PATH())
