@@ -1,0 +1,49 @@
+name: Deploy Front and Back
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-front:
+    name: Deploy Frontend to Web EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy to Web EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@15.164.138.8 << 'EOF'
+            cd ~/blog/board-front
+            git pull origin main
+            pm2 restart static-page-server-3000
+          EOF
+
+  deploy-back:
+    name: Deploy Backend to WAS EC2
+    runs-on: ubuntu-latest
+    needs: deploy-front
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy to WAS EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@43.203.33.213 << 'EOF'
+            cd ~/blog/board-back
+            git pull origin main
+            ./gradlew clean build
+            pm2 restart board-back
+          EOF
