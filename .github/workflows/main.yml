@@ -16,7 +16,7 @@ jobs:
       - name: Write private key to file
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
       - name: Test private key with openssl
@@ -25,7 +25,6 @@ jobs:
       - name: Start SSH agent and add key
         run: |
           eval "$(ssh-agent -s)"
-          # 줄바꿈 문자 제거하고 키 추가
           echo "${{ secrets.DEPLOY_KEY }}" | ssh-add -
 
       - name: Deploy to Web EC2
@@ -47,7 +46,7 @@ jobs:
       - name: Write private key to file
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           
       - name: Start SSH agent and add key
