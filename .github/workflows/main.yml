@@ -19,10 +19,9 @@ jobs:
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-      - name: Debug decoded key (for test only)
-        run: |
-          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d | base64
-          
+      - name: Test private key with openssl
+        run: openssl rsa -in ~/.ssh/deploy_key -check
+  
       - name: Start SSH agent and add key
         run: |
           eval "$(ssh-agent -s)"
