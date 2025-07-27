@@ -23,7 +23,7 @@ jobs:
         run: |
           eval "$(ssh-agent -s)"
           # 줄바꿈 문자 제거하고 키 추가
-          echo "${{ secrets.DEPLOY_KEY }}" | tr -d '\r' | ssh-add -
+          echo "${{ secrets.DEPLOY_KEY }}" | ssh-add -
 
       - name: Deploy to Web EC2
         run: |
@@ -47,10 +47,14 @@ jobs:
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+      - name: Debug decoded key (for test only)
+        run: |
+          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d | base64
+          
       - name: Start SSH agent and add key
         run: |
           eval "$(ssh-agent -s)"
-          echo "${{ secrets.DEPLOY_KEY }}" | tr -d '\r' | ssh-add -
+          echo "${{ secrets.DEPLOY_KEY }}" | ssh-add -
 
       - name: Deploy to WAS EC2
         run: |
