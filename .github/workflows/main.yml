@@ -19,6 +19,10 @@ jobs:
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+      - name: Debug decoded key (for test only)
+        run: |
+          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d | base64
+          
       - name: Start SSH agent and add key
         run: |
           eval "$(ssh-agent -s)"
@@ -46,10 +50,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-
-      - name: Debug decoded key (for test only)
-        run: |
-          echo "${{ secrets.DEPLOY_KEY }}" | base64 -d | base64
           
       - name: Start SSH agent and add key
         run: |
