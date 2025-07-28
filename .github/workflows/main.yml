@@ -26,6 +26,8 @@ jobs:
       - name: Deploy to Web EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@15.164.138.8 << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            source $NVM_DIR/nvm.sh
             cd ~/blog/board-front
             git pull origin main
             pm2 restart static-page-server-3000
@@ -47,6 +49,8 @@ jobs:
       - name: Deploy to WAS EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@43.203.33.213 << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            source $NVM_DIR/nvm.sh
             cd ~/blog/board-back
             git pull origin main
             ./gradlew clean build
