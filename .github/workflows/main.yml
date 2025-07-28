@@ -53,6 +53,7 @@ jobs:
             source $NVM_DIR/nvm.sh
             cd ~/blog/board-back
             git pull origin main
+            chmod +x gradlew
             ./gradlew clean build
             pm2 restart board-back
           EOF
