@@ -13,25 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Write private key to file
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-      - name: Check deploy_key format
-        run: |
-          cat ~/.ssh/deploy_key
-          file ~/.ssh/deploy_key
-
-      - name: Test private key with openssl
-        run: openssl rsa -in ~/.ssh/deploy_key -check
-  
-      - name: Start SSH agent and add key
-        run: |
-          eval "$(ssh-agent -s)"
-          echo "${{ secrets.DEPLOY_KEY }}" | ssh-add -
-
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      
       - name: Deploy to Web EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@15.164.138.8 << 'EOF'
@@ -48,16 +34,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Write private key to file
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          
-      - name: Start SSH agent and add key
-        run: |
-          eval "$(ssh-agent -s)"
-          echo "${{ secrets.DEPLOY_KEY }}" | ssh-add -
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy to WAS EC2
         run: |
