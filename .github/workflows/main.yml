@@ -79,7 +79,7 @@ jobs:
           
       - name: Copy jar to WAS EC2
         run: |
-          scp board-back/build/libs/board-back-0.0.1.jar ubuntu@${{ secrets.WAS_HOST }}:~/blog/board-back/board-back-0.0.1.jar
+          rsync -azP board-back/build/libs/board-back-0.0.1.jar ubuntu@${{ secrets.WAS_HOST }}:~/blog/board-back/build/libs/board-back-0.0.1.jar
 
       - name: Restart backend on WAS EC2
         run: |
