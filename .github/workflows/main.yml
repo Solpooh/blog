@@ -1,0 +1,78 @@
+name: CI/CD Deploy Front & Back
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  FRONT_DIR: board-front
+  BACK_DIR: board-back
+  
+jobs:
+  deploy-front:
+    name: Build and Deploy Frontend to Web EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies and build
+        run: |
+          cd board-front
+          npm ci
+          npm run lint || true
+          npm run build
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy built files to Web EC2
+        run: |
+          scp -r board-front/build/* ubuntu@${{ secrets.WEB_HOST }}:~/blog/board-front/build/
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.WEB_HOST }} << 'EOF'
+            pm2 restart static-page-server-3000
+          EOF
+          
+  deploy-back:
+    name: Build and Deploy Backend to WAS EC2
+    runs-on: ubuntu-latest
+    needs: deploy-front
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: |
+          cd board-back
+          chmod +x gradlew
+          ./gradlew clean build
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Copy jar to WAS EC2
+        run: |
+          scp board-back/build/libs/board-back-0.0.1.jar ubuntu@${{ secrets.WAS_HOST }}:~/blog/board-back/board-back-0.0.1.jar
+
+      - name: Restart backend on WAS EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.WAS_HOST }} << 'EOF'
+            pm2 restart board-back
+          EOF
