@@ -26,6 +26,7 @@ jobs:
         run: |
           cd board-front
           npm ci
+          npm run lint || true
           npm run build
 
       - name: Setup SSH
