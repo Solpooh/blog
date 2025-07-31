@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Profile("dev")
+@Profile("prod")
 @Service
 @RequiredArgsConstructor
 public class VideoServiceImplement implements VideoService {
