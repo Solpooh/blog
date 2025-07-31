@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@Profile("dev")
 @RequiredArgsConstructor
 public class ChannelServiceImplement implements ChannelService {
     @Value("${youtube.api.key}")
