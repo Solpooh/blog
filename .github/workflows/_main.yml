@@ -62,6 +62,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Generate application.properties from GitHub Secret
+        run: |
+          echo "${{ secrets.PROD_PROPERTIES }}" > blog/board-back/src/main/resources/application-prod.properties
+      
       - name: Build with Gradle
         run: |
           cd ${{ env.BACK_DIR }}
