@@ -64,13 +64,14 @@ jobs:
 
       - name: Generate application.properties from GitHub Secret
         run: |
-          echo "${{ secrets.PROD_PROPERTIES }}" > blog/board-back/src/main/resources/application-prod.properties
+          mkdir -p ${{ env.BACK_DIR }}/src/main/resources
+          echo "${{ secrets.PROD_PROPERTIES }}" > ${{ env.BACK_DIR }}/src/main/resources/application-prod.properties
       
       - name: Build with Gradle
         run: |
           cd ${{ env.BACK_DIR }}
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew build
 
           echo "📦 Checking jar file..."
           ls -lh build/libs
