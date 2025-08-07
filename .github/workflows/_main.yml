@@ -62,11 +62,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Generate application.properties from GitHub Secret
+        run: |
+          mkdir -p ${{ env.BACK_DIR }}/src/main/resources
+          echo "${{ secrets.PROD_PROPERTIES }}" > ${{ env.BACK_DIR }}/src/main/resources/application-prod.properties
+      
       - name: Build with Gradle
         run: |
           cd ${{ env.BACK_DIR }}
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew build
 
           echo "📦 Checking jar file..."
           ls -lh build/libs
