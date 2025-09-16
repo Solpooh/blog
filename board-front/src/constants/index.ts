@@ -1,4 +1,4 @@
-export const MAIN_PATH = (category: string = 'all') => `/${category}`;
+export const MAIN_PATH = (category: string = 'All') => `/${category}`;
 export const AUTH_PATH = () => '/auth';
 export const SEARCH_PATH = (searchWord: string) => `/search/${searchWord}`;
 export const USER_PATH = (userEmail: string) => `/user/${userEmail}`;

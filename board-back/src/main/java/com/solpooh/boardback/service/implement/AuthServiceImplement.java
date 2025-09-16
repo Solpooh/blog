@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImplement implements AuthService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Override
     public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {
         try {
@@ -57,6 +57,7 @@ public class AuthServiceImplement implements AuthService {
     @Override
     public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
         String token = null;
+
         try {
 
             String email = dto.getEmail();

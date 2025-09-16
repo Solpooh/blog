@@ -302,8 +302,10 @@ export default function Header() {
                     </div>
                 </div>
                 <div className='header-right-box'>
-                    {(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}
-                    {(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}
+                    {/*{(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}*/}
+                    {/*{(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}*/}
+                    <SearchButton />
+                    <MyPageButton />
                     {(isBoardWritePage || isBoardUpdatePage) && <UploadButton />}
                 </div>
             </div>
