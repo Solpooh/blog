@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "image")
 public class ImageEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int sequence;
-    private Integer boardNumber;
+    private Long sequence;
+    private Long boardNumber;
     private String image;
     @Column(name = "is_deleted")
     private boolean deleted;
 
-    public ImageEntity(int boardNumber, String image) {
+    public ImageEntity(Long boardNumber, String image) {
         this.boardNumber = boardNumber;
         this.image = image;
     }

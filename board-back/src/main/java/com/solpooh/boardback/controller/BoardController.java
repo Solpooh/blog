@@ -23,21 +23,21 @@ public class BoardController {
     @GetMapping("/{category}/{boardNumber}")
     public ResponseEntity<? super GetBoardResponseDto> getBoard(
             @PathVariable("category") String category,
-            @PathVariable("boardNumber") Integer boardNumber
+            @PathVariable("boardNumber") Long boardNumber
     ) {
         return boardService.getBoardDetail(category, boardNumber);
     }
 
     @GetMapping("/{boardNumber}/favorite-list")
     public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(
-            @PathVariable("boardNumber") Integer boardNumber
+            @PathVariable("boardNumber") Long boardNumber
     ) {
         return boardService.getFavoriteList(boardNumber);
     }
 
     @GetMapping("/{boardNumber}/comment-list")
     public ResponseEntity<? super GetCommentListResponseDto> getCommentList(
-            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("boardNumber") Long boardNumber,
             @PageableDefault(size = 5) Pageable pageable
     ) {
         return boardService.getCommentList(boardNumber, pageable);
@@ -45,7 +45,7 @@ public class BoardController {
 
     @GetMapping("/{boardNumber}/increase-view-count")
     public ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(
-            @PathVariable("boardNumber") Integer boardNumber
+            @PathVariable("boardNumber") Long boardNumber
     ) {
         return boardService.increaseViewCount(boardNumber);
     }
@@ -91,7 +91,7 @@ public class BoardController {
     @PostMapping("/{boardNumber}/comment")
     public ResponseEntity<? super PostCommentResponseDto> postComment(
             @RequestBody @Valid PostCommentRequestDto requestBody,
-            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.postComment(requestBody, boardNumber, email);
@@ -99,7 +99,7 @@ public class BoardController {
 
     @PutMapping("/{boardNumber}/favorite")
     public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(
-            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.putFavorite(boardNumber, email);
@@ -108,7 +108,7 @@ public class BoardController {
     @PatchMapping("/{boardNumber}")
     public ResponseEntity<? super PatchBoardResponseDto> patchBoard(
             @RequestBody @Valid PatchBoardRequestDto requestBody,
-            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.patchBoard(requestBody, boardNumber, email);
@@ -117,8 +117,8 @@ public class BoardController {
     @PatchMapping("/{boardNumber}/comment/{commentNumber}")
     public ResponseEntity<? super PatchCommentResponseDto> patchComment(
             @RequestBody @Valid PatchCommentRequestDto requestBody,
-            @PathVariable("boardNumber") Integer boardNumber,
-            @PathVariable("commentNumber") Integer commentNumber,
+            @PathVariable("boardNumber") Long boardNumber,
+            @PathVariable("commentNumber") Long commentNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.patchComment(requestBody, boardNumber, commentNumber, email);
@@ -126,7 +126,7 @@ public class BoardController {
 
     @DeleteMapping("/{boardNumber}")
     public ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(
-            @PathVariable("boardNumber") Integer boardNumber,
+            @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.deleteBoard(boardNumber, email);
@@ -134,8 +134,8 @@ public class BoardController {
 
     @DeleteMapping("/{boardNumber}/comment/{commentNumber}")
     public ResponseEntity<? super DeleteCommentResponseDto> deleteComment(
-            @PathVariable("boardNumber") Integer boardNumber,
-            @PathVariable("commentNumber") Integer commentNumber,
+            @PathVariable("boardNumber") Long boardNumber,
+            @PathVariable("commentNumber") Long commentNumber,
             @AuthenticationPrincipal String email
     ) {
         return boardService.deleteComment(boardNumber, commentNumber, email);

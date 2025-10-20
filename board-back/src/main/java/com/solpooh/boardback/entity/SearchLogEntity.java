@@ -17,7 +17,7 @@ import java.util.Date;
 @Table(name = "search_log")
 public class SearchLogEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int sequence;
+    private Long sequence;
     private String searchWord;
     private String relationWord;
     private boolean relation;

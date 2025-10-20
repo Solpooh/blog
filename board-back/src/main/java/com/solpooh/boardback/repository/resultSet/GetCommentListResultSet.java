@@ -1,7 +1,7 @@
 package com.solpooh.boardback.repository.resultSet;
 
 public interface GetCommentListResultSet {
-    Integer getCommentNumber();
+    Long getCommentNumber();
     String getNickname();
     String getProfileImage();
     String getWriteDatetime();

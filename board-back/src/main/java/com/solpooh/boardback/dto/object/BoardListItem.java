@@ -19,7 +19,7 @@ import java.util.stream.StreamSupport;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardListItem {
-    private int boardNumber;
+    private Long boardNumber;
     private String title;
     private String content;
     private String category;

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface ImageRepository extends JpaRepository<ImageEntity, Integer> {
-    List<ImageEntity> findByBoardNumberAndDeleted(Integer boardNumber, boolean is_deleted);
+    List<ImageEntity> findByBoardNumberAndDeleted(Long boardNumber, boolean is_deleted);
 //    @Transactional
 //    void deleteByBoardNumber(Integer boardNumber);
 
@@ -23,7 +23,7 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Integer> {
             "WHERE board_number = ?1",
             nativeQuery = true
     )
-    void imageToDelete(Integer boardNumber);
+    void imageToDelete(Long boardNumber);
 
     @Query(value =
             "SELECT * " +

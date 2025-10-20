@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class BoardServiceImplement implements BoardService {
     private final BoardListViewRepository boardListViewRepository;
 
     @Override
-    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(String category, Integer boardNumber) {
+    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(String category, Long boardNumber) {
         GetBoardResultSet resultSet = null;
         List<ImageEntity> imageEntities = new ArrayList<>();
 
@@ -55,7 +56,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Integer boardNumber) {
+    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Long boardNumber) {
         List<GetFavoriteListResultSet> resultSets = new ArrayList<>();
 
         try {
@@ -73,7 +74,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber, Pageable pageable) {
+    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(Long boardNumber, Pageable pageable) {
         Page<GetCommentListResultSet> resultSets;
 
         try {
@@ -182,7 +183,7 @@ public class BoardServiceImplement implements BoardService {
             boardRepository.save(boardEntity);
 
             // for 이미지 저장
-            int boardNumber = boardEntity.getBoardNumber();
+            Long boardNumber = boardEntity.getBoardNumber();
 
             List<String> boardImageList = dto.getBoardImageList();
             List<ImageEntity> imageEntities = new ArrayList<>();
@@ -201,9 +202,10 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber, String email) {
+    public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Long boardNumber, String email) {
         try {
 
+//            Optional<BoardEntity> opt = Optional.ofNullable(boardRepository.findByBoardNumber(boardNumber))
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return PostCommentResponseDto.noExistBoard();
 
@@ -225,7 +227,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(Integer boardNumber, String email) {
+    public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(Long boardNumber, String email) {
         try {
 
             boolean existedUser = userRepository.existsByEmail(email);
@@ -255,7 +257,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super PatchBoardResponseDto> patchBoard(PatchBoardRequestDto dto, Integer boardNumber, String email) {
+    public ResponseEntity<? super PatchBoardResponseDto> patchBoard(PatchBoardRequestDto dto, Long boardNumber, String email) {
         try {
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return PatchBoardResponseDto.noExistBoard();
@@ -291,7 +293,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super PatchCommentResponseDto> patchComment(PatchCommentRequestDto dto, Integer boardNumber, Integer commentNumber, String email) {
+    public ResponseEntity<? super PatchCommentResponseDto> patchComment(PatchCommentRequestDto dto, Long boardNumber, Long commentNumber, String email) {
         try {
 
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
@@ -319,7 +321,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(Integer boardNumber) {
+    public ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(Long boardNumber) {
         try {
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return IncreaseViewCountResponseDto.noExistBoard();
@@ -334,7 +336,7 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(Integer boardNumber, String email) {
+    public ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(Long boardNumber, String email) {
         try {
             boolean existedUser = userRepository.existsByEmail(email);
             if (!existedUser) return DeleteBoardResponseDto.noExistUser();
@@ -361,8 +363,9 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
-    public ResponseEntity<? super DeleteCommentResponseDto> deleteComment(Integer boardNumber, Integer commentNumber, String email) {
+    public ResponseEntity<? super DeleteCommentResponseDto> deleteComment(Long boardNumber, Long commentNumber, String email) {
         try {
+
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return DeleteCommentResponseDto.noExistBoard();
 
@@ -379,6 +382,7 @@ public class BoardServiceImplement implements BoardService {
             commentRepository.deleteByBoardNumberAndCommentNumber(boardNumber, commentNumber);
             boardEntity.decreaseCommentCount();
             boardRepository.save(boardEntity);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();

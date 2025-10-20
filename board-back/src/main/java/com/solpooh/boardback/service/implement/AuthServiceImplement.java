@@ -27,6 +27,7 @@ public class AuthServiceImplement implements AuthService {
             // 제약조건 검사
             String email = dto.getEmail();
             boolean existedEmail = userRepository.existsByEmail(email);
+
             if (existedEmail) return SignUpResponseDto.duplicateEmail();
 
             String nickname = dto.getNickname();
@@ -78,6 +79,7 @@ public class AuthServiceImplement implements AuthService {
             e.printStackTrace();
             return ResponseDto.databaseError();
         }
+
 
         return SignInResponseDto.success(token);
     }

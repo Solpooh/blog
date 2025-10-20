@@ -35,6 +35,7 @@ public class ChannelServiceImplement implements ChannelService {
 
         try {
             channelEntity = channelRepository.findByChannelId(channelId);
+
             if (channelEntity == null) return GetChannelResponseDto.channelNotFound();
 
         } catch (Exception e) {

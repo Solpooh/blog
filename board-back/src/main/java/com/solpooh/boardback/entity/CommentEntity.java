@@ -18,13 +18,13 @@ import java.util.Date;
 @Table(name = "comment")
 public class CommentEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int commentNumber;
+    private Long commentNumber;
     private String content;
     private String writeDatetime;
     private String userEmail;
-    private int boardNumber;
+    private Long boardNumber;
 
-    public CommentEntity(PostCommentRequestDto dto, Integer boardNumber, String email) {
+    public CommentEntity(PostCommentRequestDto dto, Long boardNumber, String email) {
         Date now = Date.from(Instant.now());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String writeDatetime = simpleDateFormat.format(now);

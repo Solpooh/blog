@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentListItem {
-    private int commentNumber;
+    private Long commentNumber;
     private String nickname;
     private String profileImage;
     private String writeDatetime;

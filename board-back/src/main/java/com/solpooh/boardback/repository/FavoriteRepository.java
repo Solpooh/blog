@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<FavoriteEntity, FavoritePk> {
-    FavoriteEntity findByBoardNumberAndUserEmail(Integer boardNumber, String userEmail);
+    FavoriteEntity findByBoardNumberAndUserEmail(Long boardNumber, String userEmail);
     @Query(value =
             "SELECT " +
             "U.email AS email, " +
@@ -24,7 +24,7 @@ public interface FavoriteRepository extends JpaRepository<FavoriteEntity, Favori
             "WHERE F.board_number = ?1",
             nativeQuery = true
     )
-    List<GetFavoriteListResultSet> getFavoriteList(Integer boardNumber);
+    List<GetFavoriteListResultSet> getFavoriteList(Long boardNumber);
     @Transactional
-    void deleteByBoardNumber(Integer boardNumber);
+    void deleteByBoardNumber(Long boardNumber);
 }

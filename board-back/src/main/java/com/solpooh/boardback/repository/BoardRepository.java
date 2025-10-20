@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
-    boolean existsByBoardNumber(Integer boardNumber);
-    BoardEntity findByBoardNumber(Integer boardNumber);
+    boolean existsByBoardNumber(Long boardNumber);
+    BoardEntity findByBoardNumber(Long boardNumber);
     @Query(value =
             "SELECT " +
             "B.board_number AS boardNumber, " +
@@ -26,5 +26,5 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
             "WHERE board_number = ?1 ",
             nativeQuery = true
     )
-    GetBoardResultSet getBoardDetail(Integer boardNumber);
+    GetBoardResultSet getBoardDetail(Long boardNumber);
 }

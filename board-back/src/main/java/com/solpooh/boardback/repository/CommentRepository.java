@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
-    CommentEntity findByCommentNumber(Integer commentNumber);
+    CommentEntity findByCommentNumber(Long commentNumber);
     @Query(value =
             "SELECT " +
             "C.comment_number AS commentNumber, " +
@@ -30,10 +30,10 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Integer>
             "ORDER BY C.comment_number ",
             nativeQuery = true
     )
-    Page<GetCommentListResultSet> getCommentList(Integer boardNumber, Pageable pageable);
+    Page<GetCommentListResultSet> getCommentList(Long boardNumber, Pageable pageable);
     @Transactional
-    void deleteByBoardNumber(Integer boardNumber);
+    void deleteByBoardNumber(Long boardNumber);
     // 댓글 삭제
     @Transactional
-    void deleteByBoardNumberAndCommentNumber(Integer boardNumber, Integer commentNumber);
+    void deleteByBoardNumberAndCommentNumber(Long boardNumber, Long commentNumber);
 }
