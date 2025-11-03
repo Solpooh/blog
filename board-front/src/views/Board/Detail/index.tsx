@@ -16,7 +16,7 @@ import {
     increaseViewCountRequest, postCommentRequest,
     putFavoriteRequest
 } from 'apis';
-import GetBoardResponseDto from 'apis/response/board/get-board.response.dto';
+import {GetBoardResponseDto} from "apis/response/board";
 import {ResponseDto} from 'apis/response';
 import {
     DeleteBoardResponseDto,
@@ -78,7 +78,7 @@ export default function BoardDetail() {
                 navigator(MAIN_PATH());
                 return;
             }
-            const board: Board = { ...responseBody as GetBoardResponseDto };
+            const board: Board = (responseBody as GetBoardResponseDto).data;
             setBoard(board);
 
             // JSON 데이터를 draft.js 형식으로 변환
@@ -247,7 +247,7 @@ export default function BoardDetail() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { favoriteList } = responseBody as GetFavoriteListResponseDto;
+            const { favoriteList } = (responseBody as GetFavoriteListResponseDto).data;
             setFavoriteList(favoriteList);
 
             if (!loginUser) {
@@ -265,11 +265,11 @@ export default function BoardDetail() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { pagination } = responseBody as GetCommentListResponseDto;
+            const { commentList } = (responseBody as GetCommentListResponseDto).data;
 
-            setPagination(pagination);
-            setCommentList(pagination.content);
-            setTotalCommentCount(pagination.totalElements);
+            setPagination(commentList);
+            setCommentList(commentList.content);
+            setTotalCommentCount(commentList.totalElements);
         }
         //  function: put favorite response 처리 함수 //
         const putFavoriteResponse = (responseBody: PutFavoriteResponseDto | ResponseDto | null) => {

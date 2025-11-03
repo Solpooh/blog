@@ -1,13 +1,14 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.request.auth.SignUpRequestDto;
-import com.solpooh.boardback.dto.request.auth.SignInRequestDto;
-import com.solpooh.boardback.dto.response.auth.SignInResponseDto;
-import com.solpooh.boardback.dto.response.auth.SignUpResponseDto;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.dto.request.auth.SignInRequest;
+import com.solpooh.boardback.dto.request.auth.SignUpRequest;
+import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.auth.SignInResponse;
+import com.solpooh.boardback.dto.response.auth.SignUpResponse;
 import com.solpooh.boardback.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,16 +17,18 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/sign-up")
-    public ResponseEntity<? super SignUpResponseDto> signUp(
-            @RequestBody @Valid SignUpRequestDto requestBody
+    public ResponseDto<SignUpResponse> signUp(
+            @RequestBody @Valid SignUpRequest requestBody
     ) {
-        return authService.signUp(requestBody);
+        authService.signUp(requestBody);
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<? super SignInResponseDto> signIn(
-            @RequestBody @Valid SignInRequestDto requestBody
+    public ResponseDto<SignInResponse> signIn(
+            @RequestBody @Valid SignInRequest requestBody
     ) {
-        return authService.signIn(requestBody);
+        SignInResponse response = authService.signIn(requestBody);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
 }

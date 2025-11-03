@@ -1,28 +1,20 @@
 package com.solpooh.boardback.dto.response;
 
-import com.solpooh.boardback.common.ResponseCode;
-import com.solpooh.boardback.common.ResponseMessage;
+import com.solpooh.boardback.common.ResponseApiInterface;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @Getter
 @AllArgsConstructor
-public class ResponseDto {
+public class ResponseDto<T> {
     private String code;
     private String message;
+    private T data;
 
-    // 공통으로 가질 수 있는 에러들
-    public static ResponseEntity<ResponseDto> databaseError() {
-        ResponseDto responseBody = new ResponseDto(ResponseCode.DATABASE_ERROR, ResponseMessage.DATABASE_ERROR);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+    public static <T> ResponseDto<T> of(ResponseApiInterface status, T data) {
+        return new ResponseDto<>(status.getCode(), status.getMessage(), data);
     }
-
-    public static ResponseEntity<ResponseDto> validationFailed() {
-        ResponseDto responseBody = new ResponseDto(ResponseCode.VALIDATION_FAILED, ResponseMessage.VALIDATION_FAILED);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+    public static <T> ResponseDto<T> of(ResponseApiInterface status) {
+        return of(status, null);
     }
 }

@@ -31,11 +31,11 @@ export default function Main() {
         //  function: get top 3 board list response 처리 함수 //
         const getTop3BoardListResponse = (responseBody: GetTop3BoardListResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const {code} = responseBody;
+            const { code, data} = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const {top3List} = responseBody as GetTop3BoardListResponseDto;
+            const {top3List} = (responseBody as GetTop3BoardListResponseDto).data;
 
             setTop3BoardList(top3List);
         };
@@ -87,41 +87,40 @@ export default function Main() {
         const [popularWordList, setPopularWordList] = useState<string[]>([]);
 
         //  function: get latest board list response 처리 함수 //
-        const getLatestBoardListResponse = (responseBody: GetLatestBoardListResponseDto | ResponseDto | null,
+        const getLatestBoardListResponse = (responseBody: GetLatestBoardListResponseDto | null,
                                             categoryName: string) => {
             if (!responseBody) return;
-            const {code} = responseBody;
+            const { code, data } = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const {pagination, categoryCounts} = responseBody as GetLatestBoardListResponseDto;
+            const { boardList, categoryList } = (responseBody as GetLatestBoardListResponseDto).data;
             // ✅ All일 때만 전체 게시글 수를 따로 저장
             if (categoryName === 'All') {
-                setTotalBoardCount(pagination.totalElements);
+                setTotalBoardCount(boardList.totalElements);
                 console.log(totalBoardCount);
             }
-
             // ✅ 'All' 카테고리는 항상 저장된 totalBoardCount 사용
             const allCategory = { name: 'All', count: totalBoardCount };
 
             // ✅ 서버 응답에서 나머지 카테고리
-            const otherCategories = categoryCounts
+            const otherCategories = categoryList
                 .filter(({ name }) => name !== 'All')
                 .map(({ name, count }) => ({ name, count }));
 
             setCategories([allCategory, ...otherCategories]);
-            setLatestBoardList(pagination.content);
-            setPagination(pagination);
+            setLatestBoardList(boardList.content);
+            setPagination(boardList);
         };
 
         //  function: get popular list response 처리 함수 //
         const getPopularListResponse = (responseBody: GetPopularListResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const {code} = responseBody;
+            const {code, data} = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const {popularWordList} = responseBody as GetPopularListResponseDto;
+            const {popularWordList} = (responseBody as GetPopularListResponseDto).data;
             setPopularWordList(popularWordList);
         }
 

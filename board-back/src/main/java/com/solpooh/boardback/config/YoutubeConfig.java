@@ -16,6 +16,8 @@ public class YoutubeConfig {
                 GoogleNetHttpTransport.newTrustedTransport(),
                 GsonFactory.getDefaultInstance(),
                 null
-        ).setApplicationName("devhub").build();
+        )
+                .setApplicationName("devhub")
+                .build();
     }
 }

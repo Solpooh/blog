@@ -17,13 +17,4 @@ public class FileController {
     ) {
         return fileService.uploadToS3(file);
     }
-
-    // 이미지 URL 반환
-//    @GetMapping(value = "{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-//    public Resource getImage(
-//            @PathVariable("fileName") String fileName
-//    ) {
-//        Resource resource = fileService.getImage(fileName);
-//        return resource;
-//    }
 }

@@ -1,17 +1,17 @@
 package com.solpooh.boardback.service.implement;
 
-import com.solpooh.boardback.dto.request.user.PatchNicknameRequestDto;
-import com.solpooh.boardback.dto.request.user.PatchProfileImageRequestDto;
-import com.solpooh.boardback.dto.response.ResponseDto;
-import com.solpooh.boardback.dto.response.user.GetSignInUserResponseDto;
-import com.solpooh.boardback.dto.response.user.GetUserResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchNicknameResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchProfileImageResponseDto;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.converter.UserConverter;
+import com.solpooh.boardback.dto.request.user.PatchNicknameRequest;
+import com.solpooh.boardback.dto.request.user.PatchProfileImageRequest;
+import com.solpooh.boardback.dto.response.user.GetUserResponse;
+import com.solpooh.boardback.dto.response.user.PatchNicknameResponse;
+import com.solpooh.boardback.dto.response.user.PatchProfileImageResponse;
 import com.solpooh.boardback.entity.UserEntity;
+import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.UserRepository;
 import com.solpooh.boardback.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,77 +20,48 @@ public class UserServiceImplement implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public ResponseEntity<? super GetUserResponseDto> getUser(String email) {
-        UserEntity userEntity = null;
+    public GetUserResponse getUser(String email) {
 
-        try {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_USER));
 
-            userEntity = userRepository.findByEmail(email);
-            if (userEntity == null) return GetUserResponseDto.noExistUser();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetUserResponseDto.success(userEntity);
+        return UserConverter.toResponse(userEntity);
     }
 
     @Override
-    public ResponseEntity<? super GetSignInUserResponseDto> getSignInUser(String email) {
-        UserEntity userEntity = null;
+    public GetUserResponse getSignInUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_USER));
 
-        try {
-
-            userEntity = userRepository.findByEmail(email);
-            if (userEntity == null) return GetSignInUserResponseDto.notExistUser();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetSignInUserResponseDto.success(userEntity);
+        return UserConverter.toResponse(userEntity);
     }
 
     @Override
-    public ResponseEntity<? super PatchNicknameResponseDto> patchNickname(PatchNicknameRequestDto dto, String email) {
-        try {
+    public PatchNicknameResponse patchNickname(PatchNicknameRequest dto, String email) {
 
-            UserEntity userEntity = userRepository.findByEmail(email);
-            if (userEntity == null) return PatchNicknameResponseDto.noExistUser();
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_USER));
 
-            String nickname = dto.getNickname();
-            boolean existedNickname = userRepository.existsByNickname(nickname);
-            if (existedNickname) return PatchNicknameResponseDto.duplicateNickname();
+        if (userRepository.existsByNickname(dto.nickname()))
+            throw new CustomException(ResponseApi.DUPLICATE_NICKNAME);
 
-            userEntity.setNickname(nickname);
-            userRepository.save(userEntity);
+        // 닉네임 변경
+        userEntity.setNickname(dto.nickname());
+        userRepository.save(userEntity);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return PatchNicknameResponseDto.success();
+        return new PatchNicknameResponse();
     }
 
     @Override
-    public ResponseEntity<? super PatchProfileImageResponseDto> patchProfileImage(PatchProfileImageRequestDto dto, String email) {
-        try {
+    public PatchProfileImageResponse patchProfileImage(PatchProfileImageRequest dto, String email) {
 
-            UserEntity userEntity = userRepository.findByEmail(email);
-            if (userEntity == null) return PatchProfileImageResponseDto.noExistUser();
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_USER));
 
-            String profileImage = dto.getProfileImage();
-            userEntity.setProfileImage(profileImage);
-            userRepository.save(userEntity);
+        // 프로필 사진 변경
+        userEntity.setProfileImage(dto.profileImage());
+        userRepository.save(userEntity);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return PatchProfileImageResponseDto.success();
+        return new PatchProfileImageResponse();
     }
-
 }

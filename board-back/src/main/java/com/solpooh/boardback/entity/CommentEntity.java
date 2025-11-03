@@ -1,9 +1,9 @@
 package com.solpooh.boardback.entity;
 
-import com.solpooh.boardback.dto.request.board.PatchCommentRequestDto;
-import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
+import com.solpooh.boardback.dto.request.board.PatchCommentRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.Date;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "comment")
@@ -24,23 +25,12 @@ public class CommentEntity {
     private String userEmail;
     private Long boardNumber;
 
-    public CommentEntity(PostCommentRequestDto dto, Long boardNumber, String email) {
+    public void patchComment(PatchCommentRequest dto) {
         Date now = Date.from(Instant.now());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String writeDatetime = simpleDateFormat.format(now);
 
-        this.content = dto.getContent();
-        this.writeDatetime = writeDatetime;
-        this.userEmail = email;
-        this.boardNumber = boardNumber;
-    }
-
-    public void patchComment(PatchCommentRequestDto dto) {
-        Date now = Date.from(Instant.now());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String writeDatetime = simpleDateFormat.format(now);
-
-        this.content = dto.getContent();
+        this.content = dto.content();
         this.writeDatetime = writeDatetime;
     }
 }

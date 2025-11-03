@@ -4,7 +4,9 @@ import com.solpooh.boardback.entity.ChannelEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ChannelRepository extends JpaRepository<ChannelEntity, String> {
-    ChannelEntity findByChannelId(String channelId);
+    Optional<ChannelEntity> findByChannelId(String channelId);
 }

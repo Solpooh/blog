@@ -1,6 +1,5 @@
 package com.solpooh.boardback.repository;
 
-import com.solpooh.boardback.entity.BoardEntity;
 import com.solpooh.boardback.entity.CommentEntity;
 import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
 import org.springframework.data.domain.Page;
@@ -9,12 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
-    CommentEntity findByCommentNumber(Long commentNumber);
+    Optional<CommentEntity> findByCommentNumber(Long commentNumber);
     @Query(value =
             "SELECT " +
             "C.comment_number AS commentNumber, " +

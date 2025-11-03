@@ -2,10 +2,12 @@ package com.solpooh.boardback.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "image")
@@ -17,9 +19,4 @@ public class ImageEntity {
     private String image;
     @Column(name = "is_deleted")
     private boolean deleted;
-
-    public ImageEntity(Long boardNumber, String image) {
-        this.boardNumber = boardNumber;
-        this.image = image;
-    }
 }

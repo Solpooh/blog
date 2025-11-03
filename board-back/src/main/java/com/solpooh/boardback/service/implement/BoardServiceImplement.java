@@ -1,30 +1,34 @@
 package com.solpooh.boardback.service.implement;
 
-import com.solpooh.boardback.dto.request.board.PatchBoardRequestDto;
-import com.solpooh.boardback.dto.request.board.PatchCommentRequestDto;
-import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
-import com.solpooh.boardback.dto.request.board.PostCommentRequestDto;
-import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.common.Pagination;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.converter.BoardConverter;
+import com.solpooh.boardback.converter.ImageConverter;
+import com.solpooh.boardback.converter.SearchLogConverter;
+import com.solpooh.boardback.dto.object.BoardListResponse;
+import com.solpooh.boardback.dto.object.CommentResponse;
+import com.solpooh.boardback.dto.object.FavoriteResponse;
+import com.solpooh.boardback.dto.request.board.PatchBoardRequest;
+import com.solpooh.boardback.dto.request.board.PatchCommentRequest;
+import com.solpooh.boardback.dto.request.board.PostBoardRequest;
+import com.solpooh.boardback.dto.request.board.PostCommentRequest;
 import com.solpooh.boardback.dto.response.board.*;
 import com.solpooh.boardback.entity.*;
+import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.*;
-import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
+import com.solpooh.boardback.repository.resultSet.GetBoardDetailResultSet;
 import com.solpooh.boardback.repository.resultSet.GetCommentListResultSet;
-import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,356 +42,308 @@ public class BoardServiceImplement implements BoardService {
     private final BoardListViewRepository boardListViewRepository;
 
     @Override
-    public ResponseEntity<? super GetBoardResponseDto> getBoardDetail(String category, Long boardNumber) {
-        GetBoardResultSet resultSet = null;
-        List<ImageEntity> imageEntities = new ArrayList<>();
+    public GetBoardDetailResponse getBoardDetail(String category, Long boardNumber) {
+        // 게시물 상세조회
+        GetBoardDetailResultSet resultSet = boardRepository.getBoardDetail(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-        try {
-            resultSet = boardRepository.getBoardDetail(boardNumber);
-            if (resultSet == null) return GetBoardResponseDto.noExistBoard();
+        // 포함된 이미지 조회
+        List<String> boardImageList =
+                imageRepository.findByBoardNumberAndDeleted(boardNumber, false)
+                        .stream()
+                        .map(ImageEntity::getImage)
+                        .toList();
 
-            imageEntities = imageRepository.findByBoardNumberAndDeleted(boardNumber, false);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetBoardResponseDto.success(resultSet, imageEntities);
+        return BoardConverter.toResponse(resultSet, boardImageList);
     }
 
     @Override
-    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Long boardNumber) {
-        List<GetFavoriteListResultSet> resultSets = new ArrayList<>();
+    public GetFavoriteListResponse getFavoriteList(Long boardNumber) {
+        if (!boardRepository.existsByBoardNumber(boardNumber))
+            throw new CustomException(ResponseApi.NOT_EXISTED_BOARD);
 
-        try {
-            boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
-            if (!existedBoard) return GetFavoriteListResponseDto.noExistBoard();
+        List<FavoriteResponse> favoriteList =
+                favoriteRepository.getFavoriteList(boardNumber)
+                        .stream()
+                        .map(BoardConverter::toResponse)
+                        .toList();
 
-            resultSets = favoriteRepository.getFavoriteList(boardNumber);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetFavoriteListResponseDto.success(resultSets);
+        return new GetFavoriteListResponse(favoriteList);
     }
 
     @Override
-    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(Long boardNumber, Pageable pageable) {
-        Page<GetCommentListResultSet> resultSets;
+    public GetCommentListResponse getCommentList(Long boardNumber, Pageable pageable) {
+        if (!boardRepository.existsByBoardNumber(boardNumber))
+            throw new CustomException(ResponseApi.NOT_EXISTED_BOARD);
 
-        try {
-            boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
-            if (!existedBoard) return GetCommentListResponseDto.noExistBoard();
+        Page<GetCommentListResultSet> resultSets = commentRepository.getCommentList(boardNumber, pageable);
+        List<CommentResponse> commentList = resultSets.getContent()
+                .stream()
+                .map(BoardConverter::toResponse)
+                .toList();
 
-            resultSets = commentRepository.getCommentList(boardNumber, pageable);
+        Pagination<CommentResponse> pagedList = Pagination.of(resultSets, commentList);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetCommentListResponseDto.success(resultSets);
+        return new GetCommentListResponse(pagedList);
     }
 
     @Override
-    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList(String category, Pageable pageable) {
-        Page<BoardListViewEntity> boardListViewEntities;
-        List<CategoryResponseDto> categoryCounts = new ArrayList<>();
+    public IncreaseViewCountResponse increaseViewCount(Long boardNumber) {
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
+        // 조회수 증가
+        boardEntity.increaseViewCount();
+        boardRepository.save(boardEntity);
 
-        try {
-            // 1. 페이징된 게시글 조회
-            if ("All".equals(category) || category == null) {
-                boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc(pageable);
-            } else {
-                boardListViewEntities = boardListViewRepository.findByCategoryOrderByWriteDatetimeDesc(category, pageable);
-            }
-            // 2. 전체 카테고리 count 조회
-            categoryCounts = boardListViewRepository.findCategoryCount();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetLatestBoardListResponseDto.success(boardListViewEntities, categoryCounts);
+        return new IncreaseViewCountResponse();
     }
 
     @Override
-    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
-        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
-        try {
+    public GetLatestBoardListResponse getLatestBoardList(String category, Pageable pageable) {
+        // 페이징 게시글 조회
+        Page<BoardListViewEntity> boardListViewEntities =
+                ("All".equals(category) || category.isEmpty())
+                        ? boardListViewRepository.findByOrderByWriteDatetimeDesc(pageable)
+                        : boardListViewRepository.findByCategoryOrderByWriteDatetimeDesc(category, pageable);
 
-            Date beforeWeek = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String sevenDaysAgo = simpleDateFormat.format(beforeWeek);
+        List<BoardListResponse> boardList = boardListViewEntities.getContent()
+                .stream()
+                .map(BoardConverter::toResponse)
+                .toList();
 
-            boardListViewEntities = boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(sevenDaysAgo);
+        // 카테고리 카운트 조회
+        List<CategoryResponse> categoryCounts = boardListViewRepository.findCategoryCount();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return GetTop3BoardListResponseDto.success(boardListViewEntities);
+        Pagination<BoardListResponse> pagedList = Pagination.of(boardListViewEntities, boardList);
+
+        return new GetLatestBoardListResponse(pagedList, categoryCounts);
     }
 
     @Override
-    public ResponseEntity<? super GetSearchBoardListResponseDto> getSearchBoardList(String searchWord, String preSearchWord, Pageable pageable) {
-        Page<BoardListViewEntity> boardListViewEntities;
+    public GetTop3BoardListResponse getTop3BoardList() {
+        // 일주일 전 날짜 계산
+        Date beforeWeek = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sevenDaysAgo = simpleDateFormat.format(beforeWeek);
 
-        try {
-            // title or content
-            boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord, pageable);
+        List<BoardListViewEntity> boardListViewEntities =
+                boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(sevenDaysAgo);
 
-            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
-            searchLogRepository.save(searchLogEntity);
+        List<BoardListResponse> top3List = boardListViewEntities.stream()
+                .map(BoardConverter::toResponse)
+                .toList();
 
-            boolean relation = (preSearchWord != null);
-            if (relation) {
-                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, true);
-                searchLogRepository.save(searchLogEntity);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetSearchBoardListResponseDto.success(boardListViewEntities);
+        return new GetTop3BoardListResponse(top3List);
     }
 
     @Override
-    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email, Pageable pageable) {
-        Page<BoardListViewEntity> boardListViewEntities;
+    public GetSearchBoardListResponse getSearchBoardList(String searchWord, String preSearchWord, Pageable pageable) {
+        // 1. 검색어로 게시글 목록 조회
+        Page<BoardListViewEntity> boardListViewEntities =
+                boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord, pageable);
 
-        try {
+        // 2. 조회 결과 DTO로 변환
+        List<BoardListResponse> boardList = boardListViewEntities.getContent()
+                .stream()
+                .map(BoardConverter::toResponse)
+                .toList();
 
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return GetUserBoardListResponseDto.noExistUser();
+        // 3. 검색 로그 저장 (보조 로직은 간결하게 분리하자)
+        saveSearchLogs(searchWord, preSearchWord);
 
-            boardListViewEntities = boardListViewRepository.findByWriterEmailOrderByWriteDatetimeDesc(email, pageable);
+        // 4. 페이징 정보와 함께 응답 생성
+        Pagination<BoardListResponse> pagedList = Pagination.of(boardListViewEntities, boardList);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
+        return new GetSearchBoardListResponse(pagedList);
+    }
+
+    private void saveSearchLogs(String searchWord, String preSearchWord) {
+        // 기본 로그 저장
+        searchLogRepository.save(SearchLogConverter.toEntity(searchWord, preSearchWord, false));
+
+        // 연관 로그 저장 (preSearchWord가 있을 때만)
+        if (preSearchWord != null) {
+            searchLogRepository.save(SearchLogConverter.toEntity(preSearchWord, searchWord, true));
         }
-        return GetUserBoardListResponseDto.success(boardListViewEntities);
     }
 
     @Override
-    public ResponseEntity<? super PostBoardResponseDto> postBoard(PostBoardRequestDto dto, String email) {
-        try {
-            boolean existedEmail = userRepository.existsByEmail(email);
-            if (!existedEmail) return PostBoardResponseDto.noExistUser();
+    public GetUserBoardListResponse getUserBoardList(String email, Pageable pageable) {
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            BoardEntity boardEntity = new BoardEntity(dto, email);
-            boardRepository.save(boardEntity);
+        // 1. 유저별 게시물 목록 조회
+        Page<BoardListViewEntity> boardListViewEntities =
+                boardListViewRepository.findByWriterEmailOrderByWriteDatetimeDesc(email, pageable);
 
-            // for 이미지 저장
-            Long boardNumber = boardEntity.getBoardNumber();
+        // 2. 조회 결과 DTO로 변환
+        List<BoardListResponse> boardList = boardListViewEntities.getContent()
+                .stream()
+                .map(BoardConverter::toResponse)
+                .toList();
 
-            List<String> boardImageList = dto.getBoardImageList();
-            List<ImageEntity> imageEntities = new ArrayList<>();
+        // 3. 페이징 정보와 함께 응답 생성
+        Pagination<BoardListResponse> pagedList = Pagination.of(boardListViewEntities, boardList);
 
-            for (String image : boardImageList) {
-                ImageEntity imageEntity = new ImageEntity(boardNumber, image);
-                imageEntities.add(imageEntity);
-            }
-            imageRepository.saveAll(imageEntities);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return PostBoardResponseDto.success();
+        return new GetUserBoardListResponse(pagedList);
     }
 
     @Override
-    public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Long boardNumber, String email) {
-        try {
+    public PostBoardResponse postBoard(PostBoardRequest dto, String email) {
 
-//            Optional<BoardEntity> opt = Optional.ofNullable(boardRepository.findByBoardNumber(boardNumber))
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return PostCommentResponseDto.noExistBoard();
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return PostCommentResponseDto.noExistUser();
+        // 게시물 저장
+        BoardEntity boardEntity = BoardConverter.toEntity(dto, email);
+        boardRepository.save(boardEntity);
 
-            CommentEntity commentEntity = new CommentEntity(dto, boardNumber, email);
-            commentRepository.save(commentEntity);
+        // 이미지 저장
+        Long boardNumber = boardEntity.getBoardNumber();
+        List<ImageEntity> imageEntities = ImageConverter.toEntity(dto, boardNumber);
 
-            boardEntity.increaseCommentCount();
-            boardRepository.save(boardEntity);
+        imageRepository.saveAll(imageEntities);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return PostCommentResponseDto.success();
+        return new PostBoardResponse();
     }
 
     @Override
-    public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(Long boardNumber, String email) {
-        try {
+    public PostCommentResponse postComment(PostCommentRequest dto, Long boardNumber, String email) {
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return PutFavoriteResponseDto.noExistUser();
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return PutFavoriteResponseDto.noExistBoard();
+        // 댓글 저장
+        CommentEntity commentEntity = BoardConverter.toEntity(dto, boardNumber, email);
+        commentRepository.save(commentEntity);
 
-            FavoriteEntity favoriteEntity = favoriteRepository.findByBoardNumberAndUserEmail(boardNumber, email);
-            if (favoriteEntity == null) {
-                favoriteEntity = new FavoriteEntity(email, boardNumber);
-                favoriteRepository.save(favoriteEntity);
-                boardEntity.increaseFavoriteCount();
-            }
-            else {
-                favoriteRepository.delete(favoriteEntity);
-                boardEntity.decreaseFavoriteCount();
-            }
+        // 게시물 댓글 수 증가
+        boardEntity.increaseCommentCount();
+        boardRepository.save(boardEntity);
 
-            boardRepository.save(boardEntity);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return PutFavoriteResponseDto.success();
+        return new PostCommentResponse();
     }
 
     @Override
-    public ResponseEntity<? super PatchBoardResponseDto> patchBoard(PatchBoardRequestDto dto, Long boardNumber, String email) {
-        try {
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return PatchBoardResponseDto.noExistBoard();
+    public PutFavoriteResponse putFavorite(Long boardNumber, String email) {
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return PatchBoardResponseDto.noExistUser();
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-            String writerEmail = boardEntity.getWriterEmail();
-            boolean isWriter = writerEmail.equals(email);
-            if (!isWriter) return PatchBoardResponseDto.noPermission();
+        favoriteRepository.findByBoardNumberAndUserEmail(boardNumber, email)
+                .ifPresentOrElse(
+                        // 이미 존재하면 → 삭제 및 좋아요 감소
+                        favorite -> {
+                            favoriteRepository.delete(favorite);
+                            boardEntity.decreaseFavoriteCount();
+                        },
+                        // 존재하지 않으면 → 생성 및 좋아요 증가
+                        () -> {
+                            FavoriteEntity newFavorite  = new FavoriteEntity(email, boardNumber);
+                            favoriteRepository.save(newFavorite);
+                            boardEntity.increaseFavoriteCount();
+                        }
+                );
 
-            boardEntity.patchBoard(dto);
-            boardRepository.save(boardEntity);
+        boardRepository.save(boardEntity);
 
-            // 기존 이미지 다 지우기
-            imageRepository.imageToDelete(boardNumber);
-            List<String> boardImageList = dto.getBoardImageList();
-            List<ImageEntity> imageEntities = new ArrayList<>();
-
-            for (String image : boardImageList) {
-                ImageEntity imageEntity = new ImageEntity(boardNumber, image);
-                imageEntities.add(imageEntity);
-            }
-
-            imageRepository.saveAll(imageEntities);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return PatchBoardResponseDto.success();
+        return new PutFavoriteResponse();
     }
 
     @Override
-    public ResponseEntity<? super PatchCommentResponseDto> patchComment(PatchCommentRequestDto dto, Long boardNumber, Long commentNumber, String email) {
-        try {
+    public PatchBoardResponse patchBoard(PatchBoardRequest dto, Long boardNumber, String email) {
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return PatchCommentResponseDto.noExistBoard();
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber);
-            if (commentEntity == null) return PatchCommentResponseDto.noExistComment();
+        boolean isWriter = boardEntity.getWriterEmail().equals(email);
+        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
 
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return PatchCommentResponseDto.noExistUser();
+        // 게시물 수정
+        boardEntity.patchBoard(dto);
+        boardRepository.save(boardEntity);
 
-            String writerEmail = boardEntity.getWriterEmail();
-            boolean isWriter = writerEmail.equals(email);
-            if (!isWriter) return PatchCommentResponseDto.noPermission();
+        // 기존 이미지 다 지우기
+        imageRepository.imageToDelete(boardNumber);
 
-            commentEntity.patchComment(dto);
-            commentRepository.save(commentEntity);
+        // 새로운 이미지 추가
+        List<ImageEntity> imageEntities = ImageConverter.toEntity(dto, boardNumber);
+        imageRepository.saveAll(imageEntities);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return PatchCommentResponseDto.success();
+        return new PatchBoardResponse();
     }
 
     @Override
-    public ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(Long boardNumber) {
-        try {
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return IncreaseViewCountResponseDto.noExistBoard();
+    public PatchCommentResponse patchComment(PatchCommentRequest dto, Long boardNumber, Long commentNumber, String email) {
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-            boardEntity.increaseViewCount();
-            boardRepository.save(boardEntity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return IncreaseViewCountResponseDto.success();
+        CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_COMMENT));
+
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
+
+        boolean isWriter = boardEntity.getWriterEmail().equals(email);
+        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+
+        // 댓글 수정
+        commentEntity.patchComment(dto);
+        commentRepository.save(commentEntity);
+
+        return new PatchCommentResponse();
+    }
+
+
+    @Override
+    public DeleteBoardResponse deleteBoard(Long boardNumber, String email) {
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
+
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
+
+        boolean isWriter = boardEntity.getWriterEmail().equals(email);
+        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+
+        // 연관된 모든 엔티티 삭제
+        imageRepository.imageToDelete(boardNumber);
+        commentRepository.deleteByBoardNumber(boardNumber);
+        favoriteRepository.deleteByBoardNumber(boardNumber);
+
+        boardRepository.delete(boardEntity);
+
+        return new DeleteBoardResponse();
     }
 
     @Override
-    public ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(Long boardNumber, String email) {
-        try {
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return DeleteBoardResponseDto.noExistUser();
+    public DeleteCommentResponse deleteComment(Long boardNumber, Long commentNumber, String email) {
 
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return DeleteBoardResponseDto.noExistBoard();
+        BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-            String writerEmail = boardEntity.getWriterEmail();
-            boolean isWriter = writerEmail.equals(email);
-            if (!isWriter) return DeleteBoardResponseDto.noPermission();
+        commentRepository.findByCommentNumber(commentNumber)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_COMMENT));
 
-            imageRepository.imageToDelete(boardNumber);
-            commentRepository.deleteByBoardNumber(boardNumber);
-            favoriteRepository.deleteByBoardNumber(boardNumber);
+        if (!userRepository.existsByEmail(email))
+            throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-            boardRepository.delete(boardEntity);
+        boolean isWriter = boardEntity.getWriterEmail().equals(email);
+        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
+        // 댓글 삭제
+        commentRepository.deleteByBoardNumberAndCommentNumber(boardNumber, commentNumber);
 
-        return DeleteBoardResponseDto.success();
-    }
+        // 게시물의 댓글 수 감소
+        boardEntity.decreaseCommentCount();
+        boardRepository.save(boardEntity);
 
-    @Override
-    public ResponseEntity<? super DeleteCommentResponseDto> deleteComment(Long boardNumber, Long commentNumber, String email) {
-        try {
-
-            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
-            if (boardEntity == null) return DeleteCommentResponseDto.noExistBoard();
-
-            CommentEntity commentEntity = commentRepository.findByCommentNumber(commentNumber);
-            if (commentEntity == null) return DeleteCommentResponseDto.noExistComment();
-
-            boolean existedUser = userRepository.existsByEmail(email);
-            if (!existedUser) return DeleteCommentResponseDto.noExistUser();
-
-            String writerEmail = boardEntity.getWriterEmail();
-            boolean isWriter = writerEmail.equals(email);
-            if (!isWriter) return DeleteBoardResponseDto.noPermission();
-
-            commentRepository.deleteByBoardNumberAndCommentNumber(boardNumber, commentNumber);
-            boardEntity.decreaseCommentCount();
-            boardRepository.save(boardEntity);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return DeleteCommentResponseDto.success();
+        return new DeleteCommentResponse();
     }
 }

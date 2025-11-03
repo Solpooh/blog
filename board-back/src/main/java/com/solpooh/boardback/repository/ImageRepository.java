@@ -12,8 +12,6 @@ import java.util.List;
 @Repository
 public interface ImageRepository extends JpaRepository<ImageEntity, Integer> {
     List<ImageEntity> findByBoardNumberAndDeleted(Long boardNumber, boolean is_deleted);
-//    @Transactional
-//    void deleteByBoardNumber(Integer boardNumber);
 
     @Modifying
     @Transactional

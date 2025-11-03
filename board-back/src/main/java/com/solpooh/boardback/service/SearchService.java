@@ -1,10 +1,9 @@
 package com.solpooh.boardback.service;
 
-import com.solpooh.boardback.dto.response.search.GetPopularListResponseDto;
-import com.solpooh.boardback.dto.response.search.GetRelationListResponseDto;
-import org.springframework.http.ResponseEntity;
+import com.solpooh.boardback.dto.response.search.GetPopularListResponse;
+import com.solpooh.boardback.dto.response.search.GetRelationListResponse;
 
 public interface SearchService {
-    ResponseEntity<? super GetPopularListResponseDto> getPopularList();
-    ResponseEntity<? super GetRelationListResponseDto> getRelationList(String searchWord);
+    GetPopularListResponse getPopularList();
+    GetRelationListResponse getRelationList(String searchWord);
 }

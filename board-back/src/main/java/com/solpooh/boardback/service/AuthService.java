@@ -1,12 +1,11 @@
 package com.solpooh.boardback.service;
 
-import com.solpooh.boardback.dto.request.auth.SignUpRequestDto;
-import com.solpooh.boardback.dto.request.auth.SignInRequestDto;
-import com.solpooh.boardback.dto.response.auth.SignInResponseDto;
-import com.solpooh.boardback.dto.response.auth.SignUpResponseDto;
-import org.springframework.http.ResponseEntity;
+import com.solpooh.boardback.dto.request.auth.SignInRequest;
+import com.solpooh.boardback.dto.request.auth.SignUpRequest;
+import com.solpooh.boardback.dto.response.auth.SignInResponse;
+import com.solpooh.boardback.dto.response.auth.SignUpResponse;
 
 public interface AuthService {
-    ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto);
-    ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto);
+    SignUpResponse signUp(SignUpRequest dto);
+    SignInResponse signIn(SignInRequest dto);
 }

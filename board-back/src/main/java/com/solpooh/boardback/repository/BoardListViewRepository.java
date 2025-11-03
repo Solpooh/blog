@@ -1,6 +1,6 @@
 package com.solpooh.boardback.repository;
 
-import com.solpooh.boardback.dto.response.board.CategoryResponseDto;
+import com.solpooh.boardback.dto.response.board.CategoryResponse;
 import com.solpooh.boardback.entity.BoardListViewEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ public interface BoardListViewRepository extends JpaRepository<BoardListViewEnti
     // 작성자 게시물 조회
     Page<BoardListViewEntity> findByWriterEmailOrderByWriteDatetimeDesc(String writerEmail, Pageable pageable);
     // 카테고리별 게시글 수 조회
-    @Query("SELECT new com.solpooh.boardback.dto.response.board.CategoryResponseDto(b.category, COUNT(b)) " +
+    @Query("SELECT new com.solpooh.boardback.dto.response.board.CategoryResponse(b.category, COUNT(b)) " +
             "FROM board_list_view b GROUP BY b.category")
-    List<CategoryResponseDto> findCategoryCount();
+    List<CategoryResponse> findCategoryCount();
 }

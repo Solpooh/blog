@@ -1,14 +1,15 @@
 package com.solpooh.boardback.entity;
 
-import com.solpooh.boardback.dto.request.auth.SignUpRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "user")
@@ -24,18 +25,12 @@ public class UserEntity {
     private String profileImage;
     private boolean agreedPersonal;
 
-    public UserEntity(SignUpRequestDto dto) {
-        this.email = dto.getEmail();
-        this.password = dto.getPassword(); // 암호화된 비밀번호
-        this.nickname = dto.getNickname();
-        this.telNumber = dto.getTelNumber();
-        this.address = dto.getAddress();
-        this.addressDetail = dto.getAddressDetail();
-        this.agreedPersonal = dto.getAgreedPersonal();
-    }
-
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setProfileImage(String profileImage) {

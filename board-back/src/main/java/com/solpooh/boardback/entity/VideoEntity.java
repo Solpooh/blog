@@ -1,6 +1,5 @@
 package com.solpooh.boardback.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;

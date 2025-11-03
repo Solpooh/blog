@@ -1,11 +1,11 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
-import com.solpooh.boardback.dto.response.youtube.PostChannelResponseDto;
-import com.solpooh.boardback.entity.ChannelEntity;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
+import com.solpooh.boardback.dto.response.youtube.PostChannelResponse;
 import com.solpooh.boardback.service.ChannelService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,13 +15,15 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @GetMapping("/{channelId}")
-    public ResponseEntity<? super GetChannelResponseDto> getChannel(
+    public ResponseDto<GetChannelResponse> getChannel(
             @PathVariable("channelId") String channelId
     ) {
-        return channelService.getChannel(channelId);
+        GetChannelResponse response = channelService.getChannel(channelId);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
     @PostMapping("")
-    public ResponseEntity<? super PostChannelResponseDto> postChannel() {
-        return channelService.postChannel();
+    public ResponseDto<PostChannelResponse> postChannel() {
+        channelService.postChannel();
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
 }

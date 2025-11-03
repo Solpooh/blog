@@ -1,5 +1,6 @@
 import ResponseDto from '../response.dto';
 
-export default interface GetPopularListResponseDto extends ResponseDto {
+export interface GetPopularList {
     popularWordList: string[];
 }
+export type GetPopularListResponseDto = ResponseDto<GetPopularList>;

@@ -95,7 +95,7 @@ export default function BoardWrite() {
             return;
         }
 
-        const { title, content, category, boardImageList, writerEmail } = responseBody as GetBoardResponseDto;
+        const { title, content, category, boardImageList, writerEmail } = (responseBody as GetBoardResponseDto).data;
 
         // 1. JSON 파싱 후 entityMap 추출
         let entityMap = {};

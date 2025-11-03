@@ -1,52 +1,39 @@
 package com.solpooh.boardback.service.implement;
 
-import com.solpooh.boardback.dto.response.ResponseDto;
-import com.solpooh.boardback.dto.response.search.GetPopularListResponseDto;
-import com.solpooh.boardback.dto.response.search.GetRelationListResponseDto;
+import com.solpooh.boardback.dto.response.search.GetPopularListResponse;
+import com.solpooh.boardback.dto.response.search.GetRelationListResponse;
 import com.solpooh.boardback.repository.SearchLogRepository;
 import com.solpooh.boardback.repository.resultSet.GetPopularListResultSet;
 import com.solpooh.boardback.repository.resultSet.GetRelationListResultSet;
 import com.solpooh.boardback.service.SearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SearchServiceImplement implements SearchService {
     private final SearchLogRepository searchLogRepository;
+
     @Override
-    public ResponseEntity<? super GetPopularListResponseDto> getPopularList() {
-        List<GetPopularListResultSet> resultSets = new ArrayList<>();
+    public GetPopularListResponse getPopularList() {
+        List<String> popularWordList = searchLogRepository.getPopularList()
+                .stream()
+                .map(GetPopularListResultSet::getSearchWord)
+                .toList();
 
-        try {
-
-            resultSets = searchLogRepository.getPopularList();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetPopularListResponseDto.success(resultSets);
+        return new GetPopularListResponse(popularWordList);
     }
 
     @Override
-    public ResponseEntity<? super GetRelationListResponseDto> getRelationList(String searchWord) {
-        List<GetRelationListResultSet> resultSets = new ArrayList<>();
+    public GetRelationListResponse getRelationList(String searchWord) {
 
-        try {
+        List<String> relativeWordList = searchLogRepository.getRelationList(searchWord)
+                .stream()
+                .map(GetRelationListResultSet::getSearchWord)
+                .toList();
 
-            resultSets = searchLogRepository.getRelationList(searchWord);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetRelationListResponseDto.success(resultSets);
+        return new GetRelationListResponse(relativeWordList);
     }
 }

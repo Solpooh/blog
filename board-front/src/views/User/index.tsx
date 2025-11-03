@@ -205,11 +205,11 @@ export default function User() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { pagination } = responseBody as GetUserBoardListResponseDto;
+            const { userBoardList } = (responseBody as GetUserBoardListResponseDto).data;
 
             setPagination(pagination);
-            setUserBoardList(pagination.content);
-            setCount(pagination.totalElements);
+            setUserBoardList(userBoardList.content);
+            setCount(userBoardList.totalElements);
         };
 
         //  event handler: 사이드 카드 클릭 이벤트 처리 //

@@ -39,9 +39,10 @@ export default function Youtube() {
         if (code === 'DBE') alert('데이터베이스 오류입니다.');
         if (code !== 'SU') return;
 
-        const { pagination } = responseBody as GetVideoListResponseDto;
-        setVideoList(pagination.content);
-        setPagination(pagination);
+        const { videoList } = (responseBody as GetVideoListResponseDto).data;
+        console.log(videoList)
+        setVideoList(videoList.content);
+        setPagination(videoList);
     }
     //  function: Search videoList response 처리 함수 //
     const getSearchVideoListResponse = (responseBody: GetSearchVideoListResponseDto | ResponseDto | null) => {
@@ -51,8 +52,8 @@ export default function Youtube() {
         if (code !== 'SU') return;
 
 
-        const {pagination} = responseBody as GetSearchVideoListResponseDto;
-        setVideoList(pagination.content);
+        const {videoList} = (responseBody as GetSearchVideoListResponseDto).data;
+        setVideoList(videoList.content);
         setPagination(pagination);
     }
 

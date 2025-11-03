@@ -3,7 +3,6 @@ package com.solpooh.boardback.provider;
 import java.util.List;
 
 public class ChannelProvider {
-
     // 유틸리티 클래스의 의도 명확히
     private ChannelProvider() {}
 

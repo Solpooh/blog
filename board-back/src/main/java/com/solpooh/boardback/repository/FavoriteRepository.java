@@ -9,10 +9,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<FavoriteEntity, FavoritePk> {
-    FavoriteEntity findByBoardNumberAndUserEmail(Long boardNumber, String userEmail);
+    Optional<FavoriteEntity> findByBoardNumberAndUserEmail(Long boardNumber, String userEmail);
     @Query(value =
             "SELECT " +
             "U.email AS email, " +

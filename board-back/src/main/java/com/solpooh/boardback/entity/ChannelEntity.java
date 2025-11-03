@@ -3,12 +3,9 @@ package com.solpooh.boardback.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.util.ArrayList;
+
 import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor

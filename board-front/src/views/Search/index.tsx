@@ -39,11 +39,11 @@ export default function Search() {
         if (code !== 'SU') return;
 
         if (!searchWord) return;
-        const { pagination } = responseBody as GetSearchBoardListResponseDto;
+        const { searchList } = (responseBody as GetSearchBoardListResponseDto).data;
 
         setPagination(pagination);
-        setCount(pagination.totalElements);
-        setSearchBoardList(pagination.content);
+        setCount(searchList.totalElements);
+        setSearchBoardList(searchList.content);
         setPreSearchWord(searchWord);
     }
     //  function: get relation list response 처리 함수 //

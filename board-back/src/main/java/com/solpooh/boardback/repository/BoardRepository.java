@@ -1,15 +1,17 @@
 package com.solpooh.boardback.repository;
 
 import com.solpooh.boardback.entity.BoardEntity;
-import com.solpooh.boardback.repository.resultSet.GetBoardResultSet;
+import com.solpooh.boardback.repository.resultSet.GetBoardDetailResultSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
     boolean existsByBoardNumber(Long boardNumber);
-    BoardEntity findByBoardNumber(Long boardNumber);
+    Optional<BoardEntity> findByBoardNumber(Long boardNumber);
     @Query(value =
             "SELECT " +
             "B.board_number AS boardNumber, " +
@@ -26,5 +28,5 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
             "WHERE board_number = ?1 ",
             nativeQuery = true
     )
-    GetBoardResultSet getBoardDetail(Long boardNumber);
+    Optional<GetBoardDetailResultSet> getBoardDetail(Long boardNumber);
 }

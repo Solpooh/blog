@@ -1,16 +1,14 @@
 package com.solpooh.boardback.service;
 
-import com.solpooh.boardback.dto.request.user.PatchNicknameRequestDto;
-import com.solpooh.boardback.dto.request.user.PatchProfileImageRequestDto;
-import com.solpooh.boardback.dto.response.user.GetSignInUserResponseDto;
-import com.solpooh.boardback.dto.response.user.GetUserResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchNicknameResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchProfileImageResponseDto;
-import org.springframework.http.ResponseEntity;
+import com.solpooh.boardback.dto.request.user.PatchNicknameRequest;
+import com.solpooh.boardback.dto.request.user.PatchProfileImageRequest;
+import com.solpooh.boardback.dto.response.user.GetUserResponse;
+import com.solpooh.boardback.dto.response.user.PatchNicknameResponse;
+import com.solpooh.boardback.dto.response.user.PatchProfileImageResponse;
 
 public interface UserService {
-    ResponseEntity<? super GetUserResponseDto> getUser(String email);
-    ResponseEntity<? super GetSignInUserResponseDto> getSignInUser(String email);
-    ResponseEntity<? super PatchNicknameResponseDto> patchNickname(PatchNicknameRequestDto dto, String email);
-    ResponseEntity<? super PatchProfileImageResponseDto> patchProfileImage(PatchProfileImageRequestDto dto, String email);
+    GetUserResponse getUser(String email);
+    GetUserResponse getSignInUser(String email);
+    PatchNicknameResponse patchNickname(PatchNicknameRequest dto, String email);
+    PatchProfileImageResponse patchProfileImage(PatchProfileImageRequest dto, String email);
 }

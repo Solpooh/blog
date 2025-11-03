@@ -1,15 +1,15 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponseDto;
-import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponseDto;
-import com.solpooh.boardback.dto.response.youtube.GetVideoListResponseDto;
-import com.solpooh.boardback.dto.response.youtube.PostVideoResponseDto;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
+import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponse;
+import com.solpooh.boardback.dto.response.youtube.GetVideoListResponse;
+import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
 import com.solpooh.boardback.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,28 +19,32 @@ public class VideoController {
     private final VideoService videoService;
 
     @GetMapping("")
-    public ResponseEntity<? super GetVideoListResponseDto> getLatestVideoList(
+    public ResponseDto<GetVideoListResponse> getLatestVideoList(
             @PageableDefault(size = 52, sort = "publishedAt") Pageable pageable
     ) {
-        return videoService.getLatestVideoList(pageable);
+        GetVideoListResponse response = videoService.getLatestVideoList(pageable);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
     @GetMapping("/search-list/{searchWord}")
-    public ResponseEntity<? super GetSearchVideoListResponseDto> getSearchVideoList(
+    public ResponseDto<GetSearchVideoListResponse> getSearchVideoList(
             @PathVariable("searchWord") String searchWord,
             String type,
             @PageableDefault(size = 52) Pageable pageable
     ) {
-        return videoService.getSearchVideoList(searchWord, type, pageable);
+        GetSearchVideoListResponse response = videoService.getSearchVideoList(searchWord, type, pageable);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
 
     @PostMapping("")
-    public ResponseEntity<? super PostVideoResponseDto> postVideo() {
-        return videoService.postVideo();
+    public ResponseDto<PostVideoResponse> postVideo() {
+        videoService.postVideo();
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
     @DeleteMapping("/{videoId}")
-    public ResponseEntity<? super DeleteVideoResponseDto> deleteVideo(
+    public ResponseDto<DeleteVideoResponse> deleteVideo(
             @PathVariable("videoId") String videoId
     ) {
-        return videoService.deleteVideo(videoId);
+        videoService.deleteVideo(videoId);
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
 }

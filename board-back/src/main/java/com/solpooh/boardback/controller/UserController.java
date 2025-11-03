@@ -1,15 +1,15 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.request.user.PatchNicknameRequestDto;
-import com.solpooh.boardback.dto.request.user.PatchProfileImageRequestDto;
-import com.solpooh.boardback.dto.response.user.GetSignInUserResponseDto;
-import com.solpooh.boardback.dto.response.user.GetUserResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchNicknameResponseDto;
-import com.solpooh.boardback.dto.response.user.PatchProfileImageResponseDto;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.dto.request.user.PatchNicknameRequest;
+import com.solpooh.boardback.dto.request.user.PatchProfileImageRequest;
+import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.response.user.GetUserResponse;
+import com.solpooh.boardback.dto.response.user.PatchNicknameResponse;
+import com.solpooh.boardback.dto.response.user.PatchProfileImageResponse;
 import com.solpooh.boardback.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,29 +20,33 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{email}")
-    public ResponseEntity<? super GetUserResponseDto> getUser(
+    public ResponseDto<GetUserResponse> getUser(
             @PathVariable("email") String email
     ) {
-        return userService.getUser(email);
+        GetUserResponse response = userService.getUser(email);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
     @GetMapping("")
-    public ResponseEntity<? super GetSignInUserResponseDto> getSignInUser(
+    public ResponseDto<GetUserResponse> getSignInUser(
             @AuthenticationPrincipal String email
     ) {
-        return userService.getSignInUser(email);
+        GetUserResponse response = userService.getSignInUser(email);
+        return ResponseDto.of(ResponseApi.SUCCESS, response);
     }
     @PatchMapping("/nickname")
-    public ResponseEntity<? super PatchNicknameResponseDto> patchNickname(
-            @RequestBody @Valid PatchNicknameRequestDto requestBody,
+    public ResponseDto<PatchNicknameResponse> patchNickname(
+            @RequestBody @Valid PatchNicknameRequest requestBody,
             @AuthenticationPrincipal String email
     ) {
-        return userService.patchNickname(requestBody, email);
+        userService.patchNickname(requestBody, email);
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
     @PatchMapping("/profile-image")
-    public ResponseEntity<? super PatchProfileImageResponseDto> patchProfileImage(
-            @RequestBody @Valid PatchProfileImageRequestDto requestBody,
+    public ResponseDto<PatchProfileImageResponse> patchProfileImage(
+            @RequestBody @Valid PatchProfileImageRequest requestBody,
             @AuthenticationPrincipal String email
     ) {
-        return userService.patchProfileImage(requestBody, email);
+        userService.patchProfileImage(requestBody, email);
+        return ResponseDto.of(ResponseApi.SUCCESS);
     }
 }

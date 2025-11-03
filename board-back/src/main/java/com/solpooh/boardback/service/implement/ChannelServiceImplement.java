@@ -3,20 +3,21 @@ package com.solpooh.boardback.service.implement;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.ChannelSnippet;
-import com.solpooh.boardback.dto.response.ResponseDto;
-import com.solpooh.boardback.dto.response.youtube.GetChannelResponseDto;
-import com.solpooh.boardback.dto.response.youtube.PostChannelResponseDto;
+import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.converter.YoutubeConverter;
+import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
+import com.solpooh.boardback.dto.response.youtube.PostChannelResponse;
 import com.solpooh.boardback.entity.ChannelEntity;
+import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.provider.ChannelProvider;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,57 +31,43 @@ public class ChannelServiceImplement implements ChannelService {
     // GET: 특정 채널 정보 가져오기
     // 단순 channelId로 ChannelEntity 정보 반환
     @Override
-    public ResponseEntity<? super GetChannelResponseDto> getChannel(String channelId) {
-        ChannelEntity channelEntity;
+    public GetChannelResponse getChannel(String channelId) {
+        ChannelEntity channelEntity = channelRepository.findByChannelId(channelId)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_CHANNEL));
 
-        try {
-            channelEntity = channelRepository.findByChannelId(channelId);
-
-            if (channelEntity == null) return GetChannelResponseDto.channelNotFound();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-
-        return GetChannelResponseDto.success(channelEntity);
+        return YoutubeConverter.toResponse(channelEntity);
     }
 
+    // Youtube API 비동기 I/O로 전환 후 성능향상
     @Override
-    public ResponseEntity<? super PostChannelResponseDto> postChannel() {
+    public PostChannelResponse postChannel() {
+        // 이미 DB에 존재하는 채널은 제외(API 호출 최소화)
+        List<String> newChannelIds = ChannelProvider.CHANNEL_IDS.stream()
+                .filter(channelId -> !channelRepository.existsById(channelId))
+                .toList();
+
+        newChannelIds.stream()
+                .map(this::fetchChannelFromYoutube)
+                .flatMap(Optional::stream)
+                .map(YoutubeConverter::toChannelEntity)
+                .forEach(channelRepository::save);
+
+        return new PostChannelResponse();
+    }
+
+    private Optional<Channel> fetchChannelFromYoutube(String channelId) {
         try {
+            YouTube.Channels.List request = youtube.channels()
+                    .list("snippet")
+                    .setId(channelId)
+                    .setKey(apiKey);
 
-            for (String channelId : ChannelProvider.CHANNEL_IDS) {
-                if (!channelRepository.existsById(channelId)) {
-                    YouTube.Channels.List request = youtube.channels()
-                            .list("snippet")
-                            .setId(channelId)
-                            .setKey(apiKey);
+            ChannelListResponse response = request.execute();
+            if (response.getItems().isEmpty()) return Optional.empty();
 
-                    ChannelListResponse response = request.execute();
-
-                    if (!response.getItems().isEmpty()) {
-                        Channel channel = response.getItems().get(0);
-                        ChannelSnippet snippet = channel.getSnippet();
-
-                        ChannelEntity channelEntity = new ChannelEntity();
-                        channelEntity.setChannelId(channelId);
-                        channelEntity.setTitle(snippet.getTitle());
-                        channelEntity.setThumbnail(snippet.getThumbnails().getDefault().getUrl());
-                        channelEntity.setCustomUrl(snippet.getCustomUrl() != null ? snippet.getCustomUrl() : "unknown");
-                        channelEntity.setLang("ko");
-                        channelEntity.setCategory("dev");
-
-                        channelRepository.save(channelEntity);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
+            return Optional.of(response.getItems().get(0));
+        } catch (IOException e) {
+            return Optional.empty();
         }
-
-        return PostChannelResponseDto.success();
     }
 }

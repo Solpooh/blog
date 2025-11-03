@@ -1,17 +1,14 @@
 package com.solpooh.boardback.entity;
 
-import com.solpooh.boardback.dto.request.board.PatchBoardRequestDto;
-import com.solpooh.boardback.dto.request.board.PostBoardRequestDto;
+import com.solpooh.boardback.dto.request.board.PatchBoardRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "board")
@@ -27,21 +24,6 @@ public class BoardEntity {
     private int commentCount;
     private int viewCount;
     private String writerEmail;
-
-    public BoardEntity(PostBoardRequestDto dto, String email) {
-        Date now = Date.from(Instant.now());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String writeDateTime = simpleDateFormat.format(now);
-
-        this.title = dto.getTitle();
-        this.content = dto.getContent();
-        this.category = dto.getCategory();
-        this.writeDatetime = writeDateTime;
-        this.favoriteCount = 0;
-        this.commentCount = 0;
-        this.viewCount = 0;
-        this.writerEmail = email;
-    }
 
     public void increaseViewCount() {
         this.viewCount++;
@@ -62,9 +44,9 @@ public class BoardEntity {
         this.favoriteCount--;
     }
 
-    public void patchBoard(PatchBoardRequestDto dto) {
-        this.title = dto.getTitle();
-        this.content = dto.getContent();
-        this.category = dto.getCategory();
+    public void patchBoard(PatchBoardRequest dto) {
+        this.title = dto.title();
+        this.content = dto.content();
+        this.category = dto.category();
     }
 }

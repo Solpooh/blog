@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Getter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "search_log")
@@ -25,10 +27,10 @@ public class SearchLogEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    public SearchLogEntity(String searchWord, String relationWord, boolean relation) {
-        this.searchWord = searchWord;
-        this.relationWord = relationWord;
-        this.relation = relation;
-        this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-    }
+//    public SearchLogEntity(String searchWord, String relationWord, boolean relation) {
+//        this.searchWord = searchWord;
+//        this.relationWord = relationWord;
+//        this.relation = relation;
+//        this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+//    }
 }

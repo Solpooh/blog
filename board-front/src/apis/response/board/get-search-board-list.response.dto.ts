@@ -2,6 +2,7 @@ import ResponseDto from '../response.dto';
 import {BoardListItem} from 'types/interface';
 import Pagination from 'types/interface/pagination.interface';
 
-export default interface GetSearchBoardListResponseDto extends ResponseDto {
-    pagination: Pagination<BoardListItem>;
+export interface GetSearchBoardList {
+    searchList: Pagination<BoardListItem>;
 }
+export type GetSearchBoardListResponseDto = ResponseDto<GetSearchBoardList>;
