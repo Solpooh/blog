@@ -46,6 +46,7 @@ public class FileServiceImplement implements FileService {
 
         // S3에 업로드
         try {
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(saveFileName)
@@ -53,9 +54,11 @@ public class FileServiceImplement implements FileService {
                     .build();
 
             s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(file.getBytes()));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return fileUrl + saveFileName;
     }
 

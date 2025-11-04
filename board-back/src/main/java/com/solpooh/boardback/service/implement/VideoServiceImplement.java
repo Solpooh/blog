@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 @Slf4j
@@ -71,6 +72,7 @@ public class VideoServiceImplement implements VideoService {
     public PostVideoResponse postVideo() {
         // channel 전부 조회
         List<ChannelEntity> channelList = channelRepository.findAll();
+        Set<String> videoIds = videoRepository.findAllIds();
 
         if (channelList.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
 
@@ -79,7 +81,8 @@ public class VideoServiceImplement implements VideoService {
                     .map(activity -> YoutubeConverter.toVideoEntity(activity, channel))
                         .filter(Objects::nonNull)
                 )
-                .filter(video -> !videoRepository.existsById(video.getVideoId()))
+                .filter(video -> !videoIds.contains(video.getVideoId()))
+//                .filter(video -> !videoRepository.existsById(video.getVideoId()))
                 .forEach(videoRepository::save);
 
         return new PostVideoResponse();

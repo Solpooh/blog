@@ -13,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
     Optional<CommentEntity> findByCommentNumber(Long commentNumber);
+
+    boolean existsByCommentNumber(Long commentNumber);
     @Query(value =
             "SELECT " +
             "C.comment_number AS commentNumber, " +

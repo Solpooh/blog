@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +42,11 @@ public class ChannelServiceImplement implements ChannelService {
     // Youtube API 비동기 I/O로 전환 후 성능향상
     @Override
     public PostChannelResponse postChannel() {
+
+        Set<String> channelIds = channelRepository.findAllIds();
         // 이미 DB에 존재하는 채널은 제외(API 호출 최소화)
         List<String> newChannelIds = ChannelProvider.CHANNEL_IDS.stream()
-                .filter(channelId -> !channelRepository.existsById(channelId))
+                .filter(channelId -> !channelIds.contains(channelId))
                 .toList();
 
         newChannelIds.stream()
@@ -57,15 +60,17 @@ public class ChannelServiceImplement implements ChannelService {
 
     private Optional<Channel> fetchChannelFromYoutube(String channelId) {
         try {
+
             YouTube.Channels.List request = youtube.channels()
                     .list("snippet")
                     .setId(channelId)
                     .setKey(apiKey);
 
             ChannelListResponse response = request.execute();
-            if (response.getItems().isEmpty()) return Optional.empty();
 
+            if (response.getItems().isEmpty()) return Optional.empty();
             return Optional.of(response.getItems().get(0));
+
         } catch (IOException e) {
             return Optional.empty();
         }

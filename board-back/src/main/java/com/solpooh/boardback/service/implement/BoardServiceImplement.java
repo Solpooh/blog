@@ -262,8 +262,8 @@ public class BoardServiceImplement implements BoardService {
         if (!userRepository.existsByEmail(email))
             throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-        boolean isWriter = boardEntity.getWriterEmail().equals(email);
-        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+        if (!boardEntity.getWriterEmail().equals(email))
+            throw new CustomException(ResponseApi.NO_PERMISSION);
 
         // 게시물 수정
         boardEntity.patchBoard(dto);
@@ -290,8 +290,8 @@ public class BoardServiceImplement implements BoardService {
         if (!userRepository.existsByEmail(email))
             throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-        boolean isWriter = boardEntity.getWriterEmail().equals(email);
-        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+        if (!boardEntity.getWriterEmail().equals(email))
+            throw new CustomException(ResponseApi.NO_PERMISSION);
 
         // 댓글 수정
         commentEntity.patchComment(dto);
@@ -309,8 +309,8 @@ public class BoardServiceImplement implements BoardService {
         BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
                 .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-        boolean isWriter = boardEntity.getWriterEmail().equals(email);
-        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+        if (!boardEntity.getWriterEmail().equals(email))
+            throw new CustomException(ResponseApi.NO_PERMISSION);
 
         // 연관된 모든 엔티티 삭제
         imageRepository.imageToDelete(boardNumber);
@@ -328,14 +328,15 @@ public class BoardServiceImplement implements BoardService {
         BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber)
                 .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
 
-        commentRepository.findByCommentNumber(commentNumber)
-                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_COMMENT));
+//        commentRepository.findByCommentNumber(commentNumber)
+        if (!commentRepository.existsByCommentNumber(commentNumber))
+            throw new CustomException(ResponseApi.NOT_EXISTED_COMMENT);
 
         if (!userRepository.existsByEmail(email))
             throw new CustomException(ResponseApi.NOT_EXISTED_USER);
 
-        boolean isWriter = boardEntity.getWriterEmail().equals(email);
-        if (!isWriter) throw new CustomException(ResponseApi.NO_PERMISSION);
+        if (!boardEntity.getWriterEmail().equals(email))
+            throw new CustomException(ResponseApi.NO_PERMISSION);
 
         // 댓글 삭제
         commentRepository.deleteByBoardNumberAndCommentNumber(boardNumber, commentNumber);
