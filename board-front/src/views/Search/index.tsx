@@ -53,7 +53,7 @@ export default function Search() {
         if (code === 'DBE') alert('데이터베이스 오류입니다.');
         if (code !== 'SU') return;
 
-        const { relativeWordList } = responseBody as GetRelationListResponseDto;
+        const { relativeWordList } = (responseBody as GetRelationListResponseDto).data;
         setRelativeWordList(relativeWordList);
     }
 

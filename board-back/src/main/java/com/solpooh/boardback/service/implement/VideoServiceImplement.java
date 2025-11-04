@@ -6,7 +6,6 @@ import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.object.VideoListResponse;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
@@ -19,14 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -73,6 +71,7 @@ public class VideoServiceImplement implements VideoService {
     public PostVideoResponse postVideo() {
         // channel 전부 조회
         List<ChannelEntity> channelList = channelRepository.findAll();
+
         if (channelList.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
 
         channelList.stream()
@@ -93,7 +92,7 @@ public class VideoServiceImplement implements VideoService {
             YouTube.Activities.List request = youtube.activities()
                     .list("snippet, contentDetails")
                     .setChannelId(channelId)
-                    .setMaxResults(10L) // 유튜버가 매일 10개 영상을 올릴 가능성이 없음.
+                    .setMaxResults(10L) // 10개의 영상
                     .setKey(apiKey);
 
             return request.execute().getItems();

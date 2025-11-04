@@ -1,5 +1,7 @@
 import ResponseDto from '../response.dto';
 
-export default interface GetRelationListResponseDto extends ResponseDto {
+export interface GetRelationList {
     relativeWordList: string[];
 }
+
+export type GetRelationListResponseDto = ResponseDto<GetRelationList>;
