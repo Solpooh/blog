@@ -1,9 +1,7 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.dto.request.user.PatchNicknameRequest;
 import com.solpooh.boardback.dto.request.user.PatchProfileImageRequest;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.user.GetUserResponse;
 import com.solpooh.boardback.dto.response.user.PatchNicknameResponse;
 import com.solpooh.boardback.dto.response.user.PatchProfileImageResponse;
@@ -20,33 +18,29 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{email}")
-    public ResponseDto<GetUserResponse> getUser(
+    public GetUserResponse getUser(
             @PathVariable("email") String email
     ) {
-        GetUserResponse response = userService.getUser(email);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return userService.getUser(email);
     }
     @GetMapping("")
-    public ResponseDto<GetUserResponse> getSignInUser(
+    public GetUserResponse getSignInUser(
             @AuthenticationPrincipal String email
     ) {
-        GetUserResponse response = userService.getSignInUser(email);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return userService.getSignInUser(email);
     }
     @PatchMapping("/nickname")
-    public ResponseDto<PatchNicknameResponse> patchNickname(
+    public PatchNicknameResponse patchNickname(
             @RequestBody @Valid PatchNicknameRequest requestBody,
             @AuthenticationPrincipal String email
     ) {
-        userService.patchNickname(requestBody, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return userService.patchNickname(requestBody, email);
     }
     @PatchMapping("/profile-image")
-    public ResponseDto<PatchProfileImageResponse> patchProfileImage(
+    public PatchProfileImageResponse patchProfileImage(
             @RequestBody @Valid PatchProfileImageRequest requestBody,
             @AuthenticationPrincipal String email
     ) {
-        userService.patchProfileImage(requestBody, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return userService.patchProfileImage(requestBody, email);
     }
 }

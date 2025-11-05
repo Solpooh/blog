@@ -1,7 +1,5 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.common.ResponseApi;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
 import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponse;
 import com.solpooh.boardback.dto.response.youtube.GetVideoListResponse;
@@ -19,32 +17,28 @@ public class VideoController {
     private final VideoService videoService;
 
     @GetMapping("")
-    public ResponseDto<GetVideoListResponse> getLatestVideoList(
+    public GetVideoListResponse getLatestVideoList(
             @PageableDefault(size = 52, sort = "publishedAt") Pageable pageable
     ) {
-        GetVideoListResponse response = videoService.getLatestVideoList(pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return videoService.getLatestVideoList(pageable);
     }
     @GetMapping("/search-list/{searchWord}")
-    public ResponseDto<GetSearchVideoListResponse> getSearchVideoList(
+    public GetSearchVideoListResponse getSearchVideoList(
             @PathVariable("searchWord") String searchWord,
             String type,
             @PageableDefault(size = 52) Pageable pageable
     ) {
-        GetSearchVideoListResponse response = videoService.getSearchVideoList(searchWord, type, pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return videoService.getSearchVideoList(searchWord, type, pageable);
     }
 
     @PostMapping("")
-    public ResponseDto<PostVideoResponse> postVideo() {
-        videoService.postVideo();
-        return ResponseDto.of(ResponseApi.SUCCESS);
+    public PostVideoResponse postVideo() {
+        return videoService.postVideo();
     }
     @DeleteMapping("/{videoId}")
-    public ResponseDto<DeleteVideoResponse> deleteVideo(
+    public DeleteVideoResponse deleteVideo(
             @PathVariable("videoId") String videoId
     ) {
-        videoService.deleteVideo(videoId);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return videoService.deleteVideo(videoId);
     }
 }

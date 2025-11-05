@@ -1,7 +1,5 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.common.ResponseApi;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.search.GetPopularListResponse;
 import com.solpooh.boardback.dto.response.search.GetRelationListResponse;
 import com.solpooh.boardback.service.SearchService;
@@ -18,16 +16,14 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping("/popular-list")
-    public ResponseDto<GetPopularListResponse> getPopularList() {
-        GetPopularListResponse response = searchService.getPopularList();
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+    public GetPopularListResponse getPopularList() {
+        return searchService.getPopularList();
     }
 
     @GetMapping("/{searchWord}/relation-list")
-    public ResponseDto<GetRelationListResponse> getRelationList(
+    public GetRelationListResponse getRelationList(
             @PathVariable("searchWord") String searchWord
     ) {
-        GetRelationListResponse response = searchService.getRelationList(searchWord);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return searchService.getRelationList(searchWord);
     }
 }

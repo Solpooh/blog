@@ -1,7 +1,5 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.common.ResponseApi;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
 import com.solpooh.boardback.dto.response.youtube.PostChannelResponse;
 import com.solpooh.boardback.service.ChannelService;
@@ -15,15 +13,13 @@ public class ChannelController {
     private final ChannelService channelService;
 
     @GetMapping("/{channelId}")
-    public ResponseDto<GetChannelResponse> getChannel(
+    public GetChannelResponse getChannel(
             @PathVariable("channelId") String channelId
     ) {
-        GetChannelResponse response = channelService.getChannel(channelId);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return channelService.getChannel(channelId);
     }
     @PostMapping("")
-    public ResponseDto<PostChannelResponse> postChannel() {
-        channelService.postChannel();
-        return ResponseDto.of(ResponseApi.SUCCESS);
+    public PostChannelResponse postChannel() {
+        return channelService.postChannel();
     }
 }

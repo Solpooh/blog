@@ -1,11 +1,9 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.dto.request.board.PatchBoardRequest;
 import com.solpooh.boardback.dto.request.board.PatchCommentRequest;
 import com.solpooh.boardback.dto.request.board.PostBoardRequest;
 import com.solpooh.boardback.dto.request.board.PostCommentRequest;
-import com.solpooh.boardback.dto.response.ResponseDto;
 import com.solpooh.boardback.dto.response.board.*;
 import com.solpooh.boardback.service.BoardService;
 import jakarta.validation.Valid;
@@ -22,138 +20,123 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/{category}/{boardNumber}")
-    public ResponseDto<GetBoardDetailResponse> getBoardDetail(
+    public GetBoardDetailResponse getBoardDetail(
             @PathVariable("category") String category,
             @PathVariable("boardNumber") Long boardNumber
     ) {
-        GetBoardDetailResponse response = boardService.getBoardDetail(category, boardNumber);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getBoardDetail(category, boardNumber);
     }
 
     @GetMapping("/{boardNumber}/favorite-list")
-    public ResponseDto<GetFavoriteListResponse> getFavoriteList(
+    public GetFavoriteListResponse getFavoriteList(
             @PathVariable("boardNumber") Long boardNumber
     ) {
-        GetFavoriteListResponse response = boardService.getFavoriteList(boardNumber);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getFavoriteList(boardNumber);
     }
 
     @GetMapping("/{boardNumber}/comment-list")
-    public ResponseDto<GetCommentListResponse> getCommentList(
+    public GetCommentListResponse getCommentList(
             @PathVariable("boardNumber") Long boardNumber,
             @PageableDefault(size = 5) Pageable pageable
     ) {
-        GetCommentListResponse response = boardService.getCommentList(boardNumber, pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getCommentList(boardNumber, pageable);
     }
 
     @GetMapping("/{boardNumber}/increase-view-count")
-    public ResponseDto<IncreaseViewCountResponse> increaseViewCount(
+    public IncreaseViewCountResponse increaseViewCount(
             @PathVariable("boardNumber") Long boardNumber
     ) {
-        boardService.increaseViewCount(boardNumber);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.increaseViewCount(boardNumber);
     }
 
     @GetMapping("/latest-list/{category}")
-    public ResponseDto<GetLatestBoardListResponse> getLatestBoardList(
+    public GetLatestBoardListResponse getLatestBoardList(
             @PathVariable(required = false) String category,
             @PageableDefault(size = 5) Pageable pageable
     ) {
-        GetLatestBoardListResponse response = boardService.getLatestBoardList(category, pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getLatestBoardList(category, pageable);
     }
 
     @GetMapping("/top-3")
-    public ResponseDto<GetTop3BoardListResponse> getTop3BoardList() {
-        GetTop3BoardListResponse response = boardService.getTop3BoardList();
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+    public GetTop3BoardListResponse getTop3BoardList() {
+        return boardService.getTop3BoardList();
     }
 
     @GetMapping(value = {"/search-list/{searchWord}", "/search-list/{searchWord}/{preSearchWord}"})
-    public ResponseDto<GetSearchBoardListResponse> getSearchBoardList(
+    public GetSearchBoardListResponse getSearchBoardList(
             @PathVariable("searchWord") String searchWord,
             @PathVariable(value = "preSearchWord", required = false) String preSearchWord,
             @PageableDefault(size = 5) Pageable pageable
     ) {
-        GetSearchBoardListResponse response = boardService.getSearchBoardList(searchWord, preSearchWord, pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getSearchBoardList(searchWord, preSearchWord, pageable);
     }
 
     @GetMapping("/user-board-list/{email}")
-    public ResponseDto<GetUserBoardListResponse> getUserBoardList(
+    public GetUserBoardListResponse getUserBoardList(
             @PathVariable("email") String email,
             @PageableDefault(size = 5) Pageable pageable
     ) {
-        GetUserBoardListResponse response = boardService.getUserBoardList(email, pageable);
-        return ResponseDto.of(ResponseApi.SUCCESS, response);
+        return boardService.getUserBoardList(email, pageable);
     }
 
     @PostMapping("")
-    public ResponseDto<PostBoardResponse> postBoard(
+    public PostBoardResponse postBoard(
             @RequestBody @Valid PostBoardRequest requestBody,
             @AuthenticationPrincipal String email
     ) {
-        boardService.postBoard(requestBody, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.postBoard(requestBody, email);
     }
 
     @PostMapping("/{boardNumber}/comment")
-    public ResponseDto<PostCommentResponse> postComment(
+    public PostCommentResponse postComment(
             @RequestBody @Valid PostCommentRequest requestBody,
             @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.postComment(requestBody, boardNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.postComment(requestBody, boardNumber, email);
     }
 
     @PutMapping("/{boardNumber}/favorite")
-    public ResponseDto<PutFavoriteResponse> putFavorite(
+    public PutFavoriteResponse putFavorite(
             @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.putFavorite(boardNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.putFavorite(boardNumber, email);
     }
 
     @PatchMapping("/{boardNumber}")
-    public ResponseDto<PatchBoardResponse> patchBoard(
+    public PatchBoardResponse patchBoard(
             @RequestBody @Valid PatchBoardRequest requestBody,
             @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.patchBoard(requestBody, boardNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.patchBoard(requestBody, boardNumber, email);
     }
 
     @PatchMapping("/{boardNumber}/comment/{commentNumber}")
-    public ResponseDto<PatchCommentResponse> patchComment(
+    public PatchCommentResponse patchComment(
             @RequestBody @Valid PatchCommentRequest requestBody,
             @PathVariable("boardNumber") Long boardNumber,
             @PathVariable("commentNumber") Long commentNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.patchComment(requestBody, boardNumber, commentNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.patchComment(requestBody, boardNumber, commentNumber, email);
     }
 
     @DeleteMapping("/{boardNumber}")
-    public ResponseDto<DeleteBoardResponse> deleteBoard(
+    public DeleteBoardResponse deleteBoard(
             @PathVariable("boardNumber") Long boardNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.deleteBoard(boardNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.deleteBoard(boardNumber, email);
     }
 
     @DeleteMapping("/{boardNumber}/comment/{commentNumber}")
-    public ResponseDto<DeleteCommentResponse> deleteComment(
+    public DeleteCommentResponse deleteComment(
             @PathVariable("boardNumber") Long boardNumber,
             @PathVariable("commentNumber") Long commentNumber,
             @AuthenticationPrincipal String email
     ) {
-        boardService.deleteComment(boardNumber, commentNumber, email);
-        return ResponseDto.of(ResponseApi.SUCCESS);
+        return boardService.deleteComment(boardNumber, commentNumber, email);
     }
 }
