@@ -22,15 +22,17 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     private static String parseBearerToken(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader(AUTHORIZATION_HEADER);
 
         boolean hasAuthorization = StringUtils.hasText(authorization);
         if (!hasAuthorization) return null;
 
         // Bearer 인증 방식이 맞는지
-        boolean isBearer = authorization.startsWith("Bearer ");
+        boolean isBearer = authorization.startsWith(BEARER_PREFIX);
         if (!isBearer) return null;
 
         String token = authorization.substring(7);
@@ -41,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+
             String token = parseBearerToken(request);
             if (token == null) {
                 filterChain.doFilter(request, response);
@@ -65,6 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 외부에서 사용 가능하도록 컨텍스트 설정
             SecurityContextHolder.setContext(securityContext);
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }

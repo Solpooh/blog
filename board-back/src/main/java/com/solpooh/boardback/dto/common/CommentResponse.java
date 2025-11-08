@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.object;
+package com.solpooh.boardback.dto.common;
 
 public record CommentResponse(
         Long commentNumber,

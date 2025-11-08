@@ -3,7 +3,7 @@ package com.solpooh.boardback.converter;
 import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelSnippet;
-import com.solpooh.boardback.dto.object.VideoListResponse;
+import com.solpooh.boardback.dto.common.VideoListResponse;
 import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;

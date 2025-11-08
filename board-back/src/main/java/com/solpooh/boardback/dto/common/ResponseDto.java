@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.response;
+package com.solpooh.boardback.dto.common;
 
 import com.solpooh.boardback.common.ResponseApiInterface;
 import lombok.AllArgsConstructor;

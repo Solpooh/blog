@@ -5,7 +5,7 @@ import java.util.List;
 public class ChannelProvider {
     // 유틸리티 클래스의 의도 명확히
     private ChannelProvider() {}
-
+    // 캡슐화를 안하고 public으로 제공하는 게 맞는지?
     public static final List<String> CHANNEL_IDS = List.of(
             "UCajnLt9NyrPI8txIiefinzw",
             "UCHbXBo1fQAg7j0D7HKKYHJg",

@@ -53,7 +53,7 @@ export default function Authentication() {
             if (code === 'SF' || code === 'VF') setError(true);
             if (code !== 'SU') return;
 
-            const { token, expirationTime } = responseBody as SignInResponseDto;
+            const { token, expirationTime } = (responseBody as SignInResponseDto).data;
 
             // JWT 생성 시 만료 시간과 쿠키의 만료시간 일치
             const decodedToken = JSON.parse(atob(token.split('.')[1])); // JWT의 페이로드 부분을 디코딩

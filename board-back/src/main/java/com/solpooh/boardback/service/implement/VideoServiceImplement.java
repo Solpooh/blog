@@ -5,7 +5,7 @@ import com.google.api.services.youtube.model.Activity;
 import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
-import com.solpooh.boardback.dto.object.VideoListResponse;
+import com.solpooh.boardback.dto.common.VideoListResponse;
 import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;

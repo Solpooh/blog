@@ -1,6 +1,6 @@
 package com.solpooh.boardback.common;
 
-import com.solpooh.boardback.dto.response.ResponseDto;
+import com.solpooh.boardback.dto.common.ResponseDto;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;

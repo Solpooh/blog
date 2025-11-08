@@ -1,4 +1,4 @@
-package com.solpooh.boardback.dto.object;
+package com.solpooh.boardback.dto.common;
 public record BoardListResponse(
         Long boardNumber,
         String title,
