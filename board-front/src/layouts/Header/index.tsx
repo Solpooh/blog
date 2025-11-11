@@ -126,7 +126,7 @@ export default function Header() {
             // eslint-disable-next-line no-restricted-globals
             if (!confirm("정말 로그아웃 하시겠습니까?")) return;
             resetLoginUser();
-            setCookie('accessToken', '', { path: MAIN_PATH(), expires: new Date() });
+            setCookie('accessToken', '', { path: '/', expires: new Date() });
             setLogin(false);
             navigate(MAIN_PATH());
         }

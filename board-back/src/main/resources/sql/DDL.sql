@@ -134,6 +134,7 @@ CREATE VIEW board_list_view AS
 SELECT B.board_number   AS board_number,
        B.title          AS title,
        B.content        AS content,
+       B.category       AS category,
        I.image          AS title_image,
        B.favorite_count AS favorite_count,
        B.comment_count  AS comment_count,

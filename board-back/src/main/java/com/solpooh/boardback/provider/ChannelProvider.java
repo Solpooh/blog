@@ -1,12 +1,12 @@
 package com.solpooh.boardback.provider;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ChannelProvider {
     // 유틸리티 클래스의 의도 명확히
     private ChannelProvider() {}
-    // 캡슐화를 안하고 public으로 제공하는 게 맞는지?
-    public static final List<String> CHANNEL_IDS = List.of(
+    private static final List<String> CHANNEL_IDS = List.of(
             "UCajnLt9NyrPI8txIiefinzw",
             "UCHbXBo1fQAg7j0D7HKKYHJg",
             "UCCv0FlNbZYXlnP9Mt8dXeLQ",
@@ -133,4 +133,8 @@ public class ChannelProvider {
             "UCebXwimGkd5YrhPV7vmqKgA",
             "UCwbg0dHtGEdLJWATaWJv96Q"
     );
+    public static List<String> getChannelIds() {
+        return Collections.unmodifiableList(CHANNEL_IDS);
+    }
+
 }

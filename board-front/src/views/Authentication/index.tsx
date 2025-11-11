@@ -58,7 +58,7 @@ export default function Authentication() {
             // JWT 생성 시 만료 시간과 쿠키의 만료시간 일치
             const decodedToken = JSON.parse(atob(token.split('.')[1])); // JWT의 페이로드 부분을 디코딩
             const expirationTimeInMs = decodedToken.exp * 1000; // `exp` 필드를 밀리초로 변환
-            setCookie('accessToken', token, { expires: new Date(expirationTimeInMs), path: MAIN_PATH() });
+            setCookie('accessToken', token, { expires: new Date(expirationTimeInMs), path: '/' });
 
             navigator(MAIN_PATH());
         }
