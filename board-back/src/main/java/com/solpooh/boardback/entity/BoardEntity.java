@@ -24,6 +24,8 @@ public class BoardEntity {
     private int commentCount;
     private int viewCount;
     private String writerEmail;
+    @Version
+    private Long version;
 
     public void increaseViewCount() {
         this.viewCount++;
@@ -31,6 +33,9 @@ public class BoardEntity {
 
     public void increaseFavoriteCount() {
         this.favoriteCount++;
+    }
+    public void decreaseFavoriteCount() {
+        this.favoriteCount--;
     }
 
     public void increaseCommentCount() {
@@ -40,9 +45,6 @@ public class BoardEntity {
         this.commentCount--;
     }
 
-    public void decreaseFavoriteCount() {
-        this.favoriteCount--;
-    }
 
     public void patchBoard(PatchBoardRequest dto) {
         this.title = dto.title();

@@ -22,7 +22,11 @@ import com.solpooh.boardback.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -227,6 +231,15 @@ public class BoardServiceImplement implements BoardService {
     }
 
     @Override
+    @Retryable(
+            maxAttempts = 10,
+            backoff = @Backoff(
+                    delay = 0,
+                    random = true,
+                    maxDelay = 10000
+            )
+    )
+    @Transactional
     public PutFavoriteResponse putFavorite(Long boardNumber, String email) {
         if (!userRepository.existsByEmail(email))
             throw new CustomException(ResponseApi.NOT_EXISTED_USER);
