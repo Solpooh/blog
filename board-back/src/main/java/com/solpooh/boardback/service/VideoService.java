@@ -15,4 +15,6 @@ public interface VideoService {
     PostVideoResponse postVideo();
     // DELETE: 해당 채널의 비디오 정보 삭제하기
     DeleteVideoResponse deleteVideo(String videoId);
+
+    void postViewCount();
 }

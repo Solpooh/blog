@@ -30,6 +30,7 @@ public class YoutubeConverter {
                                 activity.getSnippet().getPublishedAt().toStringRfc3339(),
                                 DateTimeFormatter.ISO_DATE_TIME))
                 .channel(channel)
+                .viewCount(0L) // 최초 0으로 저장
                 .build();
     }
 
@@ -40,8 +41,9 @@ public class YoutubeConverter {
                 videoEntity.getThumbnail(),
                 videoEntity.getPublishedAt().toString(),
                 videoEntity.getChannel().getTitle(),
-                videoEntity.getChannel().getChannelId(),
-                videoEntity.getChannel().getThumbnail()
+                videoEntity.getChannel().getCustomUrl(),
+                videoEntity.getChannel().getThumbnail(),
+                videoEntity.getViewCount()
         );
     }
 

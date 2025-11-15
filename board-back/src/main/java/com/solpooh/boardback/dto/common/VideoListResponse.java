@@ -6,6 +6,7 @@ public record VideoListResponse(
         String thumbnail,
         String publishedAt,
         String channelTitle,
-        String channelId,
-        String channelThumbnail
+        String customUrl,
+        String channelThumbnail,
+        Long viewCount
 ) { }

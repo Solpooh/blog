@@ -10,7 +10,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ImageBatch {
+public class ImageScheduler {
     private final FileService fileService;
     private final ImageRepository imageRepository;
 

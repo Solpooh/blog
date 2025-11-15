@@ -29,11 +29,23 @@
     flex-grow: 1;
 }
 
+.video-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
 .video-published-at {
     font-size: 13px;
     color: #aaa;
-    margin-bottom: 4px;
 }
+
+.video-view-count {
+    font-size: 16px;
+    color: #e63946;
+}
+
 
 .video-title {
     font-size: 16px;
@@ -69,6 +81,7 @@
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
 }
 
 a {
@@ -80,4 +93,17 @@ a {
 
 a:hover {
     text-decoration: none;
+}
+
+.channel-info-link:hover {
+    background-color: rgba(255, 140, 0, 0.12); /* 오렌지 하이라이트 */
+    transform: translateY(-2px);
+}
+.channel-info-link:hover .video-channel {
+    color: #ff8c00; /* 강조색 */
+}
+.video-info-link:hover {
+    background-color: #e3f2fd; /* 부드러운 하늘색 */
+    transform: translateY(-2px);
+    color: #1e88e5; /* 텍스트는 연한 블루와 자연스럽게 어울림 */
 }

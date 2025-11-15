@@ -34,4 +34,7 @@ public class VideoEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
     private ChannelEntity channel;
+
+    @Column(name = "view_count")
+    private Long viewCount;
 }

@@ -10,7 +10,7 @@ interface Props {
 
 export default function VideoItem({ videoItem }: Props) {
 
-    const { videoId, title, thumbnail, channelId, channelTitle, channelThumbnail, publishedAt } = videoItem;
+    const { videoId, title, thumbnail, channelTitle, customUrl, channelThumbnail, publishedAt, viewCount } = videoItem;
     const formattedDate = new Date(publishedAt).toISOString().split("T")[0]; // 'yyyy-MM-dd' 포맷
 
     //  function: 이미지 삭제 응답 함수  //
@@ -34,14 +34,25 @@ export default function VideoItem({ videoItem }: Props) {
 
     return (
         <div className="video-card">
-            <div className="channel-info">
-                <img src={channelThumbnail} alt={channelTitle} className="channel-thumbnail" loading="lazy" />
-                <p className="video-channel">{channelTitle}</p>
-            </div>
-            <a href={`https://youtu.be/${videoId}`} target="_blank">
+            <a
+                href={`https://www.youtube.com/${customUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="channel-info-link"
+            >
+                <div className="channel-info">
+                    <img src={channelThumbnail} alt={channelTitle} className="channel-thumbnail" loading="lazy"/>
+                    <p className="video-channel">{channelTitle}</p>
+                </div>
+            </a>
+            <a href={`https://youtu.be/${videoId}`} target="_blank" className="video-info-link">
                 <img key={videoId} alt={title} src={thumbnail} className="video-thumbnail" loading="lazy" onLoad={onImageLoadHandler} />
                 <div className="video-info">
-                    <p className="video-published-at">{formattedDate}</p>
+                    <div className="video-meta">
+                        <span className="video-published-at">{formattedDate}</span>
+                        <span className="video-view-count">{viewCount !== null && viewCount !== undefined ? `조회수 ${viewCount.toLocaleString()}회` : "조회수 -"}</span>
+                    </div>
+
                     <h3 className="video-title">{title}</h3>
                 </div>
             </a>

@@ -41,4 +41,9 @@ public class VideoController {
     ) {
         return videoService.deleteVideo(videoId);
     }
+
+    @PostMapping("/viewCount")
+    public void postViewCount() {
+        videoService.postViewCount();
+    }
 }
