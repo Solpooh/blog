@@ -1,9 +1,6 @@
 package com.solpooh.boardback.service;
 
-import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
-import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponse;
-import com.solpooh.boardback.dto.response.youtube.GetVideoListResponse;
-import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
+import com.solpooh.boardback.dto.response.youtube.*;
 import org.springframework.data.domain.Pageable;
 
 public interface VideoService {
@@ -16,5 +13,6 @@ public interface VideoService {
     // DELETE: 해당 채널의 비디오 정보 삭제하기
     DeleteVideoResponse deleteVideo(String videoId);
 
-    void postViewCount();
+    void postVideoInfo();
+    GetTopTrendVideoListResponse getTopTrendVideoList();
 }

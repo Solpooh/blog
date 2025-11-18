@@ -1,9 +1,6 @@
 package com.solpooh.boardback.controller;
 
-import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
-import com.solpooh.boardback.dto.response.youtube.GetSearchVideoListResponse;
-import com.solpooh.boardback.dto.response.youtube.GetVideoListResponse;
-import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
+import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +39,12 @@ public class VideoController {
         return videoService.deleteVideo(videoId);
     }
 
-    @PostMapping("/viewCount")
-    public void postViewCount() {
-        videoService.postViewCount();
+    @PostMapping("/info")
+    public void postVideoInfo() {
+        videoService.postVideoInfo();
+    }
+    @GetMapping("/top-list")
+    public GetTopTrendVideoListResponse getTopTrendVideoList() {
+        return videoService.getTopTrendVideoList();
     }
 }

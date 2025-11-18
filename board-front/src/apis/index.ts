@@ -33,7 +33,13 @@ import {
 } from './response/board';
 import {GetPopularListResponseDto, GetRelationListResponseDto} from './response/search';
 import {PatchNicknameRequestDto, PatchProfileImageRequestDto} from './request/user';
-import {GetVideoListResponseDto, DeleteVideoResponseDto, GetSearchVideoListResponseDto} from "./response/youtube";
+import {
+    GetVideoListResponseDto,
+    DeleteVideoResponseDto,
+    GetSearchVideoListResponseDto,
+    GetTopTrendVideoListResponseDto
+} from "./response/youtube";
+import {themes} from "prismjs/components";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -423,6 +429,21 @@ export const deleteVideoRequest = async (videoId: string) => {
     const result = await axios.delete(DELETE_VIDEO_URL(videoId))
         .then(response => {
             const responseBody: DeleteVideoResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+const GET_TOP_TREND_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/top-list`;
+export const getTopTrendVideoRequest = async () => {
+    const result = await axios.get(GET_TOP_TREND_VIDEO_LIST_URL())
+        .then(response => {
+            const responseBody: GetTopTrendVideoListResponseDto = response.data;
             return responseBody;
         })
         .catch(error => {

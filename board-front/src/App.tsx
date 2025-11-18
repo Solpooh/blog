@@ -15,7 +15,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH, YOUTUBE_PATH, YOUTUBE_SEARCH_PATH
+    USER_PATH, YOUTUBE_PATH, YOUTUBE_SEARCH_PATH, YOUTUBE_TREND_PATH
 } from './constants';
 import {Cookies, useCookies} from 'react-cookie';
 import React, {useEffect} from 'react';
@@ -25,6 +25,7 @@ import {GetSignInUserResponseDto} from './apis/response/user';
 import {ResponseDto} from './apis/response';
 import {User} from './types/interface';
 import Youtube from './views/Youtube';
+import YoutubeTrend from "./views/YoutubeTrend";
 
 
 //  component: Application 컴포넌트 //
@@ -83,6 +84,7 @@ function App() {
                 </Route>
                 <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
                 <Route path={YOUTUBE_SEARCH_PATH(':searchWord')} element={<Youtube />} />
+                <Route path={YOUTUBE_TREND_PATH()} element={<YoutubeTrend />}/>
                 <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
             </Route>
         </Routes>

@@ -43,7 +43,11 @@ public class YoutubeConverter {
                 videoEntity.getChannel().getTitle(),
                 videoEntity.getChannel().getCustomUrl(),
                 videoEntity.getChannel().getThumbnail(),
-                videoEntity.getViewCount()
+                videoEntity.getPrevViewCount(),
+                videoEntity.getViewCount(),
+                videoEntity.getLikeCount(),
+                videoEntity.getCommentCount(),
+                videoEntity.getTrendScore()
         );
     }
 

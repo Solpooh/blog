@@ -14,6 +14,8 @@ import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.VideoService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,7 +102,7 @@ public class VideoServiceImplement implements VideoService {
             YouTube.Activities.List request = youtube.activities()
                     .list("snippet, contentDetails")
                     .setChannelId(channelId)
-                    .setMaxResults(10L)
+                    .setMaxResults(20L)
                     .setKey(apiKey);
 
             return request.execute().getItems();
@@ -120,7 +126,7 @@ public class VideoServiceImplement implements VideoService {
     }
 
     @Transactional
-    public void postViewCount() {
+    public void postVideoInfo() {
         // 1. 모든 videoId 불러오기
         List<String> videoIdList = new ArrayList<>(videoRepository.findAllIds());
         int chunkSize = 50;
@@ -138,12 +144,16 @@ public class VideoServiceImplement implements VideoService {
 
                 List<Video> response = request.execute().getItems();
 
-                // 4. videoId -> viewCount 매핑
-                Map<String, Long> viewCountMap = response.stream()
+                // 4. videoId -> 통계값 매핑
+                Map<String, VideoStatisticDTO> videoMap = response.stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(
                                 Video::getId,
-                                v -> Long.parseLong(String.valueOf(v.getStatistics().getViewCount()))
+                                v -> new VideoStatisticDTO(
+                                        convertToLong(v.getStatistics().getViewCount()),
+                                        convertToLong(v.getStatistics().getLikeCount()),
+                                        convertToLong(v.getStatistics().getCommentCount())
+                                )
                         ));
 
                 // 5. DB 조회
@@ -151,19 +161,54 @@ public class VideoServiceImplement implements VideoService {
 
                 // 6. statistics 반영
                 for (VideoEntity entity : entities) {
-                    Long viewCount = viewCountMap.get(entity.getVideoId());
-                    if (viewCount != null) {
-                        entity.setViewCount(viewCount);
+                    VideoStatisticDTO videoDTO = videoMap.get(entity.getVideoId());
+                    if (videoDTO != null) {
+
+                        // 6-1 이전 조회수 백업
+                        long prev = entity.getViewCount() != null ? entity.getViewCount() : 0;
+                        entity.setPrevViewCount(prev);
+
+                        // 6-2 신규 조회수 반영
+                        long current = videoDTO.getViewCount();
+                        entity.setViewCount(current);
+                        entity.setLikeCount(videoDTO.getLikeCount());
+                        entity.setCommentCount(videoDTO.getCommentCount());
+
+                        // 6-3 상승 비율 계산
+                        long diff = current - prev;
+                        double ratio = (double) diff / (prev + 1); // prev = 0 대비
+
+                        // 6-4
+                        // ratio + log → 상승 비율 기반, 대형 채널 편향 제거
+                        // timeComponent → 제곱근 감쇠, 최신 영상에게 가산점
+                        double logComponent = Math.log10(1 + Math.max(ratio, 0));
+                        long hours = Duration.between(
+                                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
+                                Instant.now()
+                        ).toHours();
+
+                        double timeDecay = 1 / Math.sqrt(hours + 2);
+                        double trendScore = logComponent + timeDecay;
+
+                        entity.setTrendScore(trendScore);
                     }
                 }
-
                 // 7. Batch 저장
                 videoRepository.saveAll(entities);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
 
+    @Override
+    public GetTopTrendVideoListResponse getTopTrendVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getTopTrendVideo();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetTopTrendVideoListResponse(videoList);
     }
 
     private <T> List<List<T>> chunk(List<T> list, int size) {
@@ -172,5 +217,16 @@ public class VideoServiceImplement implements VideoService {
             chunks.add(list.subList(i, Math.min(list.size(), i + size)));
         }
         return chunks;
+    }
+
+    private Long convertToLong(BigInteger val) {
+        return val == null ? 0L : val.longValue();
+    }
+    @Getter
+    @AllArgsConstructor
+    static class VideoStatisticDTO {
+        private Long viewCount;
+        private Long likeCount;
+        private Long commentCount;
     }
 }

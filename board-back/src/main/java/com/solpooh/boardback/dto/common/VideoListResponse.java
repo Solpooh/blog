@@ -8,5 +8,9 @@ public record VideoListResponse(
         String channelTitle,
         String customUrl,
         String channelThumbnail,
-        Long viewCount
+        Long prevViewCount,
+        Long viewCount,
+        Long likeCount,
+        Long commentCount,
+        Double trendScore
 ) { }

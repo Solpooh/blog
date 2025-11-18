@@ -9,6 +9,7 @@ import com.solpooh.boardback.repository.ifs.VideoRepositoryIf;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -21,10 +22,11 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
+    QVideoEntity video = QVideoEntity.videoEntity;
+    QChannelEntity channel = QChannelEntity.channelEntity;
+
     @Override
     public Page<VideoEntity> getLatestVideo(Pageable pageable, String category, String lang) {
-        QVideoEntity video = QVideoEntity.videoEntity;
-        QChannelEntity channel = QChannelEntity.channelEntity;
 
         List<VideoEntity> videoList = queryFactory
                 .selectFrom(video)
@@ -49,9 +51,6 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
 
     @Override
     public Page<VideoEntity> getSearchListVideo(String searchWord, String type, Pageable pageable) {
-        QVideoEntity video = QVideoEntity.videoEntity;
-        QChannelEntity channel = QChannelEntity.channelEntity;
-
         BooleanBuilder builder = new BooleanBuilder();
         switch (type.toLowerCase()) {
             case "channel" -> builder.and(channel.title.containsIgnoreCase(searchWord));
@@ -76,5 +75,15 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
                 .fetchOne();
 
         return new PageImpl<>(videoList, pageable, total);
+    }
+
+    @Override
+    public List<VideoEntity> getTopTrendVideo() {
+        return queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .orderBy(video.trendScore.desc())
+                .limit(15)
+                .fetch();
     }
 }

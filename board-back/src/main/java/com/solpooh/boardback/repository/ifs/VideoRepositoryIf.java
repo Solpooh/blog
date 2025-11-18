@@ -9,4 +9,5 @@ import java.util.List;
 public interface VideoRepositoryIf {
     Page<VideoEntity> getLatestVideo(Pageable pageable, String category, String lang);
     Page<VideoEntity> getSearchListVideo(String searchWord, String type, Pageable pageable);
+    List<VideoEntity> getTopTrendVideo();
 }

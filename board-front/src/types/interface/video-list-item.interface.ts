@@ -7,4 +7,6 @@ export default interface VideoListItem {
     channelThumbnail: string;
     publishedAt: string;
     viewCount: number;
+    likeCount: number;
+    commentCount: number;
 }

@@ -94,7 +94,7 @@ export default function Youtube() {
     return (
         <div className="youtube-wrapper">
             <div className="youtube-header">
-                <h2>추천 유튜브 영상</h2>
+                <h2>최신 유튜브 동영상</h2>
                 <div className="search-box">
                     <select value={searchType} onChange={e => setSearchType(e.target.value as 'channel' | 'title')}>
                         <option value="channel">채널명</option>

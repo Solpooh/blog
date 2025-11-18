@@ -8,3 +8,4 @@ export const BOARD_WRITE_PATH = () => 'write';
 export const BOARD_UPDATE_PATH = (boardNumber: string | number) => `update/${boardNumber}`;
 export const YOUTUBE_PATH = () => '/youtube';
 export const YOUTUBE_SEARCH_PATH = (searchWord: string) => `/youtube/${searchWord}`;
+export const YOUTUBE_TREND_PATH = () => '/youtube/trending';
