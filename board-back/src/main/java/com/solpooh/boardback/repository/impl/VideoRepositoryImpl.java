@@ -50,7 +50,7 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
     }
 
     @Override
-    public Page<VideoEntity> getSearchListVideo(String searchWord, String type, Pageable pageable) {
+    public Page<VideoEntity> getSearchVideoList(String searchWord, String type, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
         switch (type.toLowerCase()) {
             case "channel" -> builder.and(channel.title.containsIgnoreCase(searchWord));
@@ -78,12 +78,22 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
     }
 
     @Override
-    public List<VideoEntity> getTopTrendVideo() {
+    public List<VideoEntity> getHotVideoList() {
         return queryFactory
                 .selectFrom(video)
                 .join(video.channel, channel).fetchJoin()
                 .orderBy(video.trendScore.desc())
-                .limit(15)
+                .limit(16)
+                .fetch();
+    }
+
+    @Override
+    public List<VideoEntity> getTopViewVideoList() {
+        return queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .orderBy(video.viewCount.desc())
+                .limit(16)
                 .fetch();
     }
 }

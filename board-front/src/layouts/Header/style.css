@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
 }
-.header-leftOne-box, .header-leftTwo-box {
+.header-leftOne-box, .header-leftTwo-box, .header-leftThree-box {
     display: flex;
     align-items: center;
     padding-right: 24px;
@@ -71,4 +71,10 @@
 
 .logo-dark-icon {
     background-image: url(hub.png);
+}
+.logo-youtube-icon {
+    background-image: url(youtube.png);
+}
+.logo-trend-icon {
+    background-image: url(trend.png);
 }

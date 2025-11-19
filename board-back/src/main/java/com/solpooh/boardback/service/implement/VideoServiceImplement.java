@@ -62,7 +62,7 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public GetSearchVideoListResponse getSearchVideoList(String searchWord, String type, Pageable pageable) {
         Page<VideoEntity> videoEntities =
-                videoRepository.getSearchListVideo(searchWord, type, pageable);
+                videoRepository.getSearchVideoList(searchWord, type, pageable);
 
         List<VideoListResponse> videoList = videoEntities.getContent()
                 .stream()
@@ -202,13 +202,23 @@ public class VideoServiceImplement implements VideoService {
     }
 
     @Override
-    public GetTopTrendVideoListResponse getTopTrendVideoList() {
-        List<VideoEntity> videoEntities = videoRepository.getTopTrendVideo();
+    public GetHotVideoListResponse getHotVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
         List<VideoListResponse> videoList = videoEntities.stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
-        return new GetTopTrendVideoListResponse(videoList);
+        return new GetHotVideoListResponse(videoList);
+    }
+
+    @Override
+    public GetTopViewVideoListResponse getTopViewVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getTopViewVideoList();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetTopViewVideoListResponse(videoList);
     }
 
     private <T> List<List<T>> chunk(List<T> list, int size) {

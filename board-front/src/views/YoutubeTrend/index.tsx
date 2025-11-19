@@ -4,83 +4,98 @@ import React from 'react';
 import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import {useEffect, useState} from 'react';
 import {VideoListItem} from 'types/interface';
-import {getTopTrendVideoRequest} from 'apis';
-import {GetTopTrendVideoListResponseDto} from 'apis/response/youtube';
+import {getHotVideoRequest, getTopViewVideoRequest} from 'apis';
+import {GetHotVideoListResponseDto, GetTopViewVideoListResponseDto} from 'apis/response/youtube';
 import {ResponseDto} from 'apis/response';
 import VideoItem from 'components/VideoItem';
+import './style.css';
 
 export default function YoutubeTrend() {
     //  state: 인기 급상승 동영상 list 상태 //
-    const [topTrendList, setTopTrendList] = useState<VideoListItem[]>([]);
-    //  state: 동영상 list에 사용할 Index
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [hotList, setHotList] = useState<VideoListItem[]>([]);
+    //  state: 조회수 TOP 동영상 list 상태 //
+    const [topList, setTopList] = useState<VideoListItem[]>([]);
+    //  state: 캐러셀 공용 인덱스는 섹션 단위로 분리
+    const [hotIndex, setHotIndex] = useState(0);
+    const [topIndex, setTopIndex] = useState(0);
 
     const ITEMS_PER_VIEW = 4;
-    const start = currentIndex * ITEMS_PER_VIEW;
-    const end = start + ITEMS_PER_VIEW;
-    const visibleItems = topTrendList.slice(start, end);
+    const getVisible = (list: VideoListItem[], index: number) => {
+        const start = index * ITEMS_PER_VIEW;
+        return list.slice(start, start + ITEMS_PER_VIEW);
+    };
 
     //  function: 이전 버튼 클릭 함수 //
-    const handlePrev = () => {
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    }
-    //  function: 다음 버튼 클릭 함수 //
-    const handleNext = () => {
-        const maxIndex = Math.ceil(topTrendList.length / ITEMS_PER_VIEW) - 1;
-        setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
+    const handlePrev = (setter: React.Dispatch<React.SetStateAction<number>>) => {
+        setter(prev => Math.max(prev - 1, 0));
     };
-    //  function: Top Trend VideoList response 처리 함수 //
-    const getTopTrendVideoResponse = (responseBody: GetTopTrendVideoListResponseDto | ResponseDto | null) => {
+    //  function: 다음 버튼 클릭 함수 //
+    const handleNext = (setter: React.Dispatch<React.SetStateAction<number>>, listLength: number) => {
+        const maxIndex = Math.ceil(listLength / ITEMS_PER_VIEW) - 1;
+        setter(prev => Math.min(prev + 1, maxIndex));
+    };
+    //  function: HOT VideoList response 처리 함수 //
+    const getHotVideoResponse = (responseBody: GetHotVideoListResponseDto | ResponseDto | null) => {
         if (!responseBody) return;
         const { code } = responseBody;
         if (code === 'DBE') alert('데이터베이스 오류입니다.');
         if (code !== 'SU') return;
 
-        const { videoList } = (responseBody as GetTopTrendVideoListResponseDto).data;
-        setTopTrendList(videoList);
+        const { videoList } = (responseBody as GetHotVideoListResponseDto).data;
+        setHotList(videoList);
+    }
+    //  function: Top View VideoList response 처리 함수 //
+    const getTopViewVideoResponse = (responseBody: GetTopViewVideoListResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') alert('데이터베이스 오류입니다.');
+        if (code !== 'SU') return;
+
+        const { videoList } = (responseBody as GetTopViewVideoListResponseDto).data;
+        setTopList(videoList);
     }
     //  effect: 첫 마운트 시 실행될 함수 //
     useEffect(() => {
-        getTopTrendVideoRequest().then(getTopTrendVideoResponse);
+        getHotVideoRequest().then(getHotVideoResponse);
+        getTopViewVideoRequest().then(getTopViewVideoResponse);
     }, []);
 
-    return (
-        <div className="w-full flex flex-col items-center px-6 py-10">
-            {/* Header */}
-            <div className="flex items-center justify-center gap-2 mb-6 w-full">
-                <Flame className="w-7 h-7 text-red-500" />
-                <h2 className="text-xl font-bold">인기 급상승 동영상</h2>
+    const renderCarousel = (
+        title: string,
+        list: VideoListItem[],
+        index: number,
+        setter: React.Dispatch<React.SetStateAction<number>>,
+        icon: string
+    ) => (
+        <>
+            <div className="video-header">
+                <div className="video-icon">{icon}</div>
+                <h2>{title}</h2>
             </div>
 
-            {/* Carousel Wrapper */}
-            <div className="relative w-full max-w-6xl flex items-center justify-center">
-                {/* Left Arrow */}
-                <button
-                    onClick={handlePrev}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-lg hover:scale-110 transition flex items-center justify-center border border-gray-200"
-                >
-                    <ChevronLeft className="w-8 h-8"/>
-                </button>
-                {/* Items */}
-                <div className="w-full grid grid-cols-4 gap-6 justify-items-center video-grid transition-all duration-300">
-                    {visibleItems.map((videoItem) => (
-                        <VideoItem key={videoItem.videoId} videoItem={videoItem} />
+
+            <div className="carousel-container">
+                <button className="arrow-btn left" onClick={() => handlePrev(setter)}>‹</button>
+
+
+                <div className="carousel-items">
+                    {getVisible(list, index).map((videoItem) => (
+                        <div key={videoItem.videoId} className="carousel-item">
+                            <VideoItem videoItem={videoItem} />
+                        </div>
                     ))}
                 </div>
-                {/* Right Arrow */}
-                <button
-                    onClick={handleNext}
-                    className="absolute right-0 z-20 p-4 rounded-full bg-white shadow-lg hover:scale-110 transition flex items-center justify-center border border-gray-200"
-                >
-                    <ChevronRight className="w-8 h-8"/>
-                </button>
-            </div>
 
-            {/* 여기에 앞으로 새로운 리스트들이 아래로 계속 붙을 수 있는 구조 */}
-            <div className="flex flex-col gap-10 mt-10 w-full max-w-6xl">
-                {/* 예: <AnotherVideoSection /> */}
-                {/* 예: <RecommendedVideos /> */}
+
+                <button className="arrow-btn right" onClick={() => handleNext(setter, list.length)}>›</button>
             </div>
+        </>
+    );
+
+    return (
+        <div className="video-wrapper">
+            {renderCarousel('인기 급상승 동영상', hotList, hotIndex, setHotIndex, '🔥')}
+            {renderCarousel('조회수 TOP 동영상', topList, topIndex, setTopIndex, '👑')}
         </div>
     );
 }

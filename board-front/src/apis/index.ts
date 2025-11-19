@@ -37,7 +37,7 @@ import {
     GetVideoListResponseDto,
     DeleteVideoResponseDto,
     GetSearchVideoListResponseDto,
-    GetTopTrendVideoListResponseDto
+    GetHotVideoListResponseDto, GetTopViewVideoListResponseDto
 } from "./response/youtube";
 import {themes} from "prismjs/components";
 
@@ -439,11 +439,25 @@ export const deleteVideoRequest = async (videoId: string) => {
     return result;
 };
 
-const GET_TOP_TREND_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/top-list`;
-export const getTopTrendVideoRequest = async () => {
-    const result = await axios.get(GET_TOP_TREND_VIDEO_LIST_URL())
+const GET_HOT_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/hot-list`;
+const GET_TOP_VIEW_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/top-list`;
+export const getHotVideoRequest = async () => {
+    const result = await axios.get(GET_HOT_VIDEO_LIST_URL())
         .then(response => {
-            const responseBody: GetTopTrendVideoListResponseDto = response.data;
+            const responseBody: GetHotVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getTopViewVideoRequest = async () => {
+    const result = await axios.get(GET_TOP_VIEW_VIDEO_LIST_URL())
+        .then(response => {
+            const responseBody: GetTopViewVideoListResponseDto = response.data;
             return responseBody;
         })
         .catch(error => {

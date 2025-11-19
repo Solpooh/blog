@@ -14,5 +14,6 @@ public interface VideoService {
     DeleteVideoResponse deleteVideo(String videoId);
 
     void postVideoInfo();
-    GetTopTrendVideoListResponse getTopTrendVideoList();
+    GetHotVideoListResponse getHotVideoList();
+    GetTopViewVideoListResponse getTopViewVideoList();
 }

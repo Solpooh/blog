@@ -43,8 +43,13 @@ public class VideoController {
     public void postVideoInfo() {
         videoService.postVideoInfo();
     }
-    @GetMapping("/top-list")
-    public GetTopTrendVideoListResponse getTopTrendVideoList() {
-        return videoService.getTopTrendVideoList();
+    @GetMapping("/hot-list")
+    public GetHotVideoListResponse getTopTrendVideoList() {
+        return videoService.getHotVideoList();
     }
+    @GetMapping("/top-list")
+    public GetTopViewVideoListResponse getTopViewVideoList() {
+        return videoService.getTopViewVideoList();
+    }
+
 }

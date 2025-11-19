@@ -4,4 +4,4 @@ import ResponseDto from "../response.dto";
 export interface GetTopTrendVideoList {
     videoList: VideoListItem[];
 }
-export type GetTopTrendVideoListResponseDto = ResponseDto<GetTopTrendVideoList>;
+export type GetHotVideoListResponseDto = ResponseDto<GetTopTrendVideoList>;

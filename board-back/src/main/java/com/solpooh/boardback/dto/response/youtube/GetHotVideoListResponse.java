@@ -4,6 +4,6 @@ import com.solpooh.boardback.dto.common.VideoListResponse;
 
 import java.util.List;
 
-public record GetTopTrendVideoListResponse(
+public record GetHotVideoListResponse(
         List<VideoListResponse> videoList
 ) { }

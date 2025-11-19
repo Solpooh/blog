@@ -8,7 +8,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH, YOUTUBE_PATH
+    USER_PATH, YOUTUBE_PATH, YOUTUBE_TREND_PATH
 } from '../../constants';
 import {useCookies} from 'react-cookie';
 import {useBoardStore, useEditorStore, useLoginUserStore} from '../../stores';
@@ -48,6 +48,9 @@ export default function Header() {
     }
     const onYoutubeClickHandler = () => {
         navigate(YOUTUBE_PATH())
+    }
+    const onTrendClickHandler = () => {
+        navigate(YOUTUBE_TREND_PATH())
     }
 
     //  component: 검색 버튼 컴포넌트 //
@@ -298,7 +301,16 @@ export default function Header() {
                         <div className='header-logo'>{'DevHub'}</div>
                     </div>
                     <div className='header-leftTwo-box' onClick={onYoutubeClickHandler}>
+                        <div className='icon-box'>
+                            <div className='icon logo-youtube-icon'></div>
+                        </div>
                         <div className='header-logo'>{'DevTube'}</div>
+                    </div>
+                    <div className='header-leftThree-box' onClick={onTrendClickHandler}>
+                        <div className='icon-box'>
+                            <div className='icon logo-trend-icon'></div>
+                        </div>
+                        <div className='header-logo'>{'Trend'}</div>
                     </div>
                 </div>
                 <div className='header-right-box'>
