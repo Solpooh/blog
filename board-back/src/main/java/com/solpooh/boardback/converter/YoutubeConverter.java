@@ -47,7 +47,8 @@ public class YoutubeConverter {
                 videoEntity.getViewCount(),
                 videoEntity.getLikeCount(),
                 videoEntity.getCommentCount(),
-                videoEntity.getTrendScore()
+                videoEntity.getTrendScore(),
+                videoEntity.isShort()
         );
     }
 

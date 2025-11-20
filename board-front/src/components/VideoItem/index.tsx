@@ -11,7 +11,7 @@ interface Props {
 export default function VideoItem({ videoItem }: Props) {
 
     const { videoId, title, thumbnail, channelTitle, customUrl, channelThumbnail, publishedAt, viewCount
-    , commentCount, likeCount } = videoItem;
+    , commentCount, likeCount, isShort } = videoItem;
     const formattedDate = new Date(publishedAt).toISOString().split("T")[0]; // 'yyyy-MM-dd' 포맷
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showIframe, setShowIframe] = useState(false);

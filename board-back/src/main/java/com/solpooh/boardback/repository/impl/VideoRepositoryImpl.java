@@ -96,4 +96,15 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
                 .limit(16)
                 .fetch();
     }
+
+    @Override
+    public List<VideoEntity> getShortsVideoList() {
+        return queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .where(video.isShort.isTrue())
+                .orderBy(video.publishedAt.desc())
+                .limit(16)
+                .fetch();
+    }
 }

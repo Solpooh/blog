@@ -12,5 +12,6 @@ public record VideoListResponse(
         Long viewCount,
         Long likeCount,
         Long commentCount,
-        Double trendScore
+        Double trendScore,
+        boolean isShort
 ) { }

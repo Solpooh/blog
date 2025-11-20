@@ -24,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -138,22 +140,30 @@ public class VideoServiceImplement implements VideoService {
             try {
                 // 3. Youtube API 요청
                 YouTube.Videos.List request = youtube.videos()
-                        .list("statistics")
+                        .list("statistics, contentDetails")
                         .setId(String.join(",", chunk))
                         .setKey(apiKey);
 
                 List<Video> response = request.execute().getItems();
 
                 // 4. videoId -> 통계값 매핑
-                Map<String, VideoStatisticDTO> videoMap = response.stream()
+                Map<String, VideoMetaDTO> videoMap = response.stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(
                                 Video::getId,
-                                v -> new VideoStatisticDTO(
-                                        convertToLong(v.getStatistics().getViewCount()),
-                                        convertToLong(v.getStatistics().getLikeCount()),
-                                        convertToLong(v.getStatistics().getCommentCount())
-                                )
+                                v -> {
+                                    int durationSec = parseDurationToSeconds(
+                                            v.getContentDetails().getDuration()
+                                    );
+                                    boolean isShort = isShortVideo(durationSec);
+
+                                    return new VideoMetaDTO(
+                                            convertToLong(v.getStatistics().getViewCount()),
+                                            convertToLong(v.getStatistics().getLikeCount()),
+                                            convertToLong(v.getStatistics().getCommentCount()),
+                                            isShort
+                                    );
+                                }
                         ));
 
                 // 5. DB 조회
@@ -161,36 +171,9 @@ public class VideoServiceImplement implements VideoService {
 
                 // 6. statistics 반영
                 for (VideoEntity entity : entities) {
-                    VideoStatisticDTO videoDTO = videoMap.get(entity.getVideoId());
-                    if (videoDTO != null) {
-
-                        // 6-1 이전 조회수 백업
-                        long prev = entity.getViewCount() != null ? entity.getViewCount() : 0;
-                        entity.setPrevViewCount(prev);
-
-                        // 6-2 신규 조회수 반영
-                        long current = videoDTO.getViewCount();
-                        entity.setViewCount(current);
-                        entity.setLikeCount(videoDTO.getLikeCount());
-                        entity.setCommentCount(videoDTO.getCommentCount());
-
-                        // 6-3 상승 비율 계산
-                        long diff = current - prev;
-                        double ratio = (double) diff / (prev + 1); // prev = 0 대비
-
-                        // 6-4
-                        // ratio + log → 상승 비율 기반, 대형 채널 편향 제거
-                        // timeComponent → 제곱근 감쇠, 최신 영상에게 가산점
-                        double logComponent = Math.log10(1 + Math.max(ratio, 0));
-                        long hours = Duration.between(
-                                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
-                                Instant.now()
-                        ).toHours();
-
-                        double timeDecay = 1 / Math.sqrt(hours + 2);
-                        double trendScore = logComponent + timeDecay;
-
-                        entity.setTrendScore(trendScore);
+                    VideoMetaDTO dto = videoMap.get(entity.getVideoId());
+                    if (dto != null) {
+                        updateVideoEntity(entity, dto);
                     }
                 }
                 // 7. Batch 저장
@@ -201,6 +184,36 @@ public class VideoServiceImplement implements VideoService {
         }
     }
 
+    private void updateVideoEntity(VideoEntity entity, VideoMetaDTO dto) {
+        // 6-1 이전 조회수 백업
+        long prev = entity.getViewCount() != null ? entity.getViewCount() : 0;
+        entity.setPrevViewCount(prev);
+
+        // 6-2 신규 조회수 반영
+        entity.setViewCount(dto.getViewCount());
+        entity.setLikeCount(dto.getLikeCount());
+        entity.setCommentCount(dto.getCommentCount());
+        entity.setShort(dto.isShort());
+
+        // 6-3 상승 비율 계산
+        long diff = dto.getViewCount() - prev;
+        double ratio = (double) diff / (prev + 1); // prev = 0 대비
+
+        // 6-4
+        // ratio + log → 상승 비율 기반, 대형 채널 편향 제거
+        // timeComponent → 제곱근 감쇠, 최신 영상에게 가산점
+        double logComponent = Math.log10(1 + Math.max(ratio, 0));
+
+        long hours = Duration.between(
+                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
+                Instant.now()
+        ).toHours();
+
+        double timeDecay = 1 / Math.sqrt(hours + 2);
+        double trendScore = logComponent + timeDecay;
+
+        entity.setTrendScore(trendScore);
+    }
     @Override
     public GetHotVideoListResponse getHotVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
@@ -221,6 +234,23 @@ public class VideoServiceImplement implements VideoService {
         return new GetTopViewVideoListResponse(videoList);
     }
 
+    @Override
+    public GetShortsVideoListResponse getShortsVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getShortsVideoList();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetShortsVideoListResponse(videoList);
+    }
+
+    private int parseDurationToSeconds(String isoDuration) {
+        return (int) Duration.parse(isoDuration).getSeconds();
+    }
+
+    private boolean isShortVideo(int durationSeconds) {
+        return durationSeconds < 60;
+    }
     private <T> List<List<T>> chunk(List<T> list, int size) {
         List<List<T>> chunks = new ArrayList<>();
         for (int i = 0; i < list.size(); i += size) {
@@ -234,9 +264,10 @@ public class VideoServiceImplement implements VideoService {
     }
     @Getter
     @AllArgsConstructor
-    static class VideoStatisticDTO {
+    static class VideoMetaDTO {
         private Long viewCount;
         private Long likeCount;
         private Long commentCount;
+        private boolean isShort;
     }
 }

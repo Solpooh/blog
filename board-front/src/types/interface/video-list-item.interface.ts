@@ -9,4 +9,5 @@ export default interface VideoListItem {
     viewCount: number;
     likeCount: number;
     commentCount: number;
+    isShort: boolean;
 }

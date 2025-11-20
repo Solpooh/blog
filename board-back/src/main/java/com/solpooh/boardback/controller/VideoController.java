@@ -51,5 +51,9 @@ public class VideoController {
     public GetTopViewVideoListResponse getTopViewVideoList() {
         return videoService.getTopViewVideoList();
     }
+    @GetMapping("/shorts-list")
+    public GetShortsVideoListResponse getShortsVideoList() {
+        return videoService.getShortsVideoList();
+    }
 
 }

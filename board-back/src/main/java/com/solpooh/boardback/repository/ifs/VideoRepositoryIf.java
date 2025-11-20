@@ -11,4 +11,5 @@ public interface VideoRepositoryIf {
     Page<VideoEntity> getSearchVideoList(String searchWord, String type, Pageable pageable);
     List<VideoEntity> getHotVideoList();
     List<VideoEntity> getTopViewVideoList();
+    List<VideoEntity> getShortsVideoList();
 }
