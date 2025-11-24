@@ -19,7 +19,7 @@ public class VideoScheduler {
         log.info("▶ 비디오 수집 시작");
         PostVideoResponse response = videoService.postVideo();
         log.info("▶ 비디오 수집 완료: {}", response);
-        videoService.postVideoInfo();
+        videoService.postAllVideoInfo();
         log.info("▶ 비디오 조회수 갱신 완료");
     }
 }

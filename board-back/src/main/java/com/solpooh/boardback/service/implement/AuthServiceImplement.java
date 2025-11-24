@@ -26,16 +26,6 @@ public class AuthServiceImplement implements AuthService {
 
     @Override
     public SignUpResponse signUp(SignUpRequest dto) {
-        // 제약조건 검사
-        if (userRepository.existsByEmail(dto.email()))
-            throw new CustomException(ResponseApi.DUPLICATE_EMAIL);
-
-        if (userRepository.existsByNickname(dto.nickname()))
-            throw new CustomException(ResponseApi.DUPLICATE_NICKNAME);
-
-        if (userRepository.existsByTelNumber(dto.telNumber()))
-            throw new CustomException(ResponseApi.DUPLICATE_TEL_NUMBER);
-
         // 패스워드 암호화
         UserEntity userEntity = AuthConverter.toEntity(dto);
         String encodedPassword = passwordEncoder.encode(dto.password());

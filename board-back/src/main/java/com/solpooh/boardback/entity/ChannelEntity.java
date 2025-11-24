@@ -29,9 +29,8 @@ public class ChannelEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String category;
 
-//    @JsonManagedReference
-//    @JsonIgnore => 직렬화/역직렬화 모두 제외
-    @JsonBackReference
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VideoEntity> videos;
+    // deprecated
+//    @JsonBackReference
+//    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<VideoEntity> videos;
 }

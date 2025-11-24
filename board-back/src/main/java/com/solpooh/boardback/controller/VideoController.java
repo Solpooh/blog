@@ -41,7 +41,7 @@ public class VideoController {
 
     @PostMapping("/info")
     public void postVideoInfo() {
-        videoService.postVideoInfo();
+        videoService.postAllVideoInfo();
     }
     @GetMapping("/hot-list")
     public GetHotVideoListResponse getTopTrendVideoList() {

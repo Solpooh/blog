@@ -22,6 +22,7 @@ public class YoutubeConverter {
                         activity.getContentDetails().getUpload().getVideoId()
                 )
                 .title(activity.getSnippet().getTitle())
+                .description(activity.getSnippet().getDescription())
                 .thumbnail(
                         activity.getSnippet().getThumbnails().getHigh().getUrl()
                 )
@@ -33,11 +34,27 @@ public class YoutubeConverter {
                 .viewCount(0L) // 최초 0으로 저장
                 .build();
     }
+    public static ChannelEntity toChannelEntity(Channel channel) {
+        ChannelSnippet snippet = channel.getSnippet();
+
+        return ChannelEntity.builder()
+                .channelId(channel.getId())
+                .title(snippet.getTitle())
+                .thumbnail(snippet.getThumbnails().getDefault().getUrl())
+                .customUrl(
+                        Optional.ofNullable(snippet.getCustomUrl())
+                                .orElse("unknown")
+                )
+                .lang("ko")
+                .category("dev")
+                .build();
+    }
 
     public static VideoListResponse toResponse(VideoEntity videoEntity) {
         return new VideoListResponse(
                 videoEntity.getVideoId(),
                 videoEntity.getTitle(),
+                videoEntity.getDescription(),
                 videoEntity.getThumbnail(),
                 videoEntity.getPublishedAt().toString(),
                 videoEntity.getChannel().getTitle(),
@@ -60,19 +77,4 @@ public class YoutubeConverter {
         );
     }
 
-    public static ChannelEntity toChannelEntity(Channel channel) {
-        ChannelSnippet snippet = channel.getSnippet();
-
-        return ChannelEntity.builder()
-                .channelId(channel.getId())
-                .title(snippet.getTitle())
-                .thumbnail(snippet.getThumbnails().getDefault().getUrl())
-                .customUrl(
-                        Optional.ofNullable(snippet.getCustomUrl())
-                                .orElse("unknown")
-                )
-                .lang("ko")
-                .category("dev")
-                .build();
-    }
 }

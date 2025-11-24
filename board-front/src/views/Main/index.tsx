@@ -55,8 +55,7 @@ export default function Main() {
                     <div className='main-top-contents-box'>
                         <div className='main-top-contents-title'>{'주간 TOP 3 게시글'}</div>
                         <div className='main-top-contents'>
-                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber}
-                                                                         top3ListItem={top3ListItem}/>)}
+                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem}/>)}
                         </div>
                     </div>
                 </div>

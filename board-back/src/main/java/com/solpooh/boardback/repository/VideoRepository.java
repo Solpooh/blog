@@ -12,7 +12,7 @@ import java.util.Set;
 public interface VideoRepository extends JpaRepository<VideoEntity, String>, VideoRepositoryIf {
     Optional<VideoEntity> findByVideoId(String videoId);
     @Query("select v.videoId from VideoEntity v")
-    Set<String> findAllIds();
+    List<String> findAllIds();
 
     // 50개 chunk에 해당하는 엔티티 조회
     List<VideoEntity> findByVideoIdIn(List<String> videoIds);

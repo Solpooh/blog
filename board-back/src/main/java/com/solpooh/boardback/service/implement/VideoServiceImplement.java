@@ -23,9 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -76,13 +73,13 @@ public class VideoServiceImplement implements VideoService {
         return new GetSearchVideoListResponse(pagedList);
     }
 
-    // POST: 모든 채널의 비디오 정보 저장하기
+    // POST: 모든 채널의 비디오 list 저장하기
     @Override
     @Transactional
     public PostVideoResponse postVideo() {
         // channel 전부 조회
         List<ChannelEntity> channelList = channelRepository.findAll();
-        Set<String> videoIds = videoRepository.findAllIds();
+        List<String> videoIds = videoRepository.findAllIds();
 
         if (channelList.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
 
@@ -128,9 +125,9 @@ public class VideoServiceImplement implements VideoService {
     }
 
     @Transactional
-    public void postVideoInfo() {
+    public void postAllVideoInfo() {
         // 1. 모든 videoId 불러오기
-        List<String> videoIdList = new ArrayList<>(videoRepository.findAllIds());
+        List<String> videoIdList = videoRepository.findAllIds();
         int chunkSize = 50;
 
         // 2. 50개 단위로 chunk 나누기
@@ -182,6 +179,11 @@ public class VideoServiceImplement implements VideoService {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void postVideoInfo() {
+
     }
 
     private void updateVideoEntity(VideoEntity entity, VideoMetaDTO dto) {

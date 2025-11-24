@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,11 +28,12 @@ public class VideoEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
+    private String description;
+    @Column(nullable = false)
     private String thumbnail;
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
-    @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
     private ChannelEntity channel;

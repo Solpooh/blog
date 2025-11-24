@@ -12,12 +12,14 @@ public interface VideoService {
     PostVideoResponse postVideo();
     // DELETE: 해당 채널의 비디오 정보 삭제하기
     DeleteVideoResponse deleteVideo(String videoId);
-    // POST: 비디오 메타 데이터 저장하기
-    void postVideoInfo();
     // GET: 인기 급상승 비디오 가져오기
     GetHotVideoListResponse getHotVideoList();
     // GET: TOP 조회수 비디오 가져오기
     GetTopViewVideoListResponse getTopViewVideoList();
     // GET: Shorts 비디오 가져오기
     GetShortsVideoListResponse getShortsVideoList();
+    // POST: 모든 비디오 메타 데이터 저장하기
+    void postAllVideoInfo();
+    // POST: 방금 저장한 비디오 메타 데이터 저장
+    void postVideoInfo();
 }

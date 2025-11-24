@@ -1,8 +1,13 @@
 package com.solpooh.boardback.dto.common;
 
+import com.solpooh.boardback.entity.TagEntity;
+
+import java.util.List;
+
 public record VideoListResponse(
         String videoId,
         String title,
+        String description,
         String thumbnail,
         String publishedAt,
         String channelTitle,
@@ -14,4 +19,5 @@ public record VideoListResponse(
         Long commentCount,
         Double trendScore,
         boolean isShort
+//        List<TagEntity> tagList
 ) { }
