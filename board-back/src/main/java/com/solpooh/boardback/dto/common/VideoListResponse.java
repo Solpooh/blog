@@ -17,7 +17,5 @@ public record VideoListResponse(
         Long viewCount,
         Long likeCount,
         Long commentCount,
-        Double trendScore,
-        boolean isShort
-//        List<TagEntity> tagList
+        Double trendScore
 ) { }

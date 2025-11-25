@@ -7,6 +7,7 @@ import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoListResponse;
+import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
@@ -14,10 +15,12 @@ import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.VideoService;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.stat.Statistics;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +44,7 @@ public class VideoServiceImplement implements VideoService {
     private final YouTube youtube;
     private final VideoRepository videoRepository;
     private final ChannelRepository channelRepository;
-//    private static final int CHUNK_SIZE = 50;
+    private static final int CHUNK_SIZE = 50;
 
     @Override
     public GetVideoListResponse getLatestVideoList(Pageable pageable) {
@@ -84,7 +87,7 @@ public class VideoServiceImplement implements VideoService {
         if (channelList.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
 
         channelList.stream()
-                .flatMap(channel -> fetchVideoFromYoutube(channel.getChannelId()).stream()
+                .flatMap(channel -> fetchActivityList(channel.getChannelId()).stream()
                     .map(activity -> YoutubeConverter.toVideoEntity(activity, channel))
                         .filter(Objects::nonNull)
                 )
@@ -95,7 +98,20 @@ public class VideoServiceImplement implements VideoService {
     }
 
 
-    private List<Activity> fetchVideoFromYoutube(String channelId) {
+
+    @Override
+    public DeleteVideoResponse deleteVideo(String videoId) {
+
+        VideoEntity videoEntity = videoRepository.findByVideoId(videoId)
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
+
+        videoRepository.delete(videoEntity);
+        log.info("VideoEntity 삭제 성공");
+
+        return new DeleteVideoResponse();
+    }
+
+    private List<Activity> fetchActivityList(String channelId) {
         try {
 
             YouTube.Activities.List request = youtube.activities()
@@ -112,72 +128,51 @@ public class VideoServiceImplement implements VideoService {
         }
     }
 
-    @Override
-    public DeleteVideoResponse deleteVideo(String videoId) {
+    private List<Video> fetchVideoList(List<String> chunk) {
+        try {
 
-        VideoEntity videoEntity = videoRepository.findByVideoId(videoId)
-                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
+            YouTube.Videos.List request = youtube.videos()
+                    .list("statistics, contentDetails")
+                    .setId(String.join(",", chunk))
+                    .setKey(apiKey);
 
-        videoRepository.delete(videoEntity);
-        log.info("VideoEntity 삭제 성공");
+            return request.execute().getItems();
 
-        return new DeleteVideoResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
-
     @Transactional
     public void postAllVideoInfo() {
         // 1. 모든 videoId 불러오기
-        List<String> videoIdList = videoRepository.findAllIds();
-        int chunkSize = 50;
+        List<String> videoIds = videoRepository.findAllIds();
 
         // 2. 50개 단위로 chunk 나누기
-        List<List<String>> chunks = chunk(videoIdList, chunkSize);
+        var chunks = chunk(videoIds, CHUNK_SIZE);
 
         for (List<String> chunk : chunks) {
-            try {
-                // 3. Youtube API 요청
-                YouTube.Videos.List request = youtube.videos()
-                        .list("statistics, contentDetails")
-                        .setId(String.join(",", chunk))
-                        .setKey(apiKey);
+            List<Video> response = fetchVideoList(chunk);
 
-                List<Video> response = request.execute().getItems();
+            // 4. videoId -> 통계값 매핑
+            Map<String, VideoMetaData> videoMap = response.stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(
+                            Video::getId,
+                            YoutubeConverter::toResponse
+                    ));
 
-                // 4. videoId -> 통계값 매핑
-                Map<String, VideoMetaDTO> videoMap = response.stream()
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(
-                                Video::getId,
-                                v -> {
-                                    int durationSec = parseDurationToSeconds(
-                                            v.getContentDetails().getDuration()
-                                    );
-                                    boolean isShort = isShortVideo(durationSec);
+            // 5. DB 조회
+            List<VideoEntity> entities = videoRepository.findByVideoIdIn(chunk);
 
-                                    return new VideoMetaDTO(
-                                            convertToLong(v.getStatistics().getViewCount()),
-                                            convertToLong(v.getStatistics().getLikeCount()),
-                                            convertToLong(v.getStatistics().getCommentCount()),
-                                            isShort
-                                    );
-                                }
-                        ));
+            // 6. statistics 반영
+            entities.forEach(entity -> {
+                Optional.ofNullable(videoMap.get(entity.getVideoId()))
+                        .ifPresent(dto -> YoutubeConverter.updateVideoEntity(entity, dto));
+            });
 
-                // 5. DB 조회
-                List<VideoEntity> entities = videoRepository.findByVideoIdIn(chunk);
-
-                // 6. statistics 반영
-                for (VideoEntity entity : entities) {
-                    VideoMetaDTO dto = videoMap.get(entity.getVideoId());
-                    if (dto != null) {
-                        updateVideoEntity(entity, dto);
-                    }
-                }
-                // 7. Batch 저장
-                videoRepository.saveAll(entities);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            // 7. Batch 저장
+            videoRepository.saveAll(entities);
         }
     }
 
@@ -186,36 +181,7 @@ public class VideoServiceImplement implements VideoService {
 
     }
 
-    private void updateVideoEntity(VideoEntity entity, VideoMetaDTO dto) {
-        // 6-1 이전 조회수 백업
-        long prev = entity.getViewCount() != null ? entity.getViewCount() : 0;
-        entity.setPrevViewCount(prev);
 
-        // 6-2 신규 조회수 반영
-        entity.setViewCount(dto.getViewCount());
-        entity.setLikeCount(dto.getLikeCount());
-        entity.setCommentCount(dto.getCommentCount());
-        entity.setShort(dto.isShort());
-
-        // 6-3 상승 비율 계산
-        long diff = dto.getViewCount() - prev;
-        double ratio = (double) diff / (prev + 1); // prev = 0 대비
-
-        // 6-4
-        // ratio + log → 상승 비율 기반, 대형 채널 편향 제거
-        // timeComponent → 제곱근 감쇠, 최신 영상에게 가산점
-        double logComponent = Math.log10(1 + Math.max(ratio, 0));
-
-        long hours = Duration.between(
-                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
-                Instant.now()
-        ).toHours();
-
-        double timeDecay = 1 / Math.sqrt(hours + 2);
-        double trendScore = logComponent + timeDecay;
-
-        entity.setTrendScore(trendScore);
-    }
     @Override
     public GetHotVideoListResponse getHotVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
@@ -246,30 +212,11 @@ public class VideoServiceImplement implements VideoService {
         return new GetShortsVideoListResponse(videoList);
     }
 
-    private int parseDurationToSeconds(String isoDuration) {
-        return (int) Duration.parse(isoDuration).getSeconds();
-    }
-
-    private boolean isShortVideo(int durationSeconds) {
-        return durationSeconds < 60;
-    }
     private <T> List<List<T>> chunk(List<T> list, int size) {
         List<List<T>> chunks = new ArrayList<>();
         for (int i = 0; i < list.size(); i += size) {
             chunks.add(list.subList(i, Math.min(list.size(), i + size)));
         }
         return chunks;
-    }
-
-    private Long convertToLong(BigInteger val) {
-        return val == null ? 0L : val.longValue();
-    }
-    @Getter
-    @AllArgsConstructor
-    static class VideoMetaDTO {
-        private Long viewCount;
-        private Long likeCount;
-        private Long commentCount;
-        private boolean isShort;
     }
 }
