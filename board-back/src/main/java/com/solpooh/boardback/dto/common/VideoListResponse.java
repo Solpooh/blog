@@ -1,9 +1,5 @@
 package com.solpooh.boardback.dto.common;
 
-import com.solpooh.boardback.entity.TagEntity;
-
-import java.util.List;
-
 public record VideoListResponse(
         String videoId,
         String title,

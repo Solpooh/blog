@@ -75,6 +75,35 @@ public class VideoServiceImplement implements VideoService {
 
         return new GetSearchVideoListResponse(pagedList);
     }
+    @Override
+    public GetHotVideoListResponse getHotVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetHotVideoListResponse(videoList);
+    }
+
+    @Override
+    public GetTopViewVideoListResponse getTopViewVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getTopViewVideoList();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetTopViewVideoListResponse(videoList);
+    }
+
+    @Override
+    public GetShortsVideoListResponse getShortsVideoList() {
+        List<VideoEntity> videoEntities = videoRepository.getShortsVideoList();
+        List<VideoListResponse> videoList = videoEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetShortsVideoListResponse(videoList);
+    }
 
     // POST: 모든 채널의 비디오 list 저장하기
     @Override
@@ -132,7 +161,7 @@ public class VideoServiceImplement implements VideoService {
         try {
 
             YouTube.Videos.List request = youtube.videos()
-                    .list("statistics, contentDetails")
+                    .list("snippet, statistics, contentDetails")
                     .setId(String.join(",", chunk))
                     .setKey(apiKey);
 
@@ -179,37 +208,6 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public void postVideoInfo() {
 
-    }
-
-
-    @Override
-    public GetHotVideoListResponse getHotVideoList() {
-        List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
-                .map(YoutubeConverter::toResponse)
-                .toList();
-
-        return new GetHotVideoListResponse(videoList);
-    }
-
-    @Override
-    public GetTopViewVideoListResponse getTopViewVideoList() {
-        List<VideoEntity> videoEntities = videoRepository.getTopViewVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
-                .map(YoutubeConverter::toResponse)
-                .toList();
-
-        return new GetTopViewVideoListResponse(videoList);
-    }
-
-    @Override
-    public GetShortsVideoListResponse getShortsVideoList() {
-        List<VideoEntity> videoEntities = videoRepository.getShortsVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
-                .map(YoutubeConverter::toResponse)
-                .toList();
-
-        return new GetShortsVideoListResponse(videoList);
     }
 
     private <T> List<List<T>> chunk(List<T> list, int size) {

@@ -92,7 +92,8 @@ public class YoutubeConverter {
                 convertToLong(video.getStatistics().getViewCount()),
                 convertToLong(video.getStatistics().getLikeCount()),
                 convertToLong(video.getStatistics().getCommentCount()),
-                isShort
+                isShort,
+                video.getSnippet().getTags()
         );
     }
 
@@ -126,6 +127,9 @@ public class YoutubeConverter {
         double trendScore = logComponent + timeDecay;
 
         entity.setTrendScore(trendScore);
+
+        // 6-5 Tag List 반영
+        entity.setTags(dto.tagList());
     }
 
     private static int parseDuration(String isoDuration) {

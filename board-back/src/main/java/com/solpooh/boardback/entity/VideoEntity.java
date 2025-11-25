@@ -1,6 +1,7 @@
 package com.solpooh.boardback.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.solpooh.boardback.converter.JsonStringListConverter;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,4 +51,7 @@ public class VideoEntity extends BaseTimeEntity {
     private Double trendScore; // 조회수 상승 비율 기반 점수
     @Column(name = "is_short")
     private boolean isShort;
+    @Column(columnDefinition = "json")
+    @Convert(converter = JsonStringListConverter.class)
+    private List<String> tags;
 }

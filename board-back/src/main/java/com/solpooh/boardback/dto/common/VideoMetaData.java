@@ -6,6 +6,6 @@ public record VideoMetaData(
         Long viewCount,
         Long likeCount,
         Long commentCount,
-        boolean isShort
-//        List<String> tagList
+        boolean isShort,
+        List<String> tagList
 ) { }
