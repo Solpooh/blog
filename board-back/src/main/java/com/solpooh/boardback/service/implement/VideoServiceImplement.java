@@ -3,6 +3,7 @@ package com.solpooh.boardback.service.implement;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.Video;
+import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
@@ -13,6 +14,7 @@ import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.ChannelRepository;
+import com.solpooh.boardback.repository.VideoJdbcRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.VideoService;
 import jakarta.persistence.EntityManager;
@@ -43,6 +45,8 @@ public class VideoServiceImplement implements VideoService {
     private String apiKey;
     private final YouTube youtube;
     private final VideoRepository videoRepository;
+    private final VideoJdbcRepository videoJdbcRepository;
+    private final CacheService cacheService;
     private final ChannelRepository channelRepository;
     private static final int CHUNK_SIZE = 50;
 
@@ -123,6 +127,7 @@ public class VideoServiceImplement implements VideoService {
                 .filter(video -> !videoIds.contains(video.getVideoId()))
                 .forEach(videoRepository::save);
 
+//        cacheService.add
         return new PostVideoResponse();
     }
 
@@ -137,6 +142,7 @@ public class VideoServiceImplement implements VideoService {
         videoRepository.delete(videoEntity);
         log.info("VideoEntity 삭제 성공");
 
+//        cacheService.remove();
         return new DeleteVideoResponse();
     }
 
@@ -161,7 +167,7 @@ public class VideoServiceImplement implements VideoService {
         try {
 
             YouTube.Videos.List request = youtube.videos()
-                    .list("snippet, statistics, contentDetails")
+                    .list("statistics")
                     .setId(String.join(",", chunk))
                     .setKey(apiKey);
 
@@ -173,41 +179,69 @@ public class VideoServiceImplement implements VideoService {
         }
     }
     @Transactional
+    // "Score 기반의 조회수, 댓글수, 좋아요 수 갱신"
     public void postAllVideoInfo() {
-        // 1. 모든 videoId 불러오기
-        List<String> videoIds = videoRepository.findAllIds();
+        List<VideoEntity> videoEntities = videoRepository.findAll();
+//        videoEntities.forEach(v -> v.setTrendScore(calculateScore(v)));
+
+        Comparator<VideoEntity> descByScore =
+                Comparator.comparingDouble(VideoEntity::getTrendScore).reversed();
+
+        List<String> videoIds = videoEntities.stream()
+                .sorted(descByScore)
+                .limit(200)
+                .map(VideoEntity::getVideoId)
+                .toList();
 
         // 2. 50개 단위로 chunk 나누기
         var chunks = chunk(videoIds, CHUNK_SIZE);
 
         for (List<String> chunk : chunks) {
-            List<Video> response = fetchVideoList(chunk);
+            List<Video> apiList = fetchVideoList(chunk);
 
-            // 4. videoId -> 통계값 매핑
-            Map<String, VideoMetaData> videoMap = response.stream()
+            List<VideoMetaData> updates = apiList.stream()
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(
-                            Video::getId,
-                            YoutubeConverter::toResponse
-                    ));
+                    .map(YoutubeConverter::toResponse)
+                    .toList();
 
-            // 5. DB 조회
-            List<VideoEntity> entities = videoRepository.findByVideoIdIn(chunk);
+            if (!updates.isEmpty()) {
+                videoJdbcRepository.updateVideoMetaData(updates);
+            }
 
-            // 6. statistics 반영
-            entities.forEach(entity -> {
-                Optional.ofNullable(videoMap.get(entity.getVideoId()))
-                        .ifPresent(dto -> YoutubeConverter.updateVideoEntity(entity, dto));
-            });
-
-            // 7. Batch 저장
-            videoRepository.saveAll(entities);
         }
     }
 
     @Override
-    public void postVideoInfo() {
+    public void dailyCalculate() {
+        List<VideoEntity> videoEntities = videoRepository.findAll();
+        videoEntities.forEach(v -> v.setTrendScore(calculateScore(v)));
+    }
 
+    public static double calculateScore(VideoEntity entity) {
+        long prev = entity.getPrevViewCount() == null ? 0 : entity.getPrevViewCount();
+        long curr = entity.getViewCount() == null ? prev : entity.getViewCount();
+
+        long diff = Math.max(curr - prev, 0);
+
+        // A. 증가율(rateScore)
+        double rate = (double) diff / (prev + 10);
+        double rateScore = Math.log10(1 + Math.max(rate, 0));
+
+        // B. 절대 증가량(deltaScore)
+        double deltaScore = Math.sqrt(diff);
+
+        // C. 최신성(latestScore)
+        long hours = Duration.between(
+                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
+                Instant.now()
+        ).toHours();
+        hours = Math.max(1, hours);
+        double latestScore = 1.0 / Math.sqrt(hours);
+
+        // D. 구독자 기반
+        return (0.40 * rateScore)
+                + (0.20 * deltaScore)
+                + (0.25 * latestScore);
     }
 
     private <T> List<List<T>> chunk(List<T> list, int size) {

@@ -20,6 +20,6 @@ public interface VideoService {
     GetShortsVideoListResponse getShortsVideoList();
     // POST: 모든 비디오 메타 데이터 저장하기
     void postAllVideoInfo();
-    // POST: 방금 저장한 비디오 메타 데이터 저장
-    void postVideoInfo();
+
+    void dailyCalculate();
 }

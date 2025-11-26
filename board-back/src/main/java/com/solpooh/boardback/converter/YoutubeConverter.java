@@ -1,22 +1,18 @@
 package com.solpooh.boardback.converter;
 
-import com.google.api.services.youtube.model.Activity;
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelSnippet;
-import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.*;
 import com.solpooh.boardback.dto.common.VideoListResponse;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
-
-import javax.swing.text.html.Option;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 
 public class YoutubeConverter {
@@ -85,53 +81,22 @@ public class YoutubeConverter {
     }
 
     public static VideoMetaData toResponse(Video video) {
-        int durationSec = parseDuration(video.getContentDetails().getDuration());
+        VideoContentDetails cd = video.getContentDetails();
+        String duration = (cd != null && cd.getDuration() != null)
+                ? cd.getDuration()
+                : "PT0S";
+
+        int durationSec = parseDuration(duration);
         boolean isShort = isShortVideo(durationSec);
 
         return new VideoMetaData(
+                video.getId(),
                 convertToLong(video.getStatistics().getViewCount()),
                 convertToLong(video.getStatistics().getLikeCount()),
                 convertToLong(video.getStatistics().getCommentCount()),
-                isShort,
-                video.getSnippet().getTags()
+                isShort
         );
     }
-
-    public static void updateVideoEntity(VideoEntity entity, VideoMetaData dto) {
-        // 6-1 이전 조회수 백업
-        long prev = entity.getViewCount() != null ? entity.getViewCount() : 0;
-
-        entity.setPrevViewCount(prev);
-
-        // 6-2 신규 조회수 반영
-        entity.setViewCount(dto.viewCount());
-        entity.setLikeCount(dto.likeCount());
-        entity.setCommentCount(dto.commentCount());
-        entity.setShort(dto.isShort());
-
-        // 6-3 상승 비율 계산
-        long diff = dto.viewCount() - prev;
-        double ratio = (double) diff / (prev + 1); // prev = 0 대비
-
-        // 6-4
-        // ratio + log → 상승 비율 기반, 대형 채널 편향 제거
-        // timeComponent → 제곱근 감쇠, 최신 영상에게 가산점
-        double logComponent = Math.log10(1 + Math.max(ratio, 0));
-
-        long hours = Duration.between(
-                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
-                Instant.now()
-        ).toHours();
-
-        double timeDecay = 1 / Math.sqrt(hours + 2);
-        double trendScore = logComponent + timeDecay;
-
-        entity.setTrendScore(trendScore);
-
-        // 6-5 Tag List 반영
-        entity.setTags(dto.tagList());
-    }
-
     private static int parseDuration(String isoDuration) {
         return (int) Duration.parse(isoDuration).getSeconds();
     }

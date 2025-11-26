@@ -64,6 +64,9 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.prometheus:prometheus-metrics-core:1.3.0'
 
+    // Caffeine
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
+
 }
 
 tasks.named('test') {
