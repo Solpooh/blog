@@ -1,3 +1,7 @@
 package com.solpooh.boardback.dto.response.youtube;
 
-public record PostVideoResponse(){}
+import java.util.List;
+
+public record PostVideoResponse(
+        List<String> videoIds
+){}

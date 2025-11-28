@@ -18,8 +18,6 @@ import java.util.Optional;
 public class YoutubeConverter {
     private YoutubeConverter(){}
     public static VideoEntity toVideoEntity(Activity activity, ChannelEntity channel) {
-        if (activity.getContentDetails().getUpload() == null) return null;
-
         return VideoEntity.builder()
                 .videoId(
                         activity.getContentDetails().getUpload().getVideoId()
@@ -80,7 +78,7 @@ public class YoutubeConverter {
         );
     }
 
-    public static VideoMetaData toResponse(Video video) {
+    public static VideoMetaData convertToAllMetaData(Video video) {
         VideoContentDetails cd = video.getContentDetails();
         String duration = (cd != null && cd.getDuration() != null)
                 ? cd.getDuration()
@@ -91,12 +89,33 @@ public class YoutubeConverter {
 
         return new VideoMetaData(
                 video.getId(),
+                convertToLong(video.getStatistics().getViewCount()), // prevViewCount도 똑같이 설정
                 convertToLong(video.getStatistics().getViewCount()),
                 convertToLong(video.getStatistics().getLikeCount()),
                 convertToLong(video.getStatistics().getCommentCount()),
-                isShort
+                isShort,
+                video.getSnippet().getTags()
+
         );
     }
+
+    public static void updateVideoEntity(VideoEntity entity, VideoMetaData dto) {
+        entity.setPrevViewCount(dto.viewCount());
+        entity.setViewCount(dto.viewCount());
+        entity.setLikeCount(dto.likeCount());
+        entity.setCommentCount(dto.commentCount());
+        entity.setShort(dto.isShort());
+        entity.setTags(dto.tags());
+    }
+
+    public static VideoMetaData convertToMetaData(Video video) {
+        return VideoMetaData.builder()
+                .viewCount(convertToLong(video.getStatistics().getViewCount()))
+                .likeCount(convertToLong(video.getStatistics().getLikeCount()))
+                .commentCount(convertToLong(video.getStatistics().getCommentCount()))
+                .build();
+    }
+
     private static int parseDuration(String isoDuration) {
         return (int) Duration.parse(isoDuration).getSeconds();
     }

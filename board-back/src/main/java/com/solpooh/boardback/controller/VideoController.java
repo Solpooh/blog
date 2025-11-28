@@ -2,6 +2,7 @@ package com.solpooh.boardback.controller;
 
 import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.service.VideoService;
+import com.solpooh.boardback.service.youtube.YoutubeBatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,21 +29,6 @@ public class VideoController {
         return videoService.getSearchVideoList(searchWord, type, pageable);
     }
 
-    @PostMapping("")
-    public PostVideoResponse postVideo() {
-        return videoService.postVideo();
-    }
-    @DeleteMapping("/{videoId}")
-    public DeleteVideoResponse deleteVideo(
-            @PathVariable("videoId") String videoId
-    ) {
-        return videoService.deleteVideo(videoId);
-    }
-
-    @PostMapping("/info")
-    public void postVideoInfo() {
-        videoService.postAllVideoInfo();
-    }
     @GetMapping("/hot-list")
     public GetHotVideoListResponse getTopTrendVideoList() {
         return videoService.getHotVideoList();

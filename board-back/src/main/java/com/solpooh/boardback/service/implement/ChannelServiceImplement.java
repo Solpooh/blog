@@ -43,7 +43,7 @@ public class ChannelServiceImplement implements ChannelService {
     @Override
     public PostChannelResponse postChannel() {
 
-        Set<String> channelIds = channelRepository.findAllIds();
+        List<String> channelIds = channelRepository.findAllIds();
         // 이미 DB에 존재하는 채널은 제외(API 호출 최소화)
         List<String> newChannelIds = ChannelProvider.getChannelIds().stream()
                 .filter(channelId -> !channelIds.contains(channelId))

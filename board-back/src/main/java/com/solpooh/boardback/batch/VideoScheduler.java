@@ -3,6 +3,7 @@ package com.solpooh.boardback.batch;
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
 import com.solpooh.boardback.service.VideoService;
+import com.solpooh.boardback.service.youtube.YoutubeBatchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class VideoScheduler {
-    private final VideoService videoService;
+    private final YoutubeBatchService youtubeBatchService;
     private final CacheService cacheService;
 
     // 1시간 주기 - 비디오 저장 + 저장한 비디오 메타데이터 저장(10-개)
@@ -19,9 +20,9 @@ public class VideoScheduler {
     @Transactional
     public void postDailyVideo() {
         log.info("▶ 비디오 수집 시작");
-        PostVideoResponse response = videoService.postVideo();
+        PostVideoResponse response = youtubeBatchService.postVideo();
         log.info("▶ 비디오 수집 완료: {}", response);
-        videoService.postAllVideoInfo();
+        youtubeBatchService.updateVideoByScore();
         log.info("▶ 비디오 조회수 갱신 완료");
 
         cacheService.syncFromDB();
@@ -31,6 +32,6 @@ public class VideoScheduler {
 
     // 24시간 주기 - 비디오 Score 계산
     public void calculateScore() {
-        videoService.dailyCalculate();
+        youtubeBatchService.dailyCalculate();
     }
 }
