@@ -2,7 +2,9 @@ package com.solpooh.boardback.service.youtube;
 
 import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.Video;
+import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.ResponseApi;
+import com.solpooh.boardback.config.ExecutorConfig;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
@@ -22,54 +24,70 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class YoutubeBatchService {
     private static final int CHUNK_SIZE = 50;
+    private final CacheService cacheService;
     private final VideoRepository videoRepository;
     private final ChannelRepository channelRepository;
     private final YoutubeApiService youtubeApiService;
     private final VideoJdbcRepository videoJdbcRepository;
-
+    private final ExecutorService videoFetchExecutor;
     @Transactional
     public PostVideoResponse postVideo() {
         // 기존의 channelId 조회
         List<String> channelIds = channelRepository.findAllIds();
         if (channelIds.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
 
-        // 기존의 videoId 조회
-        List<String> videoIds = videoRepository.findAllIds();
+        // Cache에서 기존의 videoId 조회
+        List<String> videoIds = cacheService.getAllIds();
 
-        // 신규 영상 저장용
+        // 병렬 처리 시 사용
+        List<Future<List<Activity>>> futures = new ArrayList<>();
+
+        for (String channelId : channelIds) {
+            futures.add(videoFetchExecutor.submit(() -> {
+                // I/O 작업
+                return youtubeApiService.fetchActivityList(channelId);
+            }));
+        }
+
+        // 결과 병합
+        List<Activity> activities = new ArrayList<>();
+        for (Future<List<Activity>> future : futures) {
+            try {
+                activities.addAll(future.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // 신규 영상 처리
         List<VideoEntity> newVideos = new ArrayList<>();
         List<String> newVideoIds = new ArrayList<>();
 
-        for (String channelId : channelIds) {
-            List<Activity> activities = youtubeApiService.fetchActivityList(channelId);
+        for (Activity activity : activities) {
+            if (activity.getContentDetails().getUpload() == null) continue;
+            String videoId = activity.getContentDetails().getUpload().getVideoId();
 
-            for (Activity activity : activities) {
-                if (activity.getContentDetails().getUpload() == null) {
-                    continue;
-                }
+            if (videoIds.contains(videoId)) continue;
 
-                String videoId = activity.getContentDetails().getUpload().getVideoId();
-                if (videoIds.contains(videoId)){
-                    continue;
-                }
+            // channelId 기반 Proxy Entity 생성
+            String channelId = activity.getSnippet().getChannelId();
+            ChannelEntity channelRef = channelRepository.getReferenceById(channelId);
 
-                // channelId 기반 Proxy Entity 생성
-                ChannelEntity channelRef = channelRepository.getReferenceById(channelId);
-
-                VideoEntity video = YoutubeConverter.toVideoEntity(activity, channelRef);
-                newVideos.add(video);
-                newVideoIds.add(videoId);
-            }
+            VideoEntity video = YoutubeConverter.toVideoEntity(activity, channelRef);
+            newVideos.add(video);
+            newVideoIds.add(videoId);
         }
+
         videoRepository.saveAll(newVideos);
 
-        // 메타데이터 업데이트는 별도 트랜잭션으로 처리
+        // 메타데이터 업데이트는 별도 트랜잭션으로 처리 - 추후 chunk로 리팩토링할 것
         updateVideo(newVideoIds);
 
         return new PostVideoResponse(newVideoIds);
@@ -81,6 +99,7 @@ public class YoutubeBatchService {
 
         List<Video> response = youtubeApiService.fetchAllVideoData(videoIds);
         Map<String, VideoMetaData> videoMap = response.stream()
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         Video::getId,
                         YoutubeConverter::convertToAllMetaData
@@ -107,7 +126,7 @@ public class YoutubeBatchService {
         // 상위 200개 videoId
         List<String> topVideoIds = videoEntities.stream()
                 .sorted(descByScore)
-//                .limit(200)
+                .limit(200)
                 .map(VideoEntity::getVideoId)
                 .toList();
 
@@ -174,10 +193,17 @@ public class YoutubeBatchService {
 
     public void dailyCalculate() {
         List<VideoEntity> videoEntities = videoRepository.findAll();
-        videoEntities.forEach(v -> v.setTrendScore(calculateScore(v)));
+        List<VideoMetaData> updateList = videoEntities.stream()
+                .map(entity -> VideoMetaData.builder()
+                        .videoId(entity.getVideoId())
+                        .trendScore(calculateScore(entity))
+                        .build())
+                .toList();
+
+        videoJdbcRepository.updateTrendScore(updateList);
     }
 
-    private static double calculateScore(VideoEntity entity) {
+    public static double calculateScore(VideoEntity entity) {
         long prev = entity.getPrevViewCount();
         long curr = entity.getViewCount();
 

@@ -14,14 +14,14 @@ public class VideoJdbcRepository {
 
     public void updateVideoMetaData(List<VideoMetaData> list) {
         String sql = """
-            UPDATE video 
-            SET 
-                prev_view_count = ?,
-                view_count = ?, 
-                like_count = ?, 
-                comment_count = ?
-            WHERE video_id = ?
-        """;
+                    UPDATE video 
+                    SET 
+                        prev_view_count = ?,
+                        view_count = ?, 
+                        like_count = ?, 
+                        comment_count = ?
+                    WHERE video_id = ?
+                """;
 
         jdbcTemplate.batchUpdate(sql, list, 500,
                 (ps, dto) -> {
@@ -30,6 +30,20 @@ public class VideoJdbcRepository {
                     ps.setLong(3, dto.likeCount());
                     ps.setLong(4, dto.commentCount());
                     ps.setString(5, dto.videoId());
+                });
+    }
+
+    public void updateTrendScore(List<VideoMetaData> list) {
+        String sql = """
+                UPDATE video
+                SET trend_score = ?
+                WHERE video_id = ?
+                """;
+
+        jdbcTemplate.batchUpdate(sql, list, 1000,
+                (ps, dto) -> {
+                    ps.setDouble(1, dto.trendScore());
+                    ps.setString(2, dto.videoId());
                 });
     }
 }

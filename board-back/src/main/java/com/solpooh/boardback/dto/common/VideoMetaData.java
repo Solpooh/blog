@@ -11,5 +11,6 @@ public record VideoMetaData(
         Long likeCount,
         Long commentCount,
         Boolean isShort,
-        List<String> tags
+        List<String> tags,
+        Double trendScore
 ) { }

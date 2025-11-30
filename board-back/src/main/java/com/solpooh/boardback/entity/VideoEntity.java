@@ -39,14 +39,14 @@ public class VideoEntity extends BaseTimeEntity {
     @JoinColumn(name = "channel_id", nullable = false)
     private ChannelEntity channel;
 
-    @Column(name = "prev_view_count")
-    private Long prevViewCount;
-    @Column(name = "view_count")
-    private Long viewCount;
-    @Column(name = "like_count")
-    private Long likeCount;
-    @Column(name = "comment_count")
-    private Long commentCount;
+    @Column(name = "prev_view_count", nullable = false)
+    private Long prevViewCount = 0L;
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount = 0L;
+    @Column(name = "comment_count", nullable = false)
+    private Long commentCount = 0L;
     @Column(name = "trend_score")
     private Double trendScore; // 조회수 상승 비율 기반 점수
     @Column(name = "is_short")

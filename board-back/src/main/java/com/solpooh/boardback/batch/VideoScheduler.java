@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class VideoScheduler {
+    // 구체적인 스케줄링 전략 세우기
+    // 데이터 정합성 중심 -> 제한적 재시도 + 실패 로깅/알람.
     private final YoutubeBatchService youtubeBatchService;
     private final CacheService cacheService;
 

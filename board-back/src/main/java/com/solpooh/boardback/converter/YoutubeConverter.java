@@ -32,7 +32,11 @@ public class YoutubeConverter {
                                 activity.getSnippet().getPublishedAt().toStringRfc3339(),
                                 DateTimeFormatter.ISO_DATE_TIME))
                 .channel(channel)
+                .prevViewCount(0L)
+                .likeCount(0L)
+                .commentCount(0L)
                 .viewCount(0L) // 최초 0으로 저장
+                .trendScore(0.000)
                 .build();
     }
 
@@ -94,8 +98,8 @@ public class YoutubeConverter {
                 convertToLong(video.getStatistics().getLikeCount()),
                 convertToLong(video.getStatistics().getCommentCount()),
                 isShort,
-                video.getSnippet().getTags()
-
+                video.getSnippet().getTags(),
+                0.000
         );
     }
 
