@@ -1,6 +1,5 @@
 package com.solpooh.boardback.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.solpooh.boardback.converter.JsonStringListConverter;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -11,7 +10,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
