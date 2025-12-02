@@ -22,11 +22,10 @@ public class VideoController {
     }
     @GetMapping("/search-list/{searchWord}")
     public GetSearchVideoListResponse getSearchVideoList(
-            @PathVariable("searchWord") String searchWord,
-            String type,
+            @PathVariable String searchWord,
             @PageableDefault(size = 52) Pageable pageable
     ) {
-        return videoService.getSearchVideoList(searchWord, type, pageable);
+        return videoService.getSearchVideoList(searchWord, pageable);
     }
 
     @GetMapping("/hot-list")

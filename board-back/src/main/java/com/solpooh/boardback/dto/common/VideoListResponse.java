@@ -1,5 +1,8 @@
 package com.solpooh.boardback.dto.common;
 
+import lombok.Builder;
+
+@Builder
 public record VideoListResponse(
         String videoId,
         String title,

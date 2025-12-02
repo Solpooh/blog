@@ -71,7 +71,7 @@ public class VideoIndexService {
         doc.setTitle(entity.getTitle());
         doc.setDescription(entity.getDescription());
         doc.setTags(entity.getTags());
-        doc.setPublishedAt(entity.getPublishedAt());
+        doc.setPublishedAt(entity.getPublishedAt().toString());
         doc.setViewCount(entity.getViewCount());
         doc.setIsShort(entity.isShort());
 

@@ -4,6 +4,7 @@ import com.google.api.services.youtube.model.*;
 import com.solpooh.boardback.dto.common.VideoListResponse;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
+import com.solpooh.boardback.elasticsearch.VideoDocument;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import java.math.BigInteger;
@@ -73,6 +74,7 @@ public class YoutubeConverter {
                 videoEntity.getTrendScore()
         );
     }
+
 
     public static GetChannelResponse toResponse(ChannelEntity entity) {
         return new GetChannelResponse(

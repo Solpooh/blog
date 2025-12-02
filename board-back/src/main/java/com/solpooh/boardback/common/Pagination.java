@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -29,6 +30,23 @@ public class Pagination<T> {
                 page.isFirst(),
                 page.isLast(),
                 page.getNumberOfElements()
+        );
+    }
+
+    public static <T> Pagination<T> ofFromSearch(List<T> content, Pageable pageable, long totalElements) {
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        return new Pagination<>(
+                content,
+                page,
+                size,
+                totalPages,
+                totalElements,
+                page == 0,
+                page + 1 == totalPages,
+                content.size()
         );
     }
 }

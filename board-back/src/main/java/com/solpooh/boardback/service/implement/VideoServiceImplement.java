@@ -1,40 +1,30 @@
 package com.solpooh.boardback.service.implement;
 
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Activity;
-import com.google.api.services.youtube.model.Video;
+
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.Pagination;
-import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoListResponse;
-import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.*;
-import com.solpooh.boardback.entity.ChannelEntity;
+import com.solpooh.boardback.elasticsearch.VideoDocument;
 import com.solpooh.boardback.entity.VideoEntity;
-import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.repository.ChannelRepository;
-import com.solpooh.boardback.repository.VideoJdbcRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.VideoService;
-import com.solpooh.boardback.service.youtube.YoutubeApiService;
-import jakarta.persistence.EntityManager;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.stat.Statistics;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +36,8 @@ public class VideoServiceImplement implements VideoService {
     private final VideoRepository videoRepository;
     private final CacheService cacheService;
     private final ChannelRepository channelRepository;
+    private final ElasticsearchOperations elasticsearchOperations;
+
 
     @Override
     public GetVideoListResponse getLatestVideoList(Pageable pageable) {
@@ -63,16 +55,33 @@ public class VideoServiceImplement implements VideoService {
     }
 
     @Override
-    public GetSearchVideoListResponse getSearchVideoList(String searchWord, String type, Pageable pageable) {
-        Page<VideoEntity> videoEntities =
-                videoRepository.getSearchVideoList(searchWord, type, pageable);
+    @Transactional(readOnly = true)
+    public GetSearchVideoListResponse getSearchVideoList(String searchWord, Pageable pageable) {
+        var query = NativeQuery.builder()
+                .withQuery(q -> q.multiMatch(m -> m
+                        .fields("title", "description", "tags")
+                        .query(searchWord)
+                ))
+                .withPageable(pageable)
+                .build();
 
-        List<VideoListResponse> videoList = videoEntities.getContent()
+        SearchHits<VideoDocument> hits =
+                elasticsearchOperations.search(query, VideoDocument.class);
+
+        // List - 검색 결과 순서 유지
+        List<String> videoIds = hits.getSearchHits()
+                .stream()
+                .map(hit -> hit.getContent().getVideoId())
+                .toList();
+
+        List<VideoEntity> videoEntities = videoRepository.findByVideoIdIn(videoIds);
+
+        List<VideoListResponse> videoList = videoEntities
                 .stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
-        Pagination<VideoListResponse> pagedList = Pagination.of(videoEntities, videoList);
+        Pagination<VideoListResponse> pagedList = Pagination.ofFromSearch(videoList, pageable, hits.getTotalHits());
 
         return new GetSearchVideoListResponse(pagedList);
     }
