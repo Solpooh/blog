@@ -6,7 +6,7 @@
 }
 .youtube-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
     margin-bottom: 20px;
 }
@@ -14,20 +14,33 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
 }
 
-.search-box select,
 .search-box input {
-    padding: 6px 10px;
+    padding: 8px 12px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
+    width: 360px;
+
+    border: 1px solid #ff9999;
+    color: #333;
+
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+.search-box input:focus {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 6px rgba(255, 77, 77, 0.4);
+    outline: none;
+}
+
 
 .youtube-header h2 {
     font-size: 24px;
     margin-bottom: 24px;
     font-weight: 600;
+    text-align: center;
 }
 
 .video-grid {

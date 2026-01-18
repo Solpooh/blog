@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './style.css';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
 import {SEARCH_PATH} from "../../constants";
@@ -28,6 +28,8 @@ export default function Search() {
     const [count, setCount] = useState<number>(0);
     //  state: 관련 검색어 리스트 상태 //
     const [relativeWordList, setRelativeWordList] = useState<string[]>([]);
+    const [searchParams, setSearchParams] = useSearchParams();
+
 
     //  function: 네비게이트 함수 //
     const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function Search() {
         if (!searchWord) return;
         const { searchList } = (responseBody as GetSearchBoardListResponseDto).data;
 
-        setPagination(pagination);
+        setPagination(searchList);
         setCount(searchList.totalElements);
         setSearchBoardList(searchList.content);
         setPreSearchWord(searchWord);
@@ -63,6 +65,10 @@ export default function Search() {
         setCurrentPage(1);
     }
 
+    const onPageChange = (page: number) => {
+        setSearchParams({ page: String(page) });
+        setCurrentPage(page);
+    }
     //  effect: search word 상태 변경 시 실행될 함수 //
     useEffect(() => {
         if (!searchWord) return;
@@ -103,9 +109,8 @@ export default function Search() {
                 <div className='search-pagination-box'>
                     {count !== 0 && pagination &&
                      <Paging
-                         currentPage={currentPage}
-                         totalPages={pagination.totalPages}
-                         onPageChange={setCurrentPage}
+                         pagination={pagination}
+                         onPageChange={onPageChange}
                      />
                     }
                 </div>

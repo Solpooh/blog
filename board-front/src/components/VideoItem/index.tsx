@@ -1,7 +1,7 @@
 import {VideoListItem} from 'types/interface';
 import './style.css';
-import {deleteVideoRequest} from 'apis';
-import {DeleteVideoResponseDto} from 'apis/response/youtube';
+import {deleteVideoRequest, getTranscriptRequest} from 'apis';
+import {DeleteVideoResponseDto, GetTranscriptResponseDto} from 'apis/response/youtube';
 import {ResponseDto} from 'apis/response';
 import React, {useState} from "react";
 interface Props {
@@ -13,8 +13,16 @@ export default function VideoItem({ videoItem }: Props) {
     const { videoId, title, thumbnail, channelTitle, customUrl, channelThumbnail, publishedAt, viewCount
     , commentCount, likeCount, isShort } = videoItem;
     const formattedDate = new Date(publishedAt).toISOString().split("T")[0]; // 'yyyy-MM-dd' 포맷
+
+    // iframe 전용 모달 상태
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showIframe, setShowIframe] = useState(false);
+
+    // transcript 전용 모달 상태
+    const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+    const [summaryText, setSummaryText] = useState<string | null>(null);
+
 
     //  function: 이미지 삭제 응답 함수  //
     const deleteVideoResponse = (responseBody: DeleteVideoResponseDto | ResponseDto | null) => {
@@ -37,6 +45,19 @@ export default function VideoItem({ videoItem }: Props) {
         setShowIframe(false);
         setIsModalOpen(false);
     }
+    //  function: Transcript 응답 함수 //
+    const getTranscriptResponse = (responseBody: GetTranscriptResponseDto | ResponseDto | null) => {
+        setIsSummaryLoading(false);
+
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') alert('데이터베이스 오류입니다.');
+        if (code !== 'SU') return;
+
+        const {transcript} = (responseBody as GetTranscriptResponseDto).data;
+
+        setSummaryText(transcript);
+    };
 
     //  event handler: 이미지 오류 이벤트 처리  //
     const onImageLoadHandler = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -47,6 +68,7 @@ export default function VideoItem({ videoItem }: Props) {
             deleteVideoRequest(videoId).then(deleteVideoResponse);
         }
     }
+
 
     return (
         <div className="video-card">
@@ -78,10 +100,43 @@ export default function VideoItem({ videoItem }: Props) {
                     <h3 className="video-title">{title}</h3>
                     <div className="video-item-counts">
                         {`좋아요 ${likeCount} 댓글 ${commentCount}`}
+                        <button className="summary-button" onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            setIsSummaryModalOpen(true);
+                            setIsSummaryLoading(true);
+                            setSummaryText(null);
+
+                            getTranscriptRequest(videoId).then(getTranscriptResponse);
+                        }}>
+                            📋영상 요약하기
+                        </button>
                     </div>
                 </div>
             </div>
 
+            {isSummaryModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content summary-modal">
+                        <button onClick={() => setIsSummaryModalOpen(false)}>
+                            닫기 X
+                        </button>
+
+                        {isSummaryLoading && (
+                            <div className="summary-loading">
+                                <div className="spinner" />
+                                <p>AI가 영상을 요약 중입니다...</p>
+                            </div>
+                        )}
+
+                        {!isSummaryLoading && summaryText && (
+                            <div className="summary-result">
+                                <h3>📋 영상 요약</h3>
+                                <pre>{summaryText}</pre>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {isModalOpen && (
                 <div className="modal-overlay">

@@ -37,9 +37,8 @@ import {
     GetVideoListResponseDto,
     DeleteVideoResponseDto,
     GetSearchVideoListResponseDto,
-    GetHotVideoListResponseDto, GetTopViewVideoListResponseDto, GetShortsVideoListResponseDto
+    GetHotVideoListResponseDto, GetTopViewVideoListResponseDto, GetShortsVideoListResponseDto, GetTranscriptResponseDto
 } from "./response/youtube";
-import {themes} from "prismjs/components";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -397,7 +396,7 @@ export const fileUploadRequest = async (data: FormData) => {
 }
 
 const GET_VIDEO_LIST_URL = (page: number = 0) => `${API_DOMAIN}/video?page=${page}`;
-const GET_SEARCH_VIDEO_LIST_URL = (searchWord: string, type: string, page: number = 0) => `${API_DOMAIN}/video/search-list/${searchWord}?type=${type}&page=${page}`;
+const GET_SEARCH_VIDEO_LIST_URL = (searchWord: string, page: number = 0) => `${API_DOMAIN}/video/search-list/${searchWord}?page=${page}`;
 export const getVideoListRequest = async (page: number = 0) => {
     const result = await axios.get(GET_VIDEO_LIST_URL(page))
         .then(response => {
@@ -411,8 +410,8 @@ export const getVideoListRequest = async (page: number = 0) => {
         });
     return result;
 };
-export const getSearchVideoListRequest = async (searchWord: string, type: string, page: number = 0) => {
-    const result = await axios.get(GET_SEARCH_VIDEO_LIST_URL(searchWord, type, page))
+export const getSearchVideoListRequest = async (searchWord: string, page: number = 0) => {
+    const result = await axios.get(GET_SEARCH_VIDEO_LIST_URL(searchWord, page))
         .then(response => {
             const responseBody: GetSearchVideoListResponseDto = response.data;
             return responseBody;
@@ -424,7 +423,7 @@ export const getSearchVideoListRequest = async (searchWord: string, type: string
         });
     return result;
 };
-const DELETE_VIDEO_URL = (videoId: string) => `${API_DOMAIN}/video/${videoId}`;
+const DELETE_VIDEO_URL = (videoId: string) => `${API_DOMAIN}/admin/video/${videoId}`;
 export const deleteVideoRequest = async (videoId: string) => {
     const result = await axios.delete(DELETE_VIDEO_URL(videoId))
         .then(response => {
@@ -442,6 +441,7 @@ export const deleteVideoRequest = async (videoId: string) => {
 const GET_HOT_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/hot-list`;
 const GET_TOP_VIEW_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/top-list`;
 const GET_SHORTS_VIDEO_LIST_URL = () => `${API_DOMAIN}/video/shorts-list`;
+const GET_VIDEO_TRANSCRIPT_URL = (videoId: string) => `${API_DOMAIN}/video/transcript/${videoId}`;
 export const getHotVideoRequest = async () => {
     const result = await axios.get(GET_HOT_VIDEO_LIST_URL())
         .then(response => {
@@ -479,5 +479,19 @@ export const getShortsVideoRequest = async () => {
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         });
+    return result;
+};
+
+export const getTranscriptRequest = async (videoId: string) => {
+    const result = await axios.get(GET_VIDEO_TRANSCRIPT_URL(videoId))
+        .then(response => {
+            const responseBody: GetTranscriptResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
     return result;
 };

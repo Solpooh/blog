@@ -139,7 +139,7 @@ export default function Main() {
             setCurrentPage(pageParam);
         }, [category, pageParam]);
 
-        //  effect: 데이터 요청 //
+        //  effect: 최초 데이터 요청 //
         useEffect(() => {
             getLatestBoardListRequest(selectedCategory, currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, selectedCategory)
@@ -147,7 +147,7 @@ export default function Main() {
             getPopularListRequest().then(getPopularListResponse);
         }, [selectedCategory, currentPage]);
 
-        // ✅ 페이지 변경
+        // 페이지 변경
         const onPageChange = (page: number) => {
             navigate(`/${selectedCategory}?page=${page}`);
         };
@@ -201,8 +201,7 @@ export default function Main() {
                 {pagination && (
                     <div className="main-bottom-pagination-box">
                         <Paging
-                            currentPage={currentPage}
-                            totalPages={pagination.totalPages}
+                            pagination={pagination}
                             onPageChange={onPageChange}
                         />
                     </div>

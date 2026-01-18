@@ -8,23 +8,23 @@ import {ResponseDto} from 'apis/response';
 import './style.css';
 import Pagination from 'types/interface/pagination.interface';
 import Paging from 'components/Paging';
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {YOUTUBE_SEARCH_PATH} from "../../constants";
 
 //  component: Youtube 컴포넌트  //
 export default function Youtube() {
     //  state: searchWord path variable 상태 //
     const { searchWord } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const [currentPage, setCurrentPage] = useState(pageParam);
 
     //  state: 유튜브 최신 비디오 리스트 상태  //
     const [videoList, setVideoList] = useState<VideoListItem[]>([]);
     //  state: 페이지네이션 상태 //
     const [pagination, setPagination] = useState<Pagination<VideoListItem> | null>(null)
-    //  state: 현재 페이지 상태 //
-    const [currentPage, setCurrentPage] = useState<number>(1);
 
-    //  state: 검색 조건 상태 //
-    const [searchType, setSearchType] = useState<'channel' | 'title'>('channel');
     //  state: 검색어 저장 상태 //
     const [word, setWord] = useState<string>('');
     //  state: 검색 버튼 요소 참조 상태 //
@@ -40,7 +40,6 @@ export default function Youtube() {
         if (code !== 'SU') return;
 
         const { videoList } = (responseBody as GetVideoListResponseDto).data;
-        console.log(videoList)
         setVideoList(videoList.content);
         setPagination(videoList);
     }
@@ -54,7 +53,7 @@ export default function Youtube() {
 
         const {videoList} = (responseBody as GetSearchVideoListResponseDto).data;
         setVideoList(videoList.content);
-        setPagination(pagination);
+        setPagination(videoList);
     }
 
     //  event handler: 검색어 변경 이벤트 처리 함수 //
@@ -68,6 +67,11 @@ export default function Youtube() {
         if (!searchButtonRef.current) return;
         searchButtonRef.current.click();
     };
+    //  event handler: 페이지 변경 함수 //
+    const onPageChange = (page: number) => {
+        setSearchParams({ page: String(page) });
+        setCurrentPage(page);
+    }
 
     //  event handler: 검색 버튼 클릭 이벤트 처리 함수 //
     const onSearchButtonClickHandler = () => {
@@ -76,15 +80,20 @@ export default function Youtube() {
             return;
         }
         navigate(YOUTUBE_SEARCH_PATH(word));
-        setCurrentPage(1);
-        getSearchVideoListRequest(word, searchType, currentPage - 1).then(getSearchVideoListResponse);
+        getSearchVideoListRequest(word,currentPage - 1).then(getSearchVideoListResponse);
     }
+
+    //  effect: page param 변경될 때마다 적용 //
+    useEffect(() => {
+        const page = Number(searchParams.get("page")) || 1;
+        setCurrentPage(page);
+    }, [searchParams]);
 
     //  effect: 첫 마운트 시 실행될 함수 //
     useEffect(() => {
         if (searchWord) {
             // 검색 모드
-            getSearchVideoListRequest(searchWord, searchType, currentPage - 1).then(getSearchVideoListResponse);
+            getSearchVideoListRequest(searchWord,currentPage - 1).then(getSearchVideoListResponse);
         } else {
             // 최신 모드
             getVideoListRequest(currentPage - 1).then(getVideoListResponse);
@@ -94,12 +103,9 @@ export default function Youtube() {
     return (
         <div className="youtube-wrapper">
             <div className="youtube-header">
-                <h2>최신 유튜브 동영상</h2>
+                <h2>최신 개발 Youtube</h2>
+
                 <div className="search-box">
-                    <select value={searchType} onChange={e => setSearchType(e.target.value as 'channel' | 'title')}>
-                        <option value="channel">채널명</option>
-                        <option value="title">비디오 제목</option>
-                    </select>
                     <input type="text" placeholder="검색어를 입력해주세요." value={word} onChange={onSearchWordChangeHandler} onKeyDown={onSearchWordKeyDownHandler} />
                     <div ref={searchButtonRef} className='icon-button' onClick={onSearchButtonClickHandler}>
                         <div className='icon search-light-icon'></div>
@@ -113,9 +119,8 @@ export default function Youtube() {
             {pagination && (
                 <div className="main-bottom-pagination-box">
                     <Paging
-                        currentPage={currentPage}
-                        totalPages={pagination.totalPages}
-                        onPageChange={setCurrentPage}
+                        pagination={pagination}
+                        onPageChange={onPageChange}
                     />
                 </div>
             )}

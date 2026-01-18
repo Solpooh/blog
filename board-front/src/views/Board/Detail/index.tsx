@@ -323,6 +323,9 @@ export default function BoardDetail() {
             commentRef.current.style.height = 'auto';
             commentRef.current.style.height = `${commentRef.current.scrollHeight}px`;
         }
+        const onPageChange = (page: number) => {
+            setCurrentPage(page);
+        }
 
         //  effect: 게시물 번호 path variable이 바뀔때마다 좋아요/댓글 리스트 불러오기 //
         useEffect(() => {
@@ -378,9 +381,8 @@ export default function BoardDetail() {
                     <div className='board-detail-bottom-comment-pagination-box'>
                         {pagination &&
                             <Paging
-                                currentPage={currentPage}
-                                totalPages={pagination.totalPages}
-                                onPageChange={setCurrentPage}
+                                pagination={pagination}
+                                onPageChange={onPageChange}
                             />
                         }
                     </div>

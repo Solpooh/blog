@@ -1,50 +1,30 @@
-#pagination-wrapper {
+.pagination-container {
     display: flex;
-    gap: 20px;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 20px;
 }
 
-.pagination-change-link-box {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
+.page-btn {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
     cursor: pointer;
 }
 
-.pagination-change-link-text {
-    color: rgba(0, 0, 0, 0.7);
-
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 140%;
+.page-btn.active {
+    background: #e60023;
+    color: white;
+    border-color: #e60023;
 }
 
-.pagination-divider {
-    color: rgba(0, 0, 0, 0.1);
-
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 140%;
-
+.page-btn:disabled {
+    opacity: 0.5;
     cursor: default;
 }
 
-.pagination-text-active {
-    color: rgba(255, 0, 0, 1);
-
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 140%;
-
-    cursor: default;
-}
-
-.pagination-text {
-    color: rgba(0, 0, 0, 0.4);
-
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 140%;
-
-    cursor: pointer;
+.ellipsis {
+    padding: 6px 10px;
 }

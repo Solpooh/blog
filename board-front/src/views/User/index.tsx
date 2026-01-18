@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
 import {useLoginUserStore} from 'stores';
@@ -24,9 +24,9 @@ import Paging from 'components/Paging';
 //  component: 유저 화면 컴포넌트 //
 export default function User() {
     //  state: userEmail path variable 상태 //
-    const { userEmail } = useParams();
+    const {userEmail} = useParams();
     //  state: 로그인 유저 상태 //
-    const { loginUser } = useLoginUserStore();
+    const {loginUser} = useLoginUserStore();
     //  state: cookie 상태 //
     const [cookies, setCookie] = useCookies();
     //  state: 마이페이지 여부 상태 //
@@ -52,14 +52,14 @@ export default function User() {
         //  function: get user response 처리 함수 //
         const getUserResponse = (responseBody: GetUserResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'NU') alert('존재하지 않는 유저입니다.');
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') {
                 navigate(MAIN_PATH());
                 return;
             }
-            const { email, nickname, profileImage }  = responseBody as GetUserResponseDto;
+            const {email, nickname, profileImage} = responseBody as GetUserResponseDto;
             setNickname(nickname);
             setProfileImage(profileImage);
             const isMyPage = (email === loginUser?.email);
@@ -70,13 +70,13 @@ export default function User() {
             if (!profileImage) return;
             if (!cookies.accessToken) return;
 
-            const requestBody: PatchProfileImageRequestDto = { profileImage };
+            const requestBody: PatchProfileImageRequestDto = {profileImage};
             patchProfileImageRequest(requestBody, cookies.accessToken).then(patchProfileImageResponse);
         };
         //  function: patch profile image response 처리 함수 //
         const patchProfileImageResponse = (responseBody: PatchProfileImageResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'AF') alert('인증에 실패했습니다.');
             if (code === 'NU') alert('존재하지 않는 유저입니다.');
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
@@ -88,7 +88,7 @@ export default function User() {
         //  function: patch nickname response 처리 함수 //
         const patchNicknameResponse = (responseBody: PatchNicknameResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'VF') alert('닉네임은 필수입니다.');
             if (code === 'AF') alert('인증에 실패했습니다.');
             if (code === 'DN') alert('중복되는 닉네임입니다.');
@@ -133,7 +133,7 @@ export default function User() {
         };
         //  event handler: 닉네임 변경 이벤트 처리 //
         const onNicknameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-            const { value } = event.target;
+            const {value} = event.target;
             setChangeNickname(value);
         };
 
@@ -148,30 +148,35 @@ export default function User() {
             <div id='user-top-wrapper'>
                 <div className='user-top-container'>
                     {isMyPage ?
-                    <div className='user-top-my-profile-image-box' onClick={onProfileBoxClickHandler}>
-                        {profileImage !== null ?
-                        <div className='user-top-profile-image' style={{ backgroundImage: `url(${profileImage})` }}></div> :
-                        <div className='icon-box-large'>
-                           <div className='icon image-box-white-icon'></div>
-                        </div>
-                        }
-                        <input ref={imageInputRef} type='file' accept='image/*' style={{ display: 'none' }} onChange={onProfileImageChangeHandler} />
-                    </div> :
-                    <div className='user-top-profile-image-box' style={{ backgroundImage: `url(${profileImage ? profileImage : defaultProfileImage})` }}></div>
+                        <div className='user-top-my-profile-image-box' onClick={onProfileBoxClickHandler}>
+                            {profileImage !== null ?
+                                <div className='user-top-profile-image'
+                                     style={{backgroundImage: `url(${profileImage})`}}></div> :
+                                <div className='icon-box-large'>
+                                    <div className='icon image-box-white-icon'></div>
+                                </div>
+                            }
+                            <input ref={imageInputRef} type='file' accept='image/*' style={{display: 'none'}}
+                                   onChange={onProfileImageChangeHandler}/>
+                        </div> :
+                        <div className='user-top-profile-image-box'
+                             style={{backgroundImage: `url(${profileImage ? profileImage : defaultProfileImage})`}}></div>
                     }
                     <div className='user-top-info-box'>
                         <div className='user-top-info-nickname-box'>
                             {isMyPage ?
-                            <>
-                            {isNicknameChange ?
-                            <input className='user-top-info-nickname-input' type='text' size={changeNickname.length + 2} value={changeNickname} onChange={onNicknameChangeHandler} /> :
-                            <div className='user-top-info-nickname'>{nickname}</div>
-                            }
-                            <div className='icon-button' onClick={onNicknameEditButtonClickHandler}>
-                                <div className='icon edit-icon'></div>
-                            </div>
-                            </> :
-                            <div className='user-top-info-nickname'>{nickname}</div>
+                                <>
+                                    {isNicknameChange ?
+                                        <input className='user-top-info-nickname-input' type='text'
+                                               size={changeNickname.length + 2} value={changeNickname}
+                                               onChange={onNicknameChangeHandler}/> :
+                                        <div className='user-top-info-nickname'>{nickname}</div>
+                                    }
+                                    <div className='icon-button' onClick={onNicknameEditButtonClickHandler}>
+                                        <div className='icon edit-icon'></div>
+                                    </div>
+                                </> :
+                                <div className='user-top-info-nickname'>{nickname}</div>
                             }
                         </div>
                         <div className='user-top-info-email'>{userEmail}</div>
@@ -192,11 +197,11 @@ export default function User() {
         const [currentPage, setCurrentPage] = useState<number>(1);
         //  state: 게시물 개수 상태 //
         const [count, setCount] = useState<number>(0);
-
+        const [searchParams, setSearchParams] = useSearchParams();
         //  function: get user board list response 처리 함수 //
         const getUserBoardListResponse = (responseBody: GetUserBoardListResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
-            const { code } = responseBody;
+            const {code} = responseBody;
             if (code === 'NU') {
                 alert('존재하지 않는 유저입니다.');
                 navigate(MAIN_PATH());
@@ -205,9 +210,9 @@ export default function User() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
-            const { userBoardList } = (responseBody as GetUserBoardListResponseDto).data;
+            const {userBoardList} = (responseBody as GetUserBoardListResponseDto).data;
 
-            setPagination(pagination);
+            setPagination(userBoardList);
             setUserBoardList(userBoardList.content);
             setCount(userBoardList.totalElements);
         };
@@ -218,6 +223,10 @@ export default function User() {
             else if (loginUser) navigate(USER_PATH(loginUser.email));
         };
 
+        const onPageChange = (page: number) => {
+            setSearchParams({ page: String(page) });
+            setCurrentPage(page);
+        }
         //  effect: userEmail path variable 이 변경될 때마다 실행할 함수 //
         useEffect(() => {
             if (!userEmail) return;
@@ -228,30 +237,32 @@ export default function User() {
         return (
             <div id='user-bottom-wrapper'>
                 <div className='user-bottom-container'>
-                    <div className='user-bottom-title'>{isMyPage ? '내가 쓴 게시물 ' : '작성글 '}<span className='emphasis'>{count}</span></div>
+                    <div className='user-bottom-title'>{isMyPage ? '내가 쓴 게시물 ' : '작성글 '}<span
+                        className='emphasis'>{count}</span></div>
                     <div className='user-bottom-contents-box'>
                         {count === 0 ?
                             <div className='user-bottom-contents-nothing'>{'작성한 게시글이 없습니다.'}</div> :
                             <div className='user-bottom-contents'>
-                                {userBoardList.map(boardListItem => <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem} />)}
+                                {userBoardList.map(boardListItem => <BoardItem key={boardListItem.boardNumber}
+                                                                               boardListItem={boardListItem}/>)}
                             </div>
                         }
                         <div className='user-bottom-side-box'>
                             <div className='user-bottom-side-card' onClick={onSideCardClickHandler}>
                                 <div className='user-bottom-side-container'>
                                     {isMyPage ?
-                                    <>
-                                    <div className='icon-box'>
-                                        <div className='icon edit-icon'></div>
-                                    </div>
-                                    <div className='user-bottom-side-text'>{'글쓰기'}</div>
-                                    </> :
-                                    <>
-                                    <div className='user-bottom-side-text'>{'내 게시물로 가기'}</div>
-                                    <div className='icon-box'>
-                                        <div className='icon arrow-right-icon'></div>
-                                    </div>
-                                    </>
+                                        <>
+                                            <div className='icon-box'>
+                                                <div className='icon edit-icon'></div>
+                                            </div>
+                                            <div className='user-bottom-side-text'>{'글쓰기'}</div>
+                                        </> :
+                                        <>
+                                            <div className='user-bottom-side-text'>{'내 게시물로 가기'}</div>
+                                            <div className='icon-box'>
+                                                <div className='icon arrow-right-icon'></div>
+                                            </div>
+                                        </>
                                     }
                                 </div>
                             </div>
@@ -259,11 +270,8 @@ export default function User() {
                     </div>
                     <div className='user-bottom-pagination-box'>
                         {count !== 0 && pagination &&
-                            <Paging
-                                currentPage={currentPage}
-                                totalPages={pagination.totalPages}
-                                onPageChange={setCurrentPage}
-                            />}
+                            <Paging pagination={pagination} onPageChange={onPageChange}/>
+                        }
                     </div>
                 </div>
             </div>
@@ -274,8 +282,8 @@ export default function User() {
     //  render: 유저 화면 컴포넌트 렌더링 //
     return (
         <>
-        <UserTop />
-        <UserBottom />
+            <UserTop/>
+            <UserBottom/>
         </>
     );
 };
