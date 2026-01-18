@@ -39,3 +39,6 @@ out/
 # Environment-specific configuration files
 application.yaml
 application-*.yaml
+
+/transcript
+CLAUDE.md

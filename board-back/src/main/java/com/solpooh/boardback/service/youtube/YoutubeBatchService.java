@@ -4,14 +4,15 @@ import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.Video;
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.ResponseApi;
-import com.solpooh.boardback.config.ExecutorConfig;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
+import com.solpooh.boardback.elasticsearch.VideoIndexService;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.exception.CustomException;
+import com.solpooh.boardback.fetcher.YoutubeApiFetcher;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoJdbcRepository;
 import com.solpooh.boardback.repository.VideoRepository;
@@ -35,9 +36,11 @@ public class YoutubeBatchService {
     private final CacheService cacheService;
     private final VideoRepository videoRepository;
     private final ChannelRepository channelRepository;
-    private final YoutubeApiService youtubeApiService;
+    private final YoutubeApiFetcher youtubeApiService;
     private final VideoJdbcRepository videoJdbcRepository;
     private final ExecutorService videoFetchExecutor;
+    private final VideoIndexService videoIndexService;
+    private final TranscriptService transcriptService;
     @Transactional
     public PostVideoResponse postVideo() {
         // 기존의 channelId 조회
@@ -89,6 +92,9 @@ public class YoutubeBatchService {
 
         // 메타데이터 업데이트는 별도 트랜잭션으로 처리 - 추후 chunk로 리팩토링할 것
         updateVideo(newVideoIds);
+//        transcriptService(newVideoIds);
+        videoIndexService.indexAll();
+
 
         return new PostVideoResponse(newVideoIds);
     }
@@ -116,7 +122,7 @@ public class YoutubeBatchService {
 
     @Transactional
     // Score 기반의 조회수, 댓글수, 좋아요 수 갱신
-    public void updateVideoByScore() {
+    public void updateVideoData() {
         List<VideoEntity> videoEntities = videoRepository.findAll();
 
         // trend score 정렬
@@ -126,14 +132,13 @@ public class YoutubeBatchService {
         // 상위 200개 videoId
         List<String> topVideoIds = videoEntities.stream()
                 .sorted(descByScore)
-                .limit(200)
+                .limit(400)
                 .map(VideoEntity::getVideoId)
                 .toList();
 
         // Entity Map 구성 (기존 DB 값 활용)
         Map<String, VideoEntity> entityMap = videoEntities.stream()
                 .collect(Collectors.toMap(VideoEntity::getVideoId, v -> v));
-
         // videoId 50개 단위로 chunk 나누기
         var chunks = chunk(topVideoIds, CHUNK_SIZE);
 
@@ -191,7 +196,7 @@ public class YoutubeBatchService {
         return chunks;
     }
 
-    public void dailyCalculate() {
+    public void updateVideoScore() {
         List<VideoEntity> videoEntities = videoRepository.findAll();
         List<VideoMetaData> updateList = videoEntities.stream()
                 .map(entity -> VideoMetaData.builder()

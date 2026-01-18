@@ -1,6 +1,5 @@
 package com.solpooh.boardback.repository.impl;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.solpooh.boardback.entity.QChannelEntity;
 import com.solpooh.boardback.entity.QVideoEntity;
@@ -9,7 +8,6 @@ import com.solpooh.boardback.repository.ifs.VideoRepositoryIf;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 

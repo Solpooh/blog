@@ -28,14 +28,14 @@ public class VideoAdminController {
 
     @PostMapping("/update")
     public ResponseEntity<String> refreshScoreTargets() {
-        youtubeBatchService.updateVideoByScore();
+        youtubeBatchService.updateVideoData();
 
         return ResponseEntity.ok("updateVideoByScore completed");
     }
 
     @PostMapping("/calculate")
     public ResponseEntity<String> calculateScore() {
-        youtubeBatchService.dailyCalculate();
+        youtubeBatchService.updateVideoScore();
 
         return ResponseEntity.ok("dailyCalculate completed");
     }

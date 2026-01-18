@@ -61,7 +61,6 @@ public class ChannelProvider {
             "UCfxHOPdVOVbp_xY7xCyNJzg",
             "UCSENXiaCkYVNv1n-vWrqsCw",
             "UCZ30aWiMw5C8mGcESlAGQbA",
-            "UCTcTcjjVKOHBVlfj3YXHx5g",
             "UCfBvs0ZJdTA43NQrnI9imGA",
             "UCHbXBo1fQAg7j0D7HKKYHJg",
             "UCiQzpvJdiKqOLQR-Izhsj2w",

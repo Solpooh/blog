@@ -2,7 +2,6 @@ package com.solpooh.boardback.batch;
 
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
-import com.solpooh.boardback.service.VideoService;
 import com.solpooh.boardback.service.youtube.YoutubeBatchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,29 +10,38 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
-public class VideoScheduler {
-    // 구체적인 스케줄링 전략 세우기
-    // 데이터 정합성 중심 -> 제한적 재시도 + 실패 로깅/알람.
+public class VideoBatchScheduler {
     private final YoutubeBatchService youtubeBatchService;
     private final CacheService cacheService;
+    private final BatchExecutor batchExecutor;
 
     // 1시간 주기 - 비디오 저장 + 저장한 비디오 메타데이터 저장(10-개)
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     @Transactional
-    public void postDailyVideo() {
-        log.info("▶ 비디오 수집 시작");
-        PostVideoResponse response = youtubeBatchService.postVideo();
-        log.info("▶ 비디오 수집 완료: {}", response);
-        youtubeBatchService.updateVideoByScore();
-        log.info("▶ 비디오 조회수 갱신 완료");
-
+    public void postHourlyVideo() {
+//        PostVideoResponse response = youtubeBatchService.postVideo();
+        batchExecutor.run(
+                BatchJobType.VIDEO_COLLECT_HOURLY,
+                youtubeBatchService::postVideo
+        );
         cacheService.syncFromDB();
     }
 
     // 10분 주기 - Score 기반 비디오 메타데이터 저장(200+개)
+    @Scheduled(cron = "0 */10 * * * *")
+    public void postMinutelyVideoData() {
+        batchExecutor.run(
+                BatchJobType.VIDEO_DATA_UPDATE,
+                youtubeBatchService::updateVideoData
+        );
+    }
 
     // 24시간 주기 - 비디오 Score 계산
-    public void calculateScore() {
-        youtubeBatchService.dailyCalculate();
+    @Scheduled(cron = "0 0 3 * * *")
+    public void postDailyCalculate() {
+        batchExecutor.run(
+                BatchJobType.VIDEO_SCORE_UPDATE,
+                youtubeBatchService::updateVideoScore
+        );
     }
 }

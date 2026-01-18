@@ -1,6 +1,9 @@
 package com.solpooh.boardback.service.implement;
 
 
+import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionBoostMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.Pagination;
@@ -23,8 +26,10 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.query.StringQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,13 +62,40 @@ public class VideoServiceImplement implements VideoService {
     @Override
     @Transactional(readOnly = true)
     public GetSearchVideoListResponse getSearchVideoList(String searchWord, Pageable pageable) {
-        var query = NativeQuery.builder()
-                .withQuery(q -> q.multiMatch(m -> m
-                        .fields("title", "description", "tags")
-                        .query(searchWord)
-                ))
-                .withPageable(pageable)
-                .build();
+        String queryJson = """
+                {
+                  "function_score": {
+                    "query": {
+                      "multi_match": {
+                        "query": "%s",
+                        "fields": ["title^3", "tags^2", "description"]
+                      }
+                    },
+                    "functions": [
+                      {
+                        "gauss": {
+                          "publishedAt": {
+                            "origin": "now",
+                            "scale": "90d",
+                            "decay": 0.5
+                          }
+                        }
+                      },
+                      {
+                        "field_value_factor": {
+                          "field": "viewCount",
+                          "modifier": "log1p",
+                          "factor": 0.0001
+                        }
+                      }
+                    ],
+                    "score_mode": "sum",
+                    "boost_mode": "sum"
+                  }
+                }
+                """.formatted(searchWord);
+
+        Query query = new StringQuery(queryJson, pageable);
 
         SearchHits<VideoDocument> hits =
                 elasticsearchOperations.search(query, VideoDocument.class);
@@ -76,7 +108,16 @@ public class VideoServiceImplement implements VideoService {
 
         List<VideoEntity> videoEntities = videoRepository.findByVideoIdIn(videoIds);
 
-        List<VideoListResponse> videoList = videoEntities
+        // JPA 조회 결과는 순서 유지 X - Map을 사용한 재정렬
+        Map<String, VideoEntity> map = videoEntities.stream()
+                .collect(Collectors.toMap(VideoEntity::getVideoId, v -> v));
+
+        List<VideoEntity> sorted = videoIds.stream()
+                .map(map::get)
+                .filter(Objects::nonNull)
+                .toList();
+
+        List<VideoListResponse> videoList = sorted
                 .stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
@@ -85,6 +126,7 @@ public class VideoServiceImplement implements VideoService {
 
         return new GetSearchVideoListResponse(pagedList);
     }
+
     @Override
     public GetHotVideoListResponse getHotVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getHotVideoList();

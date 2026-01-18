@@ -52,4 +52,7 @@ public class VideoEntity extends BaseTimeEntity {
     @Column(columnDefinition = "json")
     @Convert(converter = JsonStringListConverter.class)
     private List<String> tags;
+
+    @Column(name = "transcript")
+    private String transcript;
 }

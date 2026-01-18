@@ -1,4 +1,4 @@
-package com.solpooh.boardback.service.youtube;
+package com.solpooh.boardback.fetcher;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Activity;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class YoutubeApiService {
+public class YoutubeApiFetcher {
     @Value("${youtube.api.key}")
     private String apiKey;
     private final YouTube youtube;

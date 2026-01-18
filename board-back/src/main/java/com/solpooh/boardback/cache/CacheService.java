@@ -20,7 +20,7 @@ public class CacheService {
     // 서버 시작 시 호출
     @Transactional
     public void loadAllFromDB() {
-        List<String> videoIds = videoRepository.findAllIds(); // video_id만 select
+        List<String> videoIds = videoRepository.findVideoIds(); // video_id만 select
         videoIds.forEach(id -> cache.put(id, Boolean.TRUE));
     }
 
@@ -42,7 +42,7 @@ public class CacheService {
 
     @Transactional
     public void syncFromDB() {
-        List<String> dbIds = videoRepository.findAllIds();
+        List<String> dbIds = videoRepository.findVideoIds();
 
         var dbSet = new HashSet<>(dbIds);
 
