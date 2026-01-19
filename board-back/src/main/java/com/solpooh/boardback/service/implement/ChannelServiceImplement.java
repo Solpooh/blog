@@ -39,7 +39,6 @@ public class ChannelServiceImplement implements ChannelService {
         return YoutubeConverter.toResponse(channelEntity);
     }
 
-    // Youtube API 비동기 I/O로 전환 후 성능향상
     @Override
     public PostChannelResponse postChannel() {
 

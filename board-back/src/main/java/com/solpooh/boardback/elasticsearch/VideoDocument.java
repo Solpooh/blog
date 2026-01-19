@@ -33,4 +33,6 @@ public class VideoDocument {
     private Long viewCount;
     @Field(type = FieldType.Boolean)
     private Boolean isShort;
+    @Field(type = FieldType.Text)
+    private String transcript;
 }

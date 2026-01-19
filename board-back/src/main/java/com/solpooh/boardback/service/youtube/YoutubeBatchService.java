@@ -1,123 +1,41 @@
 package com.solpooh.boardback.service.youtube;
 
-import com.google.api.services.youtube.model.Activity;
 import com.google.api.services.youtube.model.Video;
-import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
-import com.solpooh.boardback.elasticsearch.VideoIndexService;
-import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.fetcher.YoutubeApiFetcher;
-import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoJdbcRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class YoutubeBatchService {
     private static final int CHUNK_SIZE = 50;
-    private final CacheService cacheService;
     private final VideoRepository videoRepository;
-    private final ChannelRepository channelRepository;
     private final YoutubeApiFetcher youtubeApiService;
     private final VideoJdbcRepository videoJdbcRepository;
-    private final ExecutorService videoFetchExecutor;
-    private final VideoIndexService videoIndexService;
-    private final TranscriptService transcriptService;
-    @Transactional
+    private final VideoCollectorService videoCollectorService;
+
+    /**
+     * 영상 수집 메인 메서드
+     * VideoCollectorService로 위임하여 최적화된 파이프라인 실행
+     */
     public PostVideoResponse postVideo() {
-        // 기존의 channelId 조회
-        List<String> channelIds = channelRepository.findAllIds();
-        if (channelIds.isEmpty()) throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
-
-        // Cache에서 기존의 videoId 조회
-        List<String> videoIds = cacheService.getAllIds();
-
-        // 병렬 처리 시 사용
-        List<Future<List<Activity>>> futures = new ArrayList<>();
-
-        for (String channelId : channelIds) {
-            futures.add(videoFetchExecutor.submit(() -> {
-                // I/O 작업
-                return youtubeApiService.fetchActivityList(channelId);
-            }));
-        }
-
-        // 결과 병합
-        List<Activity> activities = new ArrayList<>();
-        for (Future<List<Activity>> future : futures) {
-            try {
-                activities.addAll(future.get());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        // 신규 영상 처리
-        List<VideoEntity> newVideos = new ArrayList<>();
-        List<String> newVideoIds = new ArrayList<>();
-
-        for (Activity activity : activities) {
-            if (activity.getContentDetails().getUpload() == null) continue;
-            String videoId = activity.getContentDetails().getUpload().getVideoId();
-
-            if (videoIds.contains(videoId)) continue;
-
-            // channelId 기반 Proxy Entity 생성
-            String channelId = activity.getSnippet().getChannelId();
-            ChannelEntity channelRef = channelRepository.getReferenceById(channelId);
-
-            VideoEntity video = YoutubeConverter.toVideoEntity(activity, channelRef);
-            newVideos.add(video);
-            newVideoIds.add(videoId);
-        }
-
-        videoRepository.saveAll(newVideos);
-
-        // 메타데이터 업데이트는 별도 트랜잭션으로 처리 - 추후 chunk로 리팩토링할 것
-        updateVideo(newVideoIds);
-//        transcriptService(newVideoIds);
-        videoIndexService.indexAll();
-
-
-        return new PostVideoResponse(newVideoIds);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateVideo(List<String> videoIds) {
-        if (videoIds == null || videoIds.isEmpty()) return;
-
-        List<Video> response = youtubeApiService.fetchAllVideoData(videoIds);
-        Map<String, VideoMetaData> videoMap = response.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(
-                        Video::getId,
-                        YoutubeConverter::convertToAllMetaData
-                ));
-
-        List<VideoEntity> videoEntities = videoRepository.findAllById(videoIds);
-        videoEntities.forEach(entity -> {
-            Optional.ofNullable(videoMap.get(entity.getVideoId()))
-                    .ifPresent(dto -> YoutubeConverter.updateVideoEntity(entity, dto));
-        });
-
-        videoRepository.saveAll(videoEntities);
+        return videoCollectorService.collectVideos();
     }
 
     @Transactional
@@ -181,7 +99,7 @@ public class YoutubeBatchService {
     public DeleteVideoResponse deleteVideo(String videoId) {
 
         VideoEntity videoEntity = videoRepository.findByVideoId(videoId)
-                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_BOARD));
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_VIDEO));
 
         videoRepository.delete(videoEntity);
 //        cacheService.remove();
