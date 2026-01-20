@@ -2,6 +2,13 @@
     padding: 20px 0;
     display: flex;
     justify-content: center;
+    background-color: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
+    transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
 }
 
 .header-container {
@@ -10,49 +17,66 @@
     justify-content: space-between;
     align-items: center;
 }
+
 .header-left-box {
     display: flex;
     align-items: center;
 }
+
 .header-leftOne-box, .header-leftTwo-box, .header-leftThree-box {
     display: flex;
     align-items: center;
     padding-right: 24px;
     position: relative;
     cursor: pointer;
+    transition: opacity var(--transition-fast);
 }
+
+.header-leftOne-box:hover, .header-leftTwo-box:hover, .header-leftThree-box:hover {
+    opacity: 0.8;
+}
+
 .header-leftTwo-box::before {
     content: '|';
     position: absolute;
     right: 125px;
     top: 50%;
     transform: translateY(-50%);
-    color: #ccc;
+    color: var(--color-border-primary);
 }
+
 .header-logo {
-    color: rgba(0, 0, 0, 1);
+    color: var(--color-text-primary);
     font-family: 'GimhaeGaya', serif;
     font-size: 20px;
     font-weight: 400;
     line-height: 140%;
     letter-spacing: -0.4px;
+    transition: color var(--transition-normal);
 }
 
 .header-right-box {
     display: flex;
     gap: 15px;
+    align-items: center;
 }
 
 .header-search-input-box {
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 43px;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-full);
     padding: 0 10px 0 12px;
     width: 223px;
     height: 30px;
-
     display: flex;
     align-items: center;
     gap: 5px;
+    background-color: var(--color-input-bg);
+    transition: all var(--transition-fast);
+}
+
+.header-search-input-box:focus-within {
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
 }
 
 .header-search-input {
@@ -60,21 +84,36 @@
     border: none;
     background: none;
     outline: none;
-
-    color: rgba(0, 0, 0, 1);
-
+    color: var(--color-text-primary);
     font-size: 14px;
     font-weight: 400;
     line-height: 140%;
+}
 
+.header-search-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* SearchAutocomplete 컴포넌트용 */
+.header-search-box {
+    width: 320px;
 }
 
 .logo-dark-icon {
     background-image: url(hub.png);
 }
+
 .logo-youtube-icon {
     background-image: url(youtube.png);
 }
+
 .logo-trend-icon {
     background-image: url(trend.png);
+}
+
+/* Dark mode icon adjustments for header */
+[data-theme="dark"] .logo-dark-icon,
+[data-theme="dark"] .logo-youtube-icon,
+[data-theme="dark"] .logo-trend-icon {
+    filter: invert(0.9) hue-rotate(180deg);
 }

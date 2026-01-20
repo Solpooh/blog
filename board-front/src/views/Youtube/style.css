@@ -2,14 +2,17 @@
     padding: 40px 24px;
     max-width: 1200px;
     margin: 0 auto;
-
+    background-color: var(--color-bg-primary);
+    transition: background-color var(--transition-normal);
 }
+
 .youtube-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 20px;
 }
+
 .search-box {
     display: flex;
     align-items: center;
@@ -19,38 +22,49 @@
 
 .search-box input {
     padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
     font-size: 14px;
     width: 360px;
-
-    border: 1px solid #ff9999;
-    color: #333;
-
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    transition: all var(--transition-fast);
 }
+
 .search-box input:focus {
-    border-color: #ff4d4d;
-    box-shadow: 0 0 6px rgba(255, 77, 77, 0.4);
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
     outline: none;
 }
 
+.search-box input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* SearchAutocomplete 컴포넌트용 */
+.youtube-search-box {
+    width: 450px;
+    max-width: 100%;
+}
 
 .youtube-header h2 {
     font-size: 24px;
     margin-bottom: 24px;
     font-weight: 600;
     text-align: center;
+    color: var(--color-text-primary);
+    transition: color var(--transition-normal);
 }
 
 .video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(273px, 1fr));
     gap: 20px;
 }
+
 .main-bottom-pagination-box {
     margin-top: 20px;
     text-align: center;
     display: flex;
-    justify-content: center; /* Flexbox를 사용해 중앙 정렬 */
+    justify-content: center;
 }

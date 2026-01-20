@@ -8,7 +8,7 @@ interface Props {
     videoItem: VideoListItem;
 }
 
-export default function VideoItem({ videoItem }: Props) {
+const VideoItem = React.memo(({ videoItem }: Props) => {
 
     const { videoId, title, thumbnail, channelTitle, customUrl, channelThumbnail, publishedAt, viewCount
     , commentCount, likeCount, isShort } = videoItem;
@@ -71,7 +71,7 @@ export default function VideoItem({ videoItem }: Props) {
 
 
     return (
-        <div className="video-card">
+        <article className="video-card">
             <a
                 href={`https://www.youtube.com/${customUrl}`}
                 target="_blank"
@@ -79,14 +79,14 @@ export default function VideoItem({ videoItem }: Props) {
                 className="channel-info-link"
             >
                 <div className="channel-info">
-                    <img src={channelThumbnail} alt={channelTitle} className="channel-thumbnail" loading="lazy"/>
+                    <img src={channelThumbnail} alt={`${channelTitle} 채널 프로필`} className="channel-thumbnail" loading="lazy"/>
                     <p className="video-channel">{channelTitle}</p>
                 </div>
             </a>
             <div className="video-info-link" onClick={openModal}>
                 <img
                     key={videoId}
-                    alt={title}
+                    alt={`${title} 비디오 썸네일`}
                     src={thumbnail}
                     className="video-thumbnail"
                     loading="lazy"
@@ -159,6 +159,8 @@ export default function VideoItem({ videoItem }: Props) {
                     </div>
                 </div>
             )}
-        </div>
+        </article>
     );
-}
+});
+
+export default VideoItem;

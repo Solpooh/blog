@@ -19,7 +19,7 @@ interface Props {
 }
 
 //  component: Comment List Item 컴포넌트 //
-export default function CommentItem({ commentListItem }: Props) {
+const CommentItem = React.memo(({ commentListItem }: Props) => {
     //  function:  네비게이트 함수  //
     const navigator = useNavigate();
     //  function: 작성일 경과시간 함수  //
@@ -179,4 +179,6 @@ export default function CommentItem({ commentListItem }: Props) {
             )}
         </div>
     );
-}
+});
+
+export default CommentItem;

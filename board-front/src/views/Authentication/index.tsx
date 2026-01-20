@@ -106,18 +106,23 @@ export default function Authentication() {
             if (event.key !== 'Enter') return;
             onSignInButtonClickHandler();
         }
+        //  event handler: 폼 제출 이벤트 처리 //
+        const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            onSignInButtonClickHandler();
+        }
 
         //  render: sign in card 컴포넌트 렌더링 //
         return (
             <div className='auth-card'>
                 <div className='auth-card-box'>
-                    <div className='auth-card-top'>
+                    <form className='auth-card-top' onSubmit={onSubmitHandler}>
                         <div className='auth-card-title-box'>
                             <div className='auth-card-title'>{'로그인'}</div>
                         </div>
                         <InputBox ref={emailRef} label='이메일 주소' type='text' placeholder='이메일 주소를 입력해주세요.' error={error} value={email} onChange={onEmailChangeHandler} onKeyDown={onEmailKeyDownHandler} />
                         <InputBox ref={passwordRef} label='패스워드' type={passwordType} placeholder='비밀번호를 입력해주세요.' error={error} value={password} onChange={onPasswordChangeHandler} icon={passwordButtonIcon} onButtonClick={onPasswordButtonClickHandler} onKeyDown={onPasswordKeyDownHandler} />
-                    </div>
+                    </form>
                     <div className='auth-card-bottom'>
                         {error &&
                         <div className='auth-sign-in-error-box'>
@@ -442,6 +447,16 @@ export default function Authentication() {
             addressDetailRef.current.focus();
         }
 
+        //  event handler: 폼 제출 이벤트 처리 //
+        const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            if (page === 1) {
+                onNextButtonClickHandler();
+            } else {
+                onSignUpButtonClickHandler();
+            }
+        }
+
         //  effect: 페이지가 변경될 때 마다 실행될 함수   //
         useEffect(() => {
             if(page === 2){
@@ -454,7 +469,7 @@ export default function Authentication() {
         return (
             <div className='auth-card'>
                 <div className='auth-card-box'>
-                    <div className='auth-card-top'>
+                    <form className='auth-card-top' onSubmit={onSubmitHandler}>
                         <div className='auth-card-title-box'>
                             <div className='auth-card-title'>{'회원가입'}</div>
                             <div className='auth-card-page'>{`${page}/2`}</div>
@@ -471,10 +486,10 @@ export default function Authentication() {
                             <InputBox ref={nicknameRef} label='닉네임*' type='text' placeholder='닉네임을 입력해주세요.' value={nickname} onChange={onNicknameChangeHandler} error={isNicknameError} message={nicknameErrorMessage} onKeyDown={onNicknameKeyDownHandler}/>
                             <InputBox ref={telNumberRef} label='핸드폰 번호*' type='text' placeholder='핸드폰 번호를 입력해주세요.' value={telNumber} onChange={onTelNumberChangeHandler} error={isTelNumberError} message={telNumberErrorMessage} onKeyDown={onTelNumberKeyDownHandler}/>
                             <InputBox ref={addressRef} label='주소*' type='text' placeholder='우편번호 찾기' value={address} onChange={onAddressChangeHandler} error={isAddressError} message={addressErrorMessage} icon='expand-right-light-icon' onButtonClick={onAddressButtonClickHandler} onKeyDown={onAddressKeyDownHandler}/>
-                            <InputBox ref={addressDetailRef} label='상세 주소' type='text' placeholder='상세 주소를 입력해주세요.' value={addressDetail} onChange={onAddressDetailChangeHandler} error={false} />
+                            <InputBox ref={addressDetailRef} label='상세 주소' type='text' placeholder='상세 주소를 입력해주세요.' value={addressDetail} onChange={onAddressDetailChangeHandler} error={false} onKeyDown={onAddressDetailKeyDownHandler} />
                         </>
                         )}
-                    </div>
+                    </form>
                     <div className='auth-card-bottom'>
                         {page === 1 && (
                             <div className='black-large-full-button' onClick={onNextButtonClickHandler}>{'다음 단계'}</div>

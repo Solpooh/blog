@@ -11,7 +11,7 @@ interface Props {
 }
 
 //  component: Top 3 List Item 컴포넌트 //
-export default function Top3Item({ top3ListItem }: Props) {
+const Top3Item = React.memo(({ top3ListItem }: Props) => {
 
     const { boardNumber, title, category, content, boardTitleImage } = top3ListItem;
     const { favoriteCount, commentCount, viewCount } = top3ListItem;
@@ -28,11 +28,11 @@ export default function Top3Item({ top3ListItem }: Props) {
 
     //  render: Top 3 List Item 컴포넌트 렌더링 //
     return (
-        <div className='top-3-list-item' style={{ backgroundImage: `url(${boardTitleImage ? boardTitleImage : defaultTitleImage})`}} onClick={onClickHandler}>
+        <div className='top-3-list-item' style={{ backgroundImage: `url(${boardTitleImage ? boardTitleImage : defaultTitleImage})`}} onClick={onClickHandler} role='img' aria-label={`${title} 배경 이미지`}>
             <div className='top-3-list-item-main-box'>
                 <div className='top-3-list-item-top'>
                     <div className='top-3-list-item-profile-box'>
-                        <div className='top-3-list-item-profile-image' style={{ backgroundImage: `url(${writerProfileImage ? writerProfileImage : defaultProfileImage})` }}></div>
+                        <div className='top-3-list-item-profile-image' style={{ backgroundImage: `url(${writerProfileImage ? writerProfileImage : defaultProfileImage})` }} role='img' aria-label={`${writerNickname} 프로필 이미지`}></div>
                     </div>
                     <div className='top-3-list-item-write-box'>
                         <div className='top-3-list-item-nickname'>{writerNickname}</div>
@@ -40,7 +40,7 @@ export default function Top3Item({ top3ListItem }: Props) {
                     </div>
                 </div>
                 <div className='top-3-list-item-middle'>
-                    <div className='top-3-list-item-title'>{title}</div>
+                    <h3 className='top-3-list-item-title'>{title}</h3>
                     <div className='top-3-list-item-content'>{content}</div>
                 </div>
                 <div className='top-3-list-item-bottom'>
@@ -51,4 +51,6 @@ export default function Top3Item({ top3ListItem }: Props) {
             </div>
         </div>
     )
-};
+});
+
+export default Top3Item;

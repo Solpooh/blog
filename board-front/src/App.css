@@ -1,5 +1,115 @@
+/* ===== Accessibility - Focus Indicators ===== */
+*:focus {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 0;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Loading States - Skeleton UI ===== */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e0e0e0 50%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.skeleton-image {
+    width: 100%;
+    height: 200px;
+}
+
+.skeleton-button {
+    width: 95px;
+    height: 30px;
+    border-radius: 20px;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--color-text-tertiary);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-secondary);
+}
+
+.empty-state-description {
+    font-size: 14px;
+    color: var(--color-text-tertiary);
+}
+
+/* ===== Utility Classes ===== */
 .divider {
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--color-divider);
     width: 100%;
 }
 
@@ -7,118 +117,132 @@
     font-weight: bolder;
 }
 
+/* ===== Badge Styles ===== */
 .word-badge {
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 30px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-full);
     padding: 6px 20px;
-
-    color: rgba(0, 0, 0, 0.5);
-
+    color: var(--color-text-tertiary);
     font-size: 14px;
     font-weight: 500;
     line-height: 140%;
+    transition: all var(--transition-fast);
 }
 
 .word-badge:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
     cursor: pointer;
 }
 
+.word-badge:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
+}
+
+/* ===== Button Styles ===== */
 .black-button {
-    border-radius: 46px;
+    border-radius: var(--radius-full);
     width: 95px;
     height: 30px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
-    background-color: rgba(0, 0, 0, 1);
-
-    color: rgba(255, 255, 255, 1);
-
+    background-color: var(--color-button-primary);
+    color: var(--color-text-inverse);
     font-size: 14px;
     font-weight: 500;
     line-height: 140%;
-
     cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
 }
 
 .black-button:hover {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: var(--color-button-primary-hover);
+    transform: translateY(-1px);
+}
+
+.black-button:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
 }
 
 .black-large-full-button {
-    border-radius: 46px;
+    border-radius: var(--radius-full);
     width: 100%;
     height: 48px;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    background-color: rgba(0, 0, 0, 1);
-
-    color: rgba(255, 255, 255, 1);
+    background-color: var(--color-button-primary);
+    color: var(--color-text-inverse);
     font-size: 14px;
     font-weight: 500;
     line-height: 140%;
-
     cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
 }
 
 .black-large-full-button:hover {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: var(--color-button-primary-hover);
+    transform: translateY(-1px);
 }
 
 .disable-button {
-    border-radius: 46px;
+    border-radius: var(--radius-full);
     width: 95px;
     height: 30px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
-    background-color: rgba(0, 0, 0, 0.4);
-
-    color: rgba(255, 255, 255, 1);
-
+    background-color: var(--color-button-disabled);
+    color: var(--color-text-inverse);
     font-size: 14px;
     font-weight: 500;
     line-height: 140%;
-
     cursor: not-allowed;
+    border: none;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.disable-button:hover {
+    transform: none;
 }
 
 .white-button {
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 46px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-full);
     width: 93px;
     height: 28px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
-    background-color: rgba(255, 255, 255, 1);
-
-    color: rgba(0, 0, 0, 0.5);
-
+    background-color: var(--color-button-secondary);
+    color: var(--color-text-tertiary);
     font-size: 14px;
     font-weight: 500;
     line-height: 140%;
-
     cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .white-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
 }
 
+.white-button:focus-visible {
+    outline: 2px solid var(--color-button-primary);
+    outline-offset: 2px;
+}
+
+/* ===== Icon Boxes ===== */
 .icon-box {
     width: 24px;
     height: 24px;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -127,7 +251,6 @@
 .icon-box-small {
     width: 16px;
     height: 16px;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -136,27 +259,24 @@
 .icon-box-large {
     width: 40px;
     height: 40px;
-
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .icon-button {
-    border-radius: 50% 50%;
-
+    border-radius: 50%;
     width: 24px;
     height: 24px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     cursor: pointer;
+    transition: background-color var(--transition-fast);
 }
 
 .icon-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--color-bg-hover);
 }
 
 .icon {
@@ -166,6 +286,7 @@
     background-size: 100% 100%;
 }
 
+/* ===== Icon Images ===== */
 .eye-light-off-icon {
     background-image: url(assets/image/eye-light-off.png);
 }
@@ -255,4 +376,27 @@
 
 .arrow-right-icon {
     background-image: url(assets/image/arrow-right.png);
+}
+
+/* ===== Dark Mode Icon Adjustments ===== */
+[data-theme="dark"] .icon {
+    filter: invert(0.9);
+}
+
+[data-theme="dark"] .favorite-fill-icon,
+[data-theme="dark"] .check-round-fill-icon {
+    filter: none;
+}
+
+/* ===== Smooth Theme Transitions ===== */
+.black-button,
+.white-button,
+.black-large-full-button,
+.disable-button,
+.word-badge,
+.icon-button {
+    transition: background-color var(--transition-fast),
+                color var(--transition-fast),
+                border-color var(--transition-fast),
+                transform var(--transition-fast);
 }

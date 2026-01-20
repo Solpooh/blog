@@ -10,7 +10,7 @@ interface Props {
 }
 
 // component: Board Item 컴포넌트 //
-export default function BoardItem({ boardListItem }: Props) {
+const BoardItem = React.memo(({ boardListItem }: Props) => {
     // properties //
     const { boardNumber, title, category, content, boardTitleImage } = boardListItem;
     const { favoriteCount, commentCount, viewCount } = boardListItem;
@@ -26,11 +26,11 @@ export default function BoardItem({ boardListItem }: Props) {
 
     // render: Board List Item 컴포넌트 렌더링 //
     return (
-        <div className='board-list-item' onClick={onClickHandler}>
+        <article className='board-list-item' onClick={onClickHandler}>
             <div className='board-list-item-main-box'>
                 <div className='board-list-item-top'>
                     <div className='board-list-item-profile-box'>
-                        <div className='board-list-item-profile-image' style={{ backgroundImage: `url(${writerProfileImage ? writerProfileImage : defaultProfileImage} )` }}></div>
+                        <div className='board-list-item-profile-image' style={{ backgroundImage: `url(${writerProfileImage ? writerProfileImage : defaultProfileImage} )` }} role='img' aria-label={`${writerNickname} 프로필 이미지`}></div>
                     </div>
                     <div className='board-list-item-write-box'>
                         <div className='board-list-item-nickname'>{writerNickname}</div>
@@ -38,7 +38,7 @@ export default function BoardItem({ boardListItem }: Props) {
                     </div>
                 </div>
                 <div className='board-list-item-middle'>
-                    <div className='board-list-item-title'>{title}</div>
+                    <h3 className='board-list-item-title'>{title}</h3>
                     <div className='board-list-item-content'>
                         {content}
                     </div>
@@ -51,9 +51,11 @@ export default function BoardItem({ boardListItem }: Props) {
             </div>
             {boardTitleImage !== null && (
                 <div className='board-list-item-image-box'>
-                    <div className='board-list-item-image' style={{ backgroundImage: `url(${boardTitleImage})`}}></div>
+                    <div className='board-list-item-image' style={{ backgroundImage: `url(${boardTitleImage})`}} role='img' aria-label={`${title} 게시글 대표 이미지`}></div>
                 </div>
             )}
-        </div>
+        </article>
     )
-}
+});
+
+export default BoardItem;

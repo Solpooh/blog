@@ -373,7 +373,7 @@ export default function BoardDetail() {
                 <div className='board-detail-bottom-comment-box'>
                     <div className='board-detail-bottom-comment-container'>
                         <div className='board-detail-bottom-comment-list-container'>
-                            {commentList.map(item => <CommentItem commentListItem={item} />)}
+                            {commentList.map(item => <CommentItem key={item.commentNumber} commentListItem={item} />)}
                         </div>
                     </div>
 

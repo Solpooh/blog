@@ -1,0 +1,230 @@
+/* SearchAutocomplete 컴포넌트 스타일 */
+
+.search-autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* 검색 입력 컨테이너 */
+.search-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-full);
+    background-color: var(--color-input-bg);
+    padding: 0 12px;
+    transition: all var(--transition-fast);
+}
+
+.search-input-container:hover {
+    border-color: var(--color-border-hover);
+}
+
+.search-input-container:focus-within {
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+/* 검색 아이콘 */
+.search-icon {
+    color: var(--color-text-tertiary);
+    flex-shrink: 0;
+    transition: color var(--transition-normal);
+}
+
+/* 검색 입력 필드 */
+.search-input-enhanced {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+    color: var(--color-text-primary);
+}
+
+.search-input-enhanced::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* 지우기 버튼 */
+.clear-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
+.clear-button:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-hover);
+}
+
+/* 드롭다운 제안 목록 */
+.suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 제안 섹션 */
+.suggestions-section {
+    padding: 8px 0;
+}
+
+.suggestions-section:not(:last-child) {
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+
+/* 제안 섹션 헤더 */
+.suggestions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+}
+
+/* 전체 삭제 버튼 */
+.clear-all-button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.clear-all-button:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+/* 제안 항목 */
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background-color: var(--color-bg-hover);
+}
+
+/* 제안 아이콘 */
+.suggestion-icon {
+    color: var(--color-text-tertiary);
+    flex-shrink: 0;
+    transition: color var(--transition-normal);
+}
+
+.suggestion-icon.trending {
+    color: #ff5722;
+}
+
+/* 제안 텍스트 */
+.suggestion-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 히스토리 삭제 버튼 */
+.remove-history-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+}
+
+.suggestion-item:hover .remove-history-button {
+    opacity: 1;
+}
+
+.remove-history-button:hover {
+    background-color: var(--color-bg-active);
+    color: var(--color-text-primary);
+}
+
+/* 스크롤바 스타일 */
+.suggestions-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-primary);
+    border-radius: var(--radius-full);
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-hover);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .suggestions-dropdown {
+        max-height: 300px;
+    }
+
+    .suggestion-item {
+        padding: 12px 16px;
+    }
+}

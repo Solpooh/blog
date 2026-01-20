@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import './style.css';
 import Top3Item from 'components/Top3Item';
 import {BoardListItem} from 'types/interface';
@@ -50,10 +50,10 @@ export default function Main() {
         return (
             <div id='main-top-wrapper'>
                 <div className='main-top-container'>
-                    <div className='main-top-intro1'>{'평범한 개발자들의 소통의 장'}</div>
-                    <div className='main-top-intro2'>{'DevHub'}</div>
+                    <p className='main-top-intro1'>{'평범한 개발자들의 소통의 장'}</p>
+                    <h1 className='main-top-intro2'>{'DevHub'}</h1>
                     <div className='main-top-contents-box'>
-                        <div className='main-top-contents-title'>{'주간 TOP 3 게시글'}</div>
+                        <h2 className='main-top-contents-title'>{'주간 TOP 3 게시글'}</h2>
                         <div className='main-top-contents'>
                             {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem}/>)}
                         </div>
@@ -84,14 +84,28 @@ export default function Main() {
         const [latestBoardList, setLatestBoardList] = useState<BoardListItem[]>([]);
         //  state: 인기 검색어 리스트 상태  //
         const [popularWordList, setPopularWordList] = useState<string[]>([]);
+        //  state: 로딩 상태  //
+        const [isLoading, setIsLoading] = useState<boolean>(true);
 
         //  function: get latest board list response 처리 함수 //
         const getLatestBoardListResponse = (responseBody: GetLatestBoardListResponseDto | null,
                                             categoryName: string) => {
-            if (!responseBody) return;
+            if (!responseBody) {
+                setIsLoading(false);
+                alert('서버와의 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
             const { code, data } = responseBody;
-            if (code === 'DBE') alert('데이터베이스 오류입니다.');
-            if (code !== 'SU') return;
+            if (code === 'DBE') {
+                setIsLoading(false);
+                alert('일시적인 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+                console.error('Database error while fetching board list');
+                return;
+            }
+            if (code !== 'SU') {
+                setIsLoading(false);
+                return;
+            }
 
             const { boardList, categoryList } = (responseBody as GetLatestBoardListResponseDto).data;
             // ✅ All일 때만 전체 게시글 수를 따로 저장
@@ -110,13 +124,20 @@ export default function Main() {
             setCategories([allCategory, ...otherCategories]);
             setLatestBoardList(boardList.content);
             setPagination(boardList);
+            setIsLoading(false);
         };
 
         //  function: get popular list response 처리 함수 //
         const getPopularListResponse = (responseBody: GetPopularListResponseDto | ResponseDto | null) => {
-            if (!responseBody) return;
+            if (!responseBody) {
+                console.error('Failed to fetch popular word list');
+                return;
+            }
             const {code, data} = responseBody;
-            if (code === 'DBE') alert('데이터베이스 오류입니다.');
+            if (code === 'DBE') {
+                console.error('Database error while fetching popular word list');
+                return;
+            }
             if (code !== 'SU') return;
 
             const {popularWordList} = (responseBody as GetPopularListResponseDto).data;
@@ -124,14 +145,14 @@ export default function Main() {
         }
 
         //  event handler: 카테고리 클릭 이벤트 처리  //
-        const onCategoryClickHandler = (categoryName: string) => {
+        const onCategoryClickHandler = useCallback((categoryName: string) => {
             navigate(`/${categoryName}?page=1`);
-        };
+        }, [navigate]);
 
         //  event handler: 인기 검색어 클릭 이벤트 처리  //
-        const onPopularWordClickHandler = (word: string) => {
+        const onPopularWordClickHandler = useCallback((word: string) => {
             navigate(SEARCH_PATH(word));
-        }
+        }, [navigate]);
 
         //  effect: URL이 바뀔 때마다 카테고리/페이지 설정
         useEffect(() => {
@@ -141,6 +162,7 @@ export default function Main() {
 
         //  effect: 최초 데이터 요청 //
         useEffect(() => {
+            setIsLoading(true);
             getLatestBoardListRequest(selectedCategory, currentPage - 1).then((responseBody) =>
                 getLatestBoardListResponse(responseBody, selectedCategory)
             );
@@ -148,9 +170,9 @@ export default function Main() {
         }, [selectedCategory, currentPage]);
 
         // 페이지 변경
-        const onPageChange = (page: number) => {
+        const onPageChange = useCallback((page: number) => {
             navigate(`/${selectedCategory}?page=${page}`);
-        };
+        }, [navigate, selectedCategory]);
 
         //  render: 메인 화면 하단 컴포넌트 렌더링 //
         return (
@@ -158,7 +180,7 @@ export default function Main() {
                 <div className="main-bottom-container">
                     <div className="main-bottom-flex-box">
                         {/* 카테고리 박스 */}
-                        <div className="main-bottom-category-popular-box">
+                        <aside className="main-bottom-category-popular-box">
                             <div className="main-bottom-category-box">
                                 {categories.map((category) => (
                                     <div
@@ -171,7 +193,7 @@ export default function Main() {
 
                             {/* 인기 검색어 박스 */}
                             <div className="main-bottom-popular-box">
-                                <div className="main-bottom-popular-card-title">{'인기 검색어'}</div>
+                                <h3 className="main-bottom-popular-card-title">{'인기 검색어'}</h3>
                                 <div className="main-bottom-popular-card-contents">
                                     {popularWordList.map((word) => (
                                         <div className="word-badge" key={word}
@@ -181,19 +203,53 @@ export default function Main() {
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </aside>
 
                         {/* 현재 컨텐츠 */}
-                        <div className="main-bottom-current-contents">
-                            {latestBoardList.map((boardListItem, index) => (
-                                <div key={boardListItem.boardNumber} className="board-item">
-                                    <BoardItem boardListItem={boardListItem}/>
-                                    {index !== latestBoardList.length - 1 && (
-                                        <div className="divider"></div>
-                                    )}
+                        <section className="main-bottom-current-contents">
+                            {isLoading ? (
+                                // 로딩 중일 때 Skeleton UI 표시
+                                <>
+                                    {[1, 2, 3, 4, 5].map((i) => (
+                                        <div key={i} className="board-item">
+                                            <div style={{ padding: '20px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                                                    <div className="skeleton skeleton-avatar" style={{ marginRight: '12px' }}></div>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div className="skeleton skeleton-text" style={{ width: '120px', marginBottom: '4px' }}></div>
+                                                        <div className="skeleton skeleton-text" style={{ width: '80px' }}></div>
+                                                    </div>
+                                                </div>
+                                                <div className="skeleton skeleton-title"></div>
+                                                <div className="skeleton skeleton-text"></div>
+                                                <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+                                                <div className="skeleton skeleton-text" style={{ width: '150px', marginTop: '12px' }}></div>
+                                            </div>
+                                            {i !== 5 && <div className="divider"></div>}
+                                        </div>
+                                    ))}
+                                </>
+                            ) : latestBoardList.length === 0 ? (
+                                // 데이터가 없을 때 Empty State 표시
+                                <div className="empty-state">
+                                    <div className="empty-state-icon">📝</div>
+                                    <div className="empty-state-title">게시글이 없습니다</div>
+                                    <div className="empty-state-description">
+                                        첫 번째 게시글을 작성해보세요!
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
+                            ) : (
+                                // 정상적으로 데이터 표시
+                                latestBoardList.map((boardListItem, index) => (
+                                    <div key={boardListItem.boardNumber} className="board-item">
+                                        <BoardItem boardListItem={boardListItem}/>
+                                        {index !== latestBoardList.length - 1 && (
+                                            <div className="divider"></div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </section>
                     </div>
                 </div>
 

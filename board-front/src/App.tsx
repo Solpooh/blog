@@ -1,12 +1,5 @@
 import './App.css';
 import {Navigate, Route, Routes} from 'react-router-dom';
-import Main from 'views/Main';
-import Authentication from 'views/Authentication';
-import Search from 'views/Search';
-import UserP from 'views/User';
-import BoardWrite from 'views/Board/Write';
-import BoardUpdate from 'views/Board/Update';
-import BoardDetail from 'views/Board/Detail';
 import Container from 'layouts/Container';
 import {
     AUTH_PATH,
@@ -18,14 +11,23 @@ import {
     USER_PATH, YOUTUBE_PATH, YOUTUBE_SEARCH_PATH, YOUTUBE_TREND_PATH
 } from './constants';
 import {Cookies, useCookies} from 'react-cookie';
-import React, {useEffect} from 'react';
+import React, {lazy, Suspense, useEffect} from 'react';
 import {useLoginUserStore} from './stores';
 import {getSignInUserRequest} from './apis';
 import {GetSignInUserResponseDto} from './apis/response/user';
 import {ResponseDto} from './apis/response';
 import {User} from './types/interface';
-import Youtube from './views/Youtube';
-import YoutubeTrend from "./views/YoutubeTrend";
+
+// 코드 스플리팅: React.lazy로 컴포넌트 동적 import
+const Main = lazy(() => import('views/Main'));
+const Authentication = lazy(() => import('views/Authentication'));
+const Search = lazy(() => import('views/Search'));
+const UserP = lazy(() => import('views/User'));
+const BoardWrite = lazy(() => import('views/Board/Write'));
+const BoardUpdate = lazy(() => import('views/Board/Update'));
+const BoardDetail = lazy(() => import('views/Board/Detail'));
+const Youtube = lazy(() => import('./views/Youtube'));
+const YoutubeTrend = lazy(() => import("./views/YoutubeTrend"));
 
 
 //  component: Application 컴포넌트 //
@@ -67,7 +69,19 @@ function App() {
     //  description: 게시물 수정하기 : '/board/update/:boardNumber' - BoardUpdate //
     //  description: 유튜브 비디오 화면 : '/youtube' - Youtube //
     return (
-        <Routes>
+        <Suspense fallback={
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                fontSize: '18px',
+                color: '#888'
+            }}>
+                로딩 중...
+            </div>
+        }>
+            <Routes>
             <Route element={<Container/>}>
                 {/* 기본 접속 시 all 카테고리로 리다이렉트 */}
                 <Route path="/" element={<Main />} />
@@ -88,6 +102,7 @@ function App() {
                 <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
             </Route>
         </Routes>
+        </Suspense>
     );
 }
 

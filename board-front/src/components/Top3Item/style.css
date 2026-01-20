@@ -1,28 +1,35 @@
 .top-3-list-item {
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     padding: 24px;
     width: calc(380px - 24px - 24px);
     height: calc(397px - 24px - 24px);
-
     display: flex;
     flex-direction: column-reverse;
-
-    background-color: rgba(0,0,0,0.05);
-    background-position: top center; /* 배경을 상단 중앙으로 */
-    background-size: 100% 59%; /* 높이를 자동으로 설정 */
-    background-repeat: no-repeat; /* 반복 제거 */
-
+    background-color: var(--color-bg-tertiary);
+    background-position: top center;
+    background-size: 100% 59%;
+    background-repeat: no-repeat;
     cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
 .top-3-list-item:hover {
     opacity: 0.9;
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
 }
 
 .top-3-list-item-main-box {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    background: linear-gradient(transparent, var(--color-card-bg) 20%);
+    padding-top: 20px;
+    margin: -24px;
+    margin-top: 0;
+    padding: 20px 24px 24px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .top-3-list-item-top {
@@ -37,12 +44,12 @@
 }
 
 .top-3-list-item-profile-image {
-    border-radius: 50% 50%;
+    border-radius: 50%;
     width: 100%;
     height: 100%;
-
     background-position: 50% 50%;
-    background-size: 100% 100%;
+    background-size: cover;
+    border: 1px solid var(--color-border-secondary);
 }
 
 .top-3-list-item-write-box {
@@ -52,17 +59,19 @@
 }
 
 .top-3-list-item-nickname {
-    color: rgba(0, 0, 0, 1.0);
+    color: var(--color-text-primary);
     font-size: 12px;
     font-weight: 500;
     line-height: 140%;
+    transition: color var(--transition-normal);
 }
 
 .top-3-list-item-write-date {
-    color: rgba(0, 0, 0, 1.0);
+    color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
+    transition: color var(--transition-normal);
 }
 
 .top-3-list-item-middle {
@@ -74,42 +83,36 @@
 .top-3-list-item-title {
     width: 100%;
     height: 22px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
-    color: rgba(0, 0, 0, 1.0);
+    color: var(--color-text-primary);
     font-size: 16px;
     font-weight: 500;
     line-height: 140%;
+    transition: color var(--transition-normal);
 }
 
 .top-3-list-item-content {
     width: 100%;
     height: 17px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
-    color: rgba(0, 0, 0, 1.0);
+    color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
+    transition: color var(--transition-normal);
 }
 
 .top-3-list-item-bottom {
-
 }
 
 .top-3-list-item-counts {
-    color: rgba(0, 0, 0, 1.0);
-
+    color: var(--color-text-tertiary);
     font-size: 12px;
     font-weight: 400;
     line-height: 140%;
+    transition: color var(--transition-normal);
 }
-
-
-

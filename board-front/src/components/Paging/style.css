@@ -7,24 +7,33 @@
 
 .page-btn {
     padding: 6px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
     font-size: 14px;
     cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
 }
 
 .page-btn.active {
-    background: #e60023;
-    color: white;
-    border-color: #e60023;
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent);
 }
 
 .page-btn:disabled {
     opacity: 0.5;
     cursor: default;
+    background: var(--color-bg-secondary);
 }
 
 .ellipsis {
     padding: 6px 10px;
+    color: var(--color-text-tertiary);
 }

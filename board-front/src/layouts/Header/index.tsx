@@ -17,6 +17,8 @@ import {PatchBoardRequestDto, PostBoardRequestDto} from '../../apis/request/boar
 import {PatchBoardResponseDto, PostBoardResponseDto} from '../../apis/response/board';
 import {ResponseDto} from '../../apis/response';
 import { convertToRaw, EditorState} from 'draft-js';
+import SearchAutocomplete from '../../components/SearchAutocomplete';
+import ThemeToggle from '../../components/ThemeToggle';
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -53,62 +55,56 @@ export default function Header() {
         navigate(YOUTUBE_TREND_PATH())
     }
 
+    //  event handler: 키보드 네비게이션 이벤트 처리 함수 //
+    const onKeyDownHandler = (e: React.KeyboardEvent, callback: () => void) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            callback();
+        }
+    }
+
     //  component: 검색 버튼 컴포넌트 //
     const SearchButton = () => {
-        //  state: 검색 버튼 요소 참조 상태 //
-        const searchButtonRef = useRef<HTMLDivElement | null>(null);
-        //  state: 검색 버튼 상태 //
-        const [status, setStatus] = useState<boolean>(false);
         //  state: 검색어 상태 //
         const [word, setWord] = useState<string>('');
         //  state: 검색어 path variable 상태 //
         const { searchWord } = useParams();
 
         //  event handler: 검색어 변경 이벤트 처리 함수 //
-        const onSearchWordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-            const value = event.target.value;
+        const onSearchWordChange = (value: string) => {
             setWord(value);
         };
 
-        //  event handler: 검색어 키 이벤트 처리 함수 //
-        const onSearchWordKeyDownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key !== 'Enter') return;
-            if (!searchButtonRef.current) return;
-            searchButtonRef.current.click();
-        };
-
-        //  event handler: 검색 버튼 클릭 이벤트 처리 함수 //
-        const onSearchButtonClickHandler = () => {
-            if (!word) {
+        //  event handler: 검색 실행 처리 함수 //
+        const onSearch = (value: string) => {
+            if (!value.trim()) {
                 alert('검색어를 입력해주세요.');
                 return;
             }
-            if (!status) {
-                setStatus(!status);
-                return;
-            }
-            navigate(SEARCH_PATH(word));
+            navigate(SEARCH_PATH(value));
         };
 
         //  effect: 검색어 path variable 변경 될때마다 실행될 함수 //
         useEffect(() => {
             if (searchWord) {
                 setWord(searchWord);
-                setStatus(true);
             }
         }, [searchWord]);
+
         //  effect: login user 변경 될때마다 실행될 함수 //
         useEffect(() => {
             setLogin(loginUser !== null);
         }, [loginUser])
 
-        // render: 검색 버튼 컴포넌트 렌더링 (클릭 true 상태) //
+        // render: 검색 버튼 컴포넌트 렌더링 //
         return (
-            <div className='header-search-input-box'>
-                <input className='header-search-input' type='text' placeholder='검색어를 입력해주세요.' value={word} onChange={onSearchWordChangeHandler} onKeyDown={onSearchWordKeyDownHandler} />
-                <div ref={searchButtonRef} className='icon-button' onClick={onSearchButtonClickHandler}>
-                    <div className='icon search-light-icon'></div>
-                </div>
+            <div className='header-search-box'>
+                <SearchAutocomplete
+                    value={word}
+                    onChange={onSearchWordChange}
+                    onSearch={onSearch}
+                    placeholder='검색어를 입력해주세요.'
+                />
             </div>
         );
     }
@@ -152,16 +148,16 @@ export default function Header() {
         //    render: 로그아웃 버튼 컴포넌트 렌더링  //
         if(isLogin && (userEmail === loginUser?.email))
         return(
-            <div className='black-button' onClick={onSignOutButtonClickHandler}>{'로그아웃'}</div>
+            <div className='black-button' onClick={onSignOutButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onSignOutButtonClickHandler)} role='button' aria-label='로그아웃' tabIndex={0}>{'로그아웃'}</div>
         )
         if(isLogin)
         //    render: 마이페이지 버튼 컴포넌트 렌더링  //
         return(
-            <div className='white-button' onClick={onMyPageButtonClickHandler}>{'마이페이지'}</div>
+            <div className='white-button' onClick={onMyPageButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onMyPageButtonClickHandler)} role='button' aria-label='마이페이지로 이동' tabIndex={0}>{'마이페이지'}</div>
         )
         //    render: 로그인 버튼 컴포넌트 렌더링  //
         return(
-            <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>
+            <div className='black-button' onClick={onSignInButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onSignInButtonClickHandler)} role='button' aria-label='로그인 페이지로 이동' tabIndex={0}>{'로그인'}</div>
         )
     };
 
@@ -285,42 +281,43 @@ export default function Header() {
 
         //  render: 업로드 버튼 컴포넌트 렌더링 //
         if (title && content && category)
-        return <div className='black-button' onClick={onUploadButtonClickHandler}>{'업로드'}</div>;
+        return <div className='black-button' onClick={onUploadButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onUploadButtonClickHandler)} role='button' aria-label='게시글 업로드' tabIndex={0}>{'업로드'}</div>;
         //  render: 업로드 불가 버튼 컴포넌트 렌더링 //
-        return <div className='disable-button'>{'업로드'}</div>;
+        return <div className='disable-button' role='button' aria-label='업로드 불가 (제목, 내용, 카테고리를 입력해주세요)' aria-disabled='true'>{'업로드'}</div>;
     }
     //  render: 헤더 레이아웃 렌더링 //
     return (
-        <div id='header'>
+        <header id='header'>
             <div className='header-container'>
-                <div className='header-left-box'>
-                    <div className='header-leftOne-box' onClick={onLogoClickHandler}>
+                <nav className='header-left-box' aria-label='주요 네비게이션'>
+                    <div className='header-leftOne-box' onClick={onLogoClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onLogoClickHandler)} role='button' aria-label='홈으로 이동' tabIndex={0}>
                         <div className='icon-box'>
-                            <div className='icon logo-dark-icon'></div>
+                            <div className='icon logo-dark-icon' role='img' aria-label='DevHub 로고'></div>
                         </div>
                         <div className='header-logo'>{'DevHub'}</div>
                     </div>
-                    <div className='header-leftTwo-box' onClick={onYoutubeClickHandler}>
+                    <div className='header-leftTwo-box' onClick={onYoutubeClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onYoutubeClickHandler)} role='button' aria-label='DevTube로 이동' tabIndex={0}>
                         <div className='icon-box'>
-                            <div className='icon logo-youtube-icon'></div>
+                            <div className='icon logo-youtube-icon' role='img' aria-label='YouTube 아이콘'></div>
                         </div>
                         <div className='header-logo'>{'DevTube'}</div>
                     </div>
-                    <div className='header-leftThree-box' onClick={onTrendClickHandler}>
+                    <div className='header-leftThree-box' onClick={onTrendClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onTrendClickHandler)} role='button' aria-label='트렌드 페이지로 이동' tabIndex={0}>
                         <div className='icon-box'>
-                            <div className='icon logo-trend-icon'></div>
+                            <div className='icon logo-trend-icon' role='img' aria-label='트렌드 아이콘'></div>
                         </div>
                         <div className='header-logo'>{'Trend'}</div>
                     </div>
-                </div>
+                </nav>
                 <div className='header-right-box'>
                     {/*{(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}*/}
                     {/*{(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}*/}
                     {!isYoutubePage && <SearchButton />}
+                    <ThemeToggle />
                     <MyPageButton />
                     {(isBoardWritePage || isBoardUpdatePage) && <UploadButton />}
                 </div>
             </div>
-        </div>
+        </header>
     )
 }

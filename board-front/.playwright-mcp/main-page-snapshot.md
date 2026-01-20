@@ -1,0 +1,119 @@
+### New console messages
+- [LOG] 0 @ http://localhost:3002/static/js/bundle.js:8196
+
+### Page state
+- Page URL: http://localhost:3002/
+- Page Title: React App
+- Page Snapshot:
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e9] [cursor=pointer]: DevHub
+      - generic [ref=e10] [cursor=pointer]:
+        - text: "|"
+        - generic [ref=e13]: DevTube
+      - generic [ref=e17] [cursor=pointer]: Trend
+    - generic [ref=e18]:
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "검색어를 입력해주세요." [ref=e25]
+      - button "다크 모드로 전환" [ref=e26] [cursor=pointer]:
+        - img [ref=e29]
+      - generic [ref=e35] [cursor=pointer]: 로그인
+  - generic [ref=e37]:
+    - generic [ref=e38]: 평범한 개발자들의 소통의 장
+    - generic [ref=e39]: DevHub
+    - generic [ref=e41]: 주간 TOP 3 게시글
+  - generic [ref=e42]:
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e81] [cursor=pointer]: All (0)
+          - generic [ref=e82] [cursor=pointer]: spring (39)
+          - generic [ref=e83] [cursor=pointer]: mybatis (3)
+          - generic [ref=e84] [cursor=pointer]: git (3)
+          - generic [ref=e85] [cursor=pointer]: spring-boot (9)
+          - generic [ref=e86] [cursor=pointer]: jpa (7)
+          - generic [ref=e87] [cursor=pointer]: spring-security (5)
+          - generic [ref=e88] [cursor=pointer]: java (13)
+          - generic [ref=e89] [cursor=pointer]: javascript (12)
+          - generic [ref=e90] [cursor=pointer]: sql (8)
+          - generic [ref=e91] [cursor=pointer]: computer-science (5)
+          - generic [ref=e92] [cursor=pointer]: network (4)
+          - generic [ref=e93] [cursor=pointer]: AWS (6)
+          - generic [ref=e94] [cursor=pointer]: react (7)
+          - generic [ref=e95] [cursor=pointer]: 포트폴리오 (2)
+        - generic [ref=e47]:
+          - generic [ref=e48]: 인기 검색어
+          - generic [ref=e49]:
+            - generic [ref=e50] [cursor=pointer]: 자바
+            - generic [ref=e51] [cursor=pointer]: 쓰레드
+            - generic [ref=e52] [cursor=pointer]: 프로세스
+            - generic [ref=e53] [cursor=pointer]: 하드웨어
+            - generic [ref=e54] [cursor=pointer]: java
+            - generic [ref=e55] [cursor=pointer]: rt
+            - generic [ref=e56] [cursor=pointer]: 리액트
+            - generic [ref=e57] [cursor=pointer]: 코드팩토리
+            - generic [ref=e58] [cursor=pointer]: 비동기
+            - generic [ref=e59] [cursor=pointer]: fdfdf
+            - generic [ref=e60] [cursor=pointer]: 운영체제
+            - generic [ref=e61] [cursor=pointer]: TypeScript
+            - generic [ref=e62] [cursor=pointer]: Spring
+            - generic [ref=e63] [cursor=pointer]: ai
+            - generic [ref=e64] [cursor=pointer]: wkqk
+      - generic [ref=e65]:
+        - generic [ref=e98] [cursor=pointer]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: 승우
+            - generic [ref=e104]: 2025-06-10 01:16:55
+          - generic [ref=e105]:
+            - generic [ref=e106]: 6/10
+            - generic [ref=e107]: ㄱㄷㄱ
+          - generic [ref=e109]: 댓글 7 좋아요 1 조회수 88
+        - generic [ref=e113] [cursor=pointer]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: 성장하는 개발자
+            - generic [ref=e119]: 2025-03-29 07:58:27
+          - generic [ref=e120]:
+            - generic [ref=e121]: Java에서도 var 타입을 쓴다고??
+            - generic [ref=e122]: "‘var’ 타입이라 함은 단순히 JavaScript에서 사용 가능한 타입의 종류라고 알고 있었다. 하지만 우연히 Java코드 내에서도 사용하는 것(특히 코딩 테스트)을 발견했는데, 어떤 경우에 주로 사용하고, 장/단점이 무엇인지 알아볼 것이다. var의 등장 Java는 원래 정적 타입 언어라서 변수를 선언할 때 타입을 명시해야만 했다. 하지만 Java 10부터 타입 추론 기능이 추가되면서 var을 사용하면 코드를 더 간결하게 작성할 수 있게 되었다. var을 사용하는 주된 이유 1. 코드 가독성 너무 긴 타입을 일일이 명시하는 대신에, var을 사용하면 더 읽기 쉬운 코드를 작성할 수 있다. 특히, 복잡한 제네릭 타입을 선언할 때 도움이 된다. // 기존 방식: 가독성이 떨어진다. Map<String, List<Integer>> myMap = new HashMap<String, List<Integer>>(); // var 사용: 가독성이 향상된다. var myMap = new HashMap<String, List<Integer>>(); 2. 반복되는 타입 선언 줄이기 오른쪽의 값(리터럴, 메서드 호출 등)에서 타입이 명확한 경우에, var을 사용하면 코드가 더 간결해진다. // 기존 방식 String message = \"Hello, world\"; int number = 10; double pi = 3.14; // var 사용 var message = \"Hello, world\"; var number = 10; var pi = 3.14; 3. 컬렉션과 스트림 API를 사용할 때 편리 Java의 스트림 API를 사용할 때 타입이 길어질 수 있는데, 역시 var을 활용하면 깔끔해진다. // 기존 방식 List<String> names = List.of(\"Alice\", \"Bob\", \"Charlie\"); Stream<String> stream = names.stream().filter(name -> name.startsWith(\"A\")); // var 사용 var names = List.of(\"Alice\", \"Bob\", \"Charlie\"); var stream = names.stream().filter(name -> name.startsWith(\"A\")); 4. 익명 클래스나 람다 표현식과 함께 사용할 때 편리 람다식이나 익명 클래스를 사용할 때 var이 없으면 타입 선언이 길어진다. // 기존 방식 Function<Integer, String> converter = (Integer num) -> \"Number: \" + num; // var 사용 var converter = (Integer num) -> \"Number: \" + num; 그러면 왜 특히 코딩테스트에서 많이 사용하나? 1. 코드를 빠르게 작성가능하다. 코딩테스트에서는 시간이 중요하기 때문에, 짧고 간결한 코드를 작성하는 것이 유리하다. var을 사용하면 타입을 명시하는 시간이 줄어든다!! 2. 입출력 처리 시 유용하다. 보통 Scanner나 BufferedReader를 이용해 입력을 받는데, var을 사용하면 코드를 줄일 수 있다. // 기존 방식 Scanner scanner = new Scanner(System.in); int n = scanner.nextInt(); // var 사용 var scanner = new Scanner(System.in); var n = scanner.nextInt(); 3. 컬렉션 사용이 많다. List, Set, Map과 같은 자료구조를 자주 사용하는데, var을 사용하면 제네릭 타입을 일일이 명시할 필요가 없으므로 코드가 더 깔끔해질 것이다. // 기존 방식 List<Integer> numbers = new ArrayList<>(); Map<String, Integer> map = new HashMap<>(); // var 사용 var numbers = new ArrayList<Integer>(); var map = new HashMap<String, Integer>(); var 사용 시 단점 1. 타입이 명확하지 않으면 가독성이 오히려 떨어진다. 코드가 길어지고 유지보수 시 헷갈릴 수 있다. var data = processData(); // 반환 타입을 한눈에 알기 어렵다. 2. 초기화 없이는 사용이 불가능하다. var은 반드시 초기화해야 한다. 그렇지 않으면 컴파일 에러가 발생한다. var x; // 컴파일 에러(타입을 추론할 수 없음) 3. 메서드 매개변수나 반환 타입으로 사용할 수 없다. var은 오직 지역 변수에서만 사용 가능하다. public var getNumber() { // 컴파일 에러 return 10; }"
+          - generic [ref=e124]: 댓글 2 좋아요 1 조회수 35
+        - generic [ref=e128] [cursor=pointer]:
+          - generic [ref=e132]:
+            - generic [ref=e133]: 승우
+            - generic [ref=e134]: 2025-03-19 01:00:52
+          - generic [ref=e135]:
+            - generic [ref=e136]: 개발자 커뮤니티 플랫폼 Devhub
+            - generic [ref=e137]: 프로젝트 소개 개발자 간에 자유롭게 소통하고 정보 공유할 수 있는 커뮤니티 'Devhub' 입니다. 개인 프로젝트이며, 프로젝트 주제로 선정한 이유를 소개하겠습니다. 주제 선정 개발 문화의 가장 매력적인 요소는 '오픈 소스'라고 말할 수 있지만, '활발한 커뮤니티 문화'를 통해 배움을 공유하는 모습 또한 매력적이라고 생각했습니다. 직접 다양한 커뮤니티 서비스를 이끄는 주체가 되어보고자 주제를 선정하게 되었습니다. 기술 도입 이전 팀 프로젝트에서는 JSP를 이용한 서버 사이드 렌더링 방식을 적용한 바 있습니다. 이 방식은 매 요청마다 서버에서 HTML을 생성 후 반환하므로 클라이언트 측에서의 인터렉션이 제한적일 뿐더러 최근 웹 서비스에서 점점 증가하는 비동기 요청을 효율적으로 처리하기 어려울 것이라 생각했습니다. 따라서 이번 프로젝트는 다음과 같이 구성하였습니다. React.ts를 기반으로 한 클라이언트 사이드 렌더링 방식 서버는 Spring Boot와 Rest API 설계 부드러운 화면 전환으로 UX가 개선되었고 서버는 순수 데이터 제공에만 집중합니다. 클라이언트와 서버는 독립적으로 확장 가능한 구조를 갖추었습니다. 설계 과정 미흡한 설계는 오히려 개발 속도를 늦추게 함을 경험한 적이 있습니다. ERD 설계와 더불어 필요한 기능을 미리 정의하고 API 명세서를 작성하였습니다. 설계 과정에 시간을 더 투자함으로써 실질적인 개발 시간을 단축하였고, 기능 수정/추가도 용이한 구조를 갖추었습니다. 개발 과정 1. DTO 설계 방식에 대한 고민 기존 DTO 정의 방식은 단순히 생성자 오버로딩을 통한 객체 생성 방식이였습니다. 하지만 이 방식은 ‘DTO가 어떤 역할을 하는 것인지' 직관적으로 파악하기 어려웠습니다. 또한 DTO의 근본적인 정의는 ‘데이터 전송 로직’입니다. 요청과 응답 사이에는 중요한 데이터가 오갈 수 있으므로 캡슐화가 필요했습니다. 따라서 캡슐화와 직관성. 이 두가지를 고려한 객체지향적인 방식의 개선을 고민하였습니다. 정적 팩토리 메서드 적용 아래 코드와 같이 정적 팩토리 메서드를 적용해 객체 생성 의도를 명확히 하고 불필요한 생성자 오버로딩을 제거하였습니다. 일관된 응답의 형태로 DTO만 보고도 반환 내용을 쉽게 파악할 수 있고 추후 메서드의 내용만 수정하면 되므로 유지보수가 용이한 구조를 갖추었습니다. 양방향의 데이터 검증 TypeScript 도입의 근거로써 요청/응답 DTO를 서버 뿐만 아니라 클라이언트에 ‘양방향’ 정의함으로써 데이터 구조와 타입의 안정성을 높였습니다. 데이터 검증 과정도 동일한 양방향 적용이 필요하다고 생각했습니다. Spring Validation API를 통해 요청 데이터의 유효성을 검증하고, 서버에서도 마찬가지로 검증을 수행합니다. 구현 내용을 간단하게 설명하면 다음과 같습니다. @NotBlank, @Size 등 어노테이션을 활용해 DTO 데이터 유효성 검사 @Valid를 활용해 요청 데이터가 검증되지 않으면 예외를 발생 일관된 예외 처리 요청 데이터가 검증되지 않으면 예외를 발생 시킨다고 했습니다. 검증 실패 시 일관된 예외 응답 형식을 제공하도록 전역 예외 핸들러를 구성하였습니다. 결론적으로 안정적인 프로그램을 구축하기 위한 다양한 노력을 기울였습니다. 2. JWT 사용 방식에 대한 고민 REST API 기반의 프로젝트기 때문에 ‘Stateless’가 기본 원칙입니다. 즉, 세션이나 쿠키를 이용한 인증 방식을 사용할 수 없습니다. 따라서 JWT을 이용한 Bearer Authentication 방식으로 인증을 수행합니다. 매 요청마다 인증 정보를 포함해야 하는데 매번 컨트롤러에서 파싱 후 사용하는 방식은 번거로울 것이라 생각했습니다. Spring Security를 이용해 간단한 방식으로의 개선 방향을 고민했습니다. SecurityContext를 활용 Security 설정에 JWTAuthenticationFilter를 새롭게 구성하여 포함했습니다. 요청에 대한 필터링 작업은 다음과 같이 수행됩니다. 구현내용을 간단하게 설명하면 다음과 같습니다. 매 요청마다 Bearer Authentication 방식이 맞는지 검증합니다. JWT Claim에 포함된 사용자 Email을 추출합니다. Email을 이용해 생성한 인증 객체를 SecurityContextHolder에 저장합니다. SecurityContextHolder을 외부에서 사용 가능하도록 지정합니다. 컨트롤러에서 일관된 접근 컨트롤러에서는 @AuthenticationPrincipal을 사용해 SecurityContext에 저장된 인증 객체에서 사용자 정보를 손쉽게 조회합니다. 기존의 번거로운 파싱 과정이 생략되었습니다. Spring Security에 관리를 의존함으로써 보안성과 일관성을 개선하였습니다. 일관된 예외 처리 JWT 인증 실패 시 적절한 예외 처리가 필요했습니다. Spring Security가 제공하는 AuthenticationEntryPoint 인터페이스를 구현 ⇒ 손쉽게 전역 예외 처리를 적용할 수 있었습니다. 구현내용을 간단하게 설명하면 다음과 같습니다. 인증 실패 시 일관된 JSON 응답을 반환합니다. 클라이언트는 인증 실패 시 명확한 응답 코드로 원인파악이 가능합니다. 3. JPA 설계 방식에 대한 고민 영속성의 이점을 도입하고자 JPA를 사용하기로 결정했습니다. 하지만 객체 간의 연관 관계와 로딩 전략을 설정하는 데 있어 ‘러닝커브’가 존재해 의도치 않은 N+1, 지연 로딩 문제 등에 대한 대처가 쉽지 않을 것이라 생각했습니다. 따라서 SQL 친화적인 방식으로 기능을 작성하고 추후 독립적으로 확장할 수 있는 구조를 고민하였습니다. 명시적 조인 방식 사용 자동 매핑을 설정해주는 대신에 다음과 같이 명시적인 조인 방식을 사용합니다. 얻게 되는 이점은 다음과 같습니다. 한 번의 쿼리로 필요한 데이터를 조회함으로써 N+1 문제를 방지합니다. 서비스 확장 시 기존 테이블 설계를 유지하면서 기능을 추가할 수 있습니다. 네이티브 쿼리 & 인터페이스 기반 Projection 조인과 같이 복잡한 쿼리를 실행하기 위해 nativeQuery를 작성합니다. Spring Data JPA의 인터페이스 기반 Projection 기법 ⇒ 원하는 데이터만 조회하여 조회 성능을 최적화합니다. 구현내용을 간단하게 설명하면 다음과 같습니다. JPA가 쿼리 실행결과를 인터페이스의 getter 메서드를 기반으로 자동 매핑 네이티브 쿼리의 결과를 엔티티 없이 DTO처럼 활용 4. JSON 데이터 파싱 최적화에 대한 고민 게시글 작성 UX 개선을 위해 WYSIWYG 에디터 도입이 필수적이라고 생각했습니다. 다양한 오픈소스 솔루션 중 Draft.js를 도입했는데 이유는 다음과 같습니다. 텍스트/비텍스트 모두 개별 블록 단위로 구조화하여 관리하므로 확장성이 뛰어납니다. JSON 형식으로 저장하여 유연한 커스터마이징이 가능합니다. 예를 들어, 블록 단위로 저장된 JSON 형식은 다음과 같은 구조입니다. 게시물 목록 페이지에서는 미리보기로 문자열 형태로 출력하게 됩니다. 따라서 JSON 데이터를 문자열로 파싱하는 작업이 필요합니다. 추후에 JSON 데이터의 크기는 충분히 커질 수 있다고 판단했고 이에 따라 데이터 파싱 성능을 최적화 할 수 있는 방안에 대해 고민하였습니다. ObjectMapper 사용 시 문제점 먼저 JSON ⇒ Java 객체 변환을 위해 Jackson ObjectMapper를 사용했습니다. readValue()를 사용하여 아래와 같이 읽어오게 됩니다. 이러한 경우 반환해야 할 DTO의 추가적인 정의가 필요합니다. 이 방식은 다음과 같은 문제점이 있었습니다. ‘inlineStyleRanges, entityRanges’ 같이 사용하지 않는 필드까지 메모리에 적재 불필요한 객체 생성 비용 발생 JsonNode 사용해서 개선 JsonNode 타입으로 반환하는 방식입니다. DTO를 새로 생성할 필요가 없고 JsonNode에서 직접 “text 필드”만 추출하므로 불필요한 객체 생성을 방지하고 메모리 사용량을 절감할 수 있습니다. Lazy Parsing 방식으로 JSON 전체를 객체로 변환하지 않고 필요할 때만 특정 필드를 조회하므로 조회 속도가 향상되었습니다. 5. 비동기 요청 방식에 대한 고민 증가하는 비동기 요청을 효율적으로 처리하기 위해 React를 도입했다고 했습니다. 비동기 요청 함수들은 하나의 파일에 일관된 관리 ⇒ 가독성 및 유지보수성을 높이는 것을 목표로 하였습니다. 이에 따라 다양한 기술 선택지를 고민하게 되었습니다. Ajax와 fetch API를 배제한 이유 이전 프로젝트에서 jQuery.ajax()를 사용했었는데, 설정이 복잡하고 Promise 기반이 아니라서 비동기 코드 작성이 직관적이지 않아 선택지에서 배제되었습니다. 마찬가지로 fetch API도 기본적으로 JSON 응답을 자동으로 처리하지 않으며 예외 처리의 일관된 적용이 어려웠습니다. Axios 사용 Axios 라이브러리를 사용하여 다음과 같은 방식으로 구성하였습니다. then().catch() 패턴을 활용해 일관된 요청 패턴 구성 기본적으로 직관성을 고려 예를 들어, 비동기 요청 함수들은 다음과 같은 형태로 구성됩니다. 운영 과정 1. 파일 저장 방식에 대한 고민 배포하기 전, 개발 환경에서는 Tomcat 서버 경로를 이용해 파일 업로드를 처리했습니다. 하지만 배포 후에는 다음과 같은 문제가 예상되었습니다. EC2 디스크 용량이 제한적이기 때문에 이미지와 같은 대용량 파일 저장 시 추후 공간 부족의 문제가 발생할 수 있고, 최악의 경우 서비스 중단의 가능성도 존재 따라서 파일 저장 방식을 따로 ‘분리’할 수 있는 개선 사항을 고민했습니다. Amazon S3 도입 Amazon S3 버킷을 통해 운영 환경에서 파일 저장 방식을 최적화하려 했습니다. 트래픽 증가 시에도 자동 스토리지 확장이 가능한 안정적인 운영 환경을 구축했습니다. IAM User & IAM Role 구분 프로젝트를 EC2에 배포하기 이전, ‘개발 환경’에서 S3 리소스에 대한 접근 권한을 설정해주기 위해 IAM User를 생성했습니다. IAM User는 accessKey와 secretKey를 직접 제공하여 인증하는 방식입니다. 하지만 ‘운영 환경’에서는 개인 뿐만 아니라 ‘다른 사용자’의 S3 리소스에 대한 접근 권한 부여의 필요성을 고려했어야 했습니다. 따라서 IAM Role을 생성해 EC2에 지정하였습니다. 이제 EC2가 실행 중일 경우 자동으로 리소스에 대한 접근 권한을 갖게 됩니다. 로깅 라이브러리 도입 이제 운영 환경에서 S3AsyncClient 객체가 성공적으로 주입되는 지 테스트해야 했습니다. 기존에 사용하던 System.out.println() 디버깅 방식은 다음과 같은 이유로 더 이상 적합하지 않았습니다. 동기식 I/O 방식이므로 대량 로그 출력 시 성능 저하 가능성 중요한 로그와 불필요한 로그를 구분할 수 없음 따라서 로깅 라이브러리를 도입했습니다. 로깅 라이브러리는 비동기 방식이라 성능에 미치는 영향을 최소화 할 것입니다. 그리고 PM2를 사용하여 프로세스를 ‘무중단 운영’하고 있으므로 pm2 logs에서 애플리케이션 로그를 쉽게 모니터링 할 수 있습니다. 2. 이미지 데이터 동기화 방식에 대한 고민 이미지 데이터는 현재 두 가지 방식으로 관리하고 있습니다. 이미지 정보를 저장하는 DB 테이블 이미지 객체를 저장하는 S3 버킷 삭제 시에 효율적으로 ‘동기화’해서 관리하기 위한 방식에 고민이 필요했습니다. 즉각 삭제 방식 첫 번째 후보는 즉각 삭제 방식입니다. DB에서 이미지 정보를 삭제함과 동시에 S3 버킷에서도 삭제합니다. 결과가 즉시 반영되므로 데이터의 일관성을 유지할 수 있다는 장점이 있지만, 삭제 요청마다 S3 API를 호출해야 하므로 비용 증가 및 성능에 부담이 될 수 있었습니다. 정기적 배치 작업 도입 만약 배치 작업을 도입하여 다량의 삭제 요청을 ‘한 번에’ 처리한다면, API 호출 횟수를 줄여 비용을 절감할 수 있을 것이라 기대했습니다. 특히 추후에 트래픽이 많아질 시스템을 고려하면, 배치 삭제 방식은 트래픽이 적은 시간대에 실행할 수 있으므로 부하 분산이 가능할 것입니다. 구현내용을 간단하게 설명하면 다음과 같습니다. 게시물 삭제 시, DB의 is_deleted 칼럼만 업데이트합니다. 정기적인 배치 작업으로 일정 주기마다 실제 삭제 작업을 실행합니다.
+          - generic [ref=e139]: 댓글 0 좋아요 0 조회수 36
+        - generic [ref=e145] [cursor=pointer]:
+          - generic [ref=e149]:
+            - generic [ref=e150]: 승우
+            - generic [ref=e151]: 2025-03-15 13:03:46
+          - generic [ref=e152]:
+            - generic [ref=e153]: SSH 터널링을 통해 RDS에 간접접근 하기
+            - generic [ref=e154]: "RDS 설정에서 '퍼블릭 액세스 활성화' 하게 되면 누구나 인터넷을 통해 데이터에 접근할 수 있는 위험이 생깁니다. 해커가 무차별 대입 공격(Brute Force Attack), SQL Injection 같은 공격을 시도할 수 있으며 특히, DB 계정 정보가 유출되면 직접적인 데이터 탈취 위험도 존재합니다. 따라서 VPC(가상 네트워크) 내부에서만 접근 가능하도록 퍼블릭 액세스를 제한하였습니다. 이제 VPC 내의 EC2와 같은 내부 서비스에서만 접근 가능하도록 하여 불필요한 외부 네트워크 연결을 차단하고, 내부 트래픽만 허용하여 보안을 강화하였습니다. 하지만, 한 가지 문제점이 발생했습니다. 개발 과정에서 로컬 PC 내에서 RDS에 접속하여 작업을 해야 하는데 접근하지 못하고 있는 상황입니다. 이러한 경우에 'SSH 터널링' 기술을 사용하여 EC2를 경유해 RDS에 접근하는 방식을 사용할 수 있습니다. SSH 터널링의 개념 SSH 터널링은 로컬 컴퓨터와 EC2 서버 간의 보안 연결을 생성하고, 이를 통해 RDS와의 통신이 가능하도록 합니다. 현재 제가 구성한 EC2와 RDS는 동일한 VPC 내에 위치하므로, RDS에 접근할 수 있는 권한을 이미 가지고 있습니다. 따라서 SSH 터널링을 설정하면, 로컬 환경에서 EC2를 통해 RDS로 트래픽을 전달하는 것이 가능해집니다. SSH 터널링의 필수 조건 EC2 서버에 접근할 수 있는 SSH 키 파일(.pem)과 퍼블릭 IP가 필요합니다. RDS가 퍼블릭 액세스 비활성화되어 있고, EC2는 RDS와 동일한 VPC 내에 있어야 합니다. RDS의 보안 그룹이 EC2 서버를 허용해야 합니다. SSH 터널링 설정 앞전에 SSH 키 파일과 퍼블릭 IP가 필요하다고 했습니다. 로컬 컴퓨터에서 터미널을 열고 다음 명령어를 실행합니다. ssh -i \"path/to/your-ec2-key.pem\" -L 3306:<RDS 엔드포인트>:3306 ec2-user@<EC2 퍼블릭 IP> 명령어에 대해 간단히 설명하자면, i \"path/to/your-ec2-key.pem\": EC2에 접속하기 위한 SSH 키 파일을 저장한 경로를 지정하면 됩니다. L 3306:<RDS 엔드포인트>:3306: 로컬 포트(3306)와 RDS의 포트(3306)를 연결하는 터널을 설정합니다. 이제 Intellij 와 같은 로컬 개발 환경에서 애플리케이션을 실행하면, 정상적으로 RDS에 연결이 가능해질 것입니다. 더 간단하게.. 하지만 매번 저 길다란 명령어를 일일히 입력해주는 것은 너무 귀찮습니다. 더 간단하게 연결이 가능하도록 하는 방법이 존재합니다. ~/.ssh/config 파일을 구성해서 SSH 접속 시 필요한 옵션을 미리 저장하면 됩니다. 그 후에 ssh <Host> 명령어만 입력하면, <Host>에 해당하는 설정을 자동으로 찾아서 적용합니다. 예를 들면, 다음과 같습니다. Host devhub HostName <접속할 EC2 퍼블릭 IP> User <SSH 접속 시 사용할 사용자 계정> IdentifyFile <SSH 키 파일 경로 지정> LocalForward 3306 <RDS 엔드포인트:3306> 최종적으로 'ssh devhub' 명령어 입력 후 실행하면 자동으로 EC2에 SSH 접속이 가능합니다."
+          - generic [ref=e156]: 댓글 2 좋아요 0 조회수 23
+        - generic [ref=e162] [cursor=pointer]:
+          - generic [ref=e166]:
+            - generic [ref=e167]: 승우
+            - generic [ref=e168]: 2025-03-14 06:32:24
+          - generic [ref=e169]:
+            - generic [ref=e170]: 친환경 식품 쇼핑몰 Ecoeats
+            - generic [ref=e171]: 프로젝트 소개 친환경 식품 판매 쇼핑몰 '마켓컬리'를 분석하여 클론 개발한 팀 프로젝트 'Ecoeats' 입니다. Spring MVC와 JSP를 기반으로 개발한 SSR(서버 사이드 렌더링)방식의 웹 서비스이며, 회원/상품/주문결제/게시판 등 다양한 기능을 제공합니다. 개발 과정에서 도입한 기술적 요소와 고민했던 과정들에 대해 소개하겠습니다. 주제 선정 배경 단기간 내 참신한 아이디어를 구현하기보다는 대중적으로 상용화된 서비스의 데이터 모델을 분석하고 설계/구현 과정에서 실무적인 개발 역량을 키우는 것이 더 가치 있는 경험이라 판단하였습니다. 개발 기여 내용 팀 프로젝트 내에서 ‘게시판 서비스’의 설계 및 개발을 담당하였습니다. ✅CRUD 기능 개발 (FAQ, 공지사항) ✅파일 업로드 및 보안 적용 ✅AWS EC2에 배포 게시판 특성에 따른 기술의 도입 게시판 종류는 공지사항과 FAQ입니다. 각 게시판의 특성과 제공 목적을 먼저 분석한 후 그에 맞는 기술방식을 적용하기로 하였습니다. 분석한 특성과 적용한 개발 방식은 다음과 같습니다. 공지사항 게시판 공지사항 게시판은 서비스 관리자가 직접 관리하게 되며, 등록/수정/삭제 과정에서 데이터의 무결성 준수가 중요합니다. 또한 일반적인 CRUD 기능 위주로 동작하여 페이지 이동이 자연스럽게 이루어지는 SSR 방식이 적합합니다. 따라서 Spring MVC 기반의 동기 처리 방식을 적용했습니다. FAQ 게시판 FAQ 게시판은 사용자 질문에 대한 빠른 응답성과 검색이 중요합니다. 새로고침 없이 비동기 방식으로 일부 데이터만 갱신하여 불필요한 페이지 이동 없이 빠른 응답성을 제공합니다. 따라서 jQuery + Ajax 기반의 비동기 처리 방식을 적용했습니다. 공통 적용사항 두 게시판 모두 페이징 처리를 통해 일부 데이터만 응답받도록 네트워크 트래픽을 최소화하였습니다. 사용자는 페이지 이동 시에도 보고 있던 페이지 정보를 유지할 수 있습니다. 성과 게시판 특성을 고려한 기술 적용을 통해 성능과 더불어 자연스러운 UX 개선을 이루어냈습니다. 게시판 특성에 따른 접근 제어 방식 CRUD 작업을 두 게시판 모두 관리자 페이지에서 이루어지도록 구성하면 간단해보였습니다. 하지만 서로 다른 보안 및 접근 제어 방식을 적용하였는데, 그 이유를 게시판 특성과 함께 소개하겠습니다. 공지사항 게시판 공지사항은 자주 업데이트되며 중요한 정보를 포함할 가능성이 있습니다. 따라서 Spring Security 역할 기반 + 서버 측 제어가 적용된 관리자 페이지에서 작업이 가능하도록 구성하였습니다. FAQ 게시판 FAQ 게시판은 공지사항과는 달리 상대적으로 변경이 적고 일정한 불변성을 유지합니다. 따라서 JSTL 태그를 활용한 UI 기반 접근 제어 방식을 통해 편의성을 고려하였습니다. 성과 공지사항은 서버 측에서 좀 더 엄격한 보안 적용을, FAQ 게시판은 조건에 따라 렌더링을 제어하는 유연한 권한 관리를 적용하여 보안성과 편의성을 모두 고려한 운영 방안을 마련하게 되었습니다. CSP 적용과 양방향 보안 XSS 공격에 대비하기 위해 클라이언트 코드에서는 'JSTL <c:out>'을 붙여 사용자 입력이 안전한 텍스트로 출력되도록 처리하였습니다. 하지만 '단순히 태그만 붙임으로서 보안 공격에 대비할 수 있을까? 서버 측에서 미리 악의적인 입력을 차단할 수는 없나?' 라는 의문이 들었습니다. 결국에 단방향 보안 방식에는 한계가 있다는 것을 알고 CSP(Content Security Policy)를 추가적으로 적용하는 방안을 마련하기로 했습니다. 새롭게 구성한 내용은 다음과 같습니다. NonceFilter 구성 서버에서 매 요청마다 고유 Nonce 값을 생성하고 CSP 응답 헤더에 포함하는 새로운 Filter를 구성하였습니다. 이 과정에서 CSP는 인라인 스크립트와 스타일을 기본적으로 차단하기 때문에 모두 외부 파일로 분리하는 리팩토링을 거쳤습니다. Spring Security에 추가 새롭게 구성한 Filter를 Security 설정에 포함하여 Nonce 값이 포함된 스크립트와 스타일만 허용하도록 제한합니다. 성과 클라이언트와 서버 양방향에서 보안 정책을 수립하고, 악의적인 코드 삽입을 원천적으로 차단할 수 있도록 하였습니다. 객체지향 원칙을 고려한 리팩토링 1. SRP(단일 책임 원칙) 적용 📌개선 전 문제점 FAQ 게시판에서 요청을 보낼 때 DTO에 page, pageSize 필드를 추가하여 페이징 정보를 전달했습니다. 그러나 이는 DTO의 역할과 페이징 로직이 섞이게 되어 SRP 원칙에 어긋나는 설계였습니다. ✅리팩토링 방식 공지사항 게시판에서 이미 페이징을 담당하는 클래스를 정의해 사용하고 있었으므로 FAQ DTO에서 페이징 필드를 제거하고 FAQ 게시판에서 재사용하여 역할을 명확히 분리했습니다. 성과 DTO는 본래의 역할(데이터 전달)에만 집중할 수 있도록 개선하고 공통 페이징 로직 재사용을 통해 중복 코드 제거 및 유지보수성을 향상시켰습니다. 2. DIP(의존성 역전 원칙) 적용 📌개선 전 문제점 파일 업로드 기능을 추가하고 트랜잭션 테스트를 위해 구현 클래스 타입으로 서비스 객체를 주입받았는데 "서비스 객체가 아닌 프록시 객체를 주입했다" 라는 오류 메시지가 출력되었습니다. ✅리팩토링 방식 Spring AOP가 트랜잭션 처리를 위해 서비스 객체를 프록시로 감싼다는 점을 고려하여, 인터페이스 타입으로 주입받도록 수정하였습니다. 이를 계기로, 기존 코드에서 구현 클래스 타입으로 주입받던 부분도 모두 인터페이스 기반으로 변경하였습니다. 성과 DI 원칙을 준수하여 객체 간 결합도를 낮추고, 유지보수성을 향상시켰으며 다형성을 활용하여 서비스 구현체 변경 시에도 유연한 대응이 가능하도록 개선하였습니다. Nginx 설치와 HTTPS 적용 배포 과정에서 AWS Route53을 통해 구매한 도메인으로 라우팅 되도록 설정했지만 다음과 같은 문제가 발생했습니다. 📌URL에 Tomcat의 포트 번호가 그대로 노출되어 직관성이 떨어지고 가독성이 좋지 않음 📌HTTPS 미적용으로 인해 브라우저에서 "주의 요함" 경고가 표시되어 신뢰도가 낮아 보임 이를 해결하기 위해 Nginx를 설치하고 다음과 같은 과정을 구성하였습니다. 리버스 프록시 서버 구성 Nginx를 리버스 프록시 서버로 구성하여 Tomcat(8080포트)으로 요청을 대신 전달하도록 'nginx.conf' 설정 파일을 수정하였습니다. SSL 인증서 발급 및 HTTPS 적용 Certbot을 사용하여 Let’s Encrypt 무료 SSL 인증서 발급하고 HTTP 요청이 HTTPS로 자동 리다이렉트 되도록 구성하였습니다. 성과 Nginx 도입을 통해 URL 가독성 향상, 보안 강화 뿐만 아니라 캐싱을 통한 성능 개선까지 이뤄낼 수 있었습니다.
+          - generic [ref=e173]: 댓글 0 좋아요 0 조회수 47
+    - generic [ref=e177]:
+      - button "〈" [disabled] [ref=e178]
+      - button "1" [ref=e179] [cursor=pointer]
+      - button "2" [ref=e180] [cursor=pointer]
+      - button "3" [ref=e181] [cursor=pointer]
+      - generic [ref=e182]: ...
+      - button "25" [ref=e183] [cursor=pointer]
+      - button "〉" [ref=e184] [cursor=pointer]
+  - generic [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e72]: DevHub
+      - generic [ref=e74]: hsw5761@gmail.com
+    - generic [ref=e80]: Copyright @ 2024 Solpooh. All Rights Reserved.
+```

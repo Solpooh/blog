@@ -11,11 +11,158 @@
   font-style: normal;
 }
 
+/* ===== Theme CSS Variables ===== */
+:root {
+  /* Light Theme (Default) */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9f9f9;
+  --color-bg-tertiary: #f0f0f0;
+  --color-bg-elevated: #ffffff;
+  --color-bg-hover: rgba(0, 0, 0, 0.02);
+  --color-bg-active: rgba(0, 0, 0, 0.05);
+
+  --color-text-primary: rgba(0, 0, 0, 1);
+  --color-text-secondary: rgba(0, 0, 0, 0.7);
+  --color-text-tertiary: rgba(0, 0, 0, 0.5);
+  --color-text-muted: rgba(0, 0, 0, 0.4);
+  --color-text-inverse: #ffffff;
+
+  --color-border-primary: rgba(0, 0, 0, 0.2);
+  --color-border-secondary: rgba(0, 0, 0, 0.1);
+  --color-border-hover: rgba(0, 0, 0, 0.3);
+
+  --color-button-primary: rgba(0, 0, 0, 1);
+  --color-button-primary-hover: rgba(0, 0, 0, 0.85);
+  --color-button-secondary: #ffffff;
+  --color-button-disabled: rgba(0, 0, 0, 0.4);
+
+  --color-accent: #007bff;
+  --color-accent-hover: #0056b3;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+
+  --color-card-bg: #ffffff;
+  --color-card-border: #e0e0e0;
+  --color-card-shadow: rgba(0, 0, 0, 0.1);
+
+  --color-input-bg: #ffffff;
+  --color-input-border: rgba(0, 0, 0, 0.2);
+  --color-input-focus: #007bff;
+
+  --color-badge-bg: #ececec;
+  --color-badge-text: rgba(0, 0, 0, 0.5);
+  --color-badge-hover: #ddd;
+
+  --color-divider: rgba(0, 0, 0, 0.2);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
+
+/* ===== Dark Theme ===== */
+[data-theme="dark"] {
+  --color-bg-primary: #0d1117;
+  --color-bg-secondary: #161b22;
+  --color-bg-tertiary: #21262d;
+  --color-bg-elevated: #1c2128;
+  --color-bg-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-active: rgba(255, 255, 255, 0.1);
+
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: rgba(230, 237, 243, 0.8);
+  --color-text-tertiary: rgba(230, 237, 243, 0.6);
+  --color-text-muted: rgba(230, 237, 243, 0.4);
+  --color-text-inverse: #0d1117;
+
+  --color-border-primary: rgba(255, 255, 255, 0.15);
+  --color-border-secondary: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(255, 255, 255, 0.25);
+
+  --color-button-primary: #e6edf3;
+  --color-button-primary-hover: rgba(230, 237, 243, 0.9);
+  --color-button-secondary: #21262d;
+  --color-button-disabled: rgba(230, 237, 243, 0.3);
+
+  --color-accent: #58a6ff;
+  --color-accent-hover: #79b8ff;
+  --color-success: #3fb950;
+  --color-warning: #d29922;
+  --color-error: #f85149;
+
+  --color-card-bg: #161b22;
+  --color-card-border: #30363d;
+  --color-card-shadow: rgba(0, 0, 0, 0.3);
+
+  --color-input-bg: #0d1117;
+  --color-input-border: rgba(255, 255, 255, 0.15);
+  --color-input-focus: #58a6ff;
+
+  --color-badge-bg: #21262d;
+  --color-badge-text: rgba(230, 237, 243, 0.7);
+  --color-badge-hover: #30363d;
+
+  --color-divider: rgba(255, 255, 255, 0.15);
+
+  /* Dark Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Global Styles ===== */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-width: 1440px;
   font-family: 'GowoonDodum', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
+/* ===== Scrollbar Styles ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-primary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}

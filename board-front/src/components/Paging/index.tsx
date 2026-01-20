@@ -16,7 +16,7 @@ interface Props {
 }
 
 //  component: 페이지네이션 컴포넌트 - 전자정부 프레임웤 기준  //
-export default function Paging({ pagination, onPageChange }: Props) {
+const Paging = React.memo(({ pagination, onPageChange }: Props) => {
     const { page, totalPages } = pagination;
 
     if (totalPages <= 1) return null;
@@ -70,4 +70,6 @@ export default function Paging({ pagination, onPageChange }: Props) {
             </button>
         </div>
     )
-}
+});
+
+export default Paging;

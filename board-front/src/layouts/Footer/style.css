@@ -1,15 +1,19 @@
 #footer {
     min-width: 1200px;
     padding: 40px 0 50px 0;
-    background-color: rgba(55, 55, 55, 1);
-
+    background-color: var(--color-bg-tertiary);
     display: flex;
     justify-content: center;
+    transition: background-color var(--transition-normal);
+    border-top: 1px solid var(--color-border-secondary);
+}
+
+[data-theme="dark"] #footer {
+    background-color: var(--color-bg-secondary);
 }
 
 .footer-container {
     width: 1200px;
-
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -28,12 +32,13 @@
 }
 
 .footer-logo-text {
-    color: rgba(255, 255, 255, 1);
+    color: var(--color-text-primary);
     font-family: 'GimhaeGaya';
     font-size: 20px;
     font-weight: 400;
     line-height: 140%;
     letter-spacing: -0.4px;
+    transition: color var(--transition-normal);
 }
 
 .footer-link-box {
@@ -43,18 +48,23 @@
 }
 
 .footer-email-link {
-    color: rgba(255, 255, 255, 1);
+    color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: 400;
+    transition: color var(--transition-fast);
+}
+
+.footer-email-link:hover {
+    color: var(--color-accent);
 }
 
 .footer-bottom {
-
 }
 
 .footer-copyright {
-    color: rgba(255, 255, 255, 1);
+    color: var(--color-text-tertiary);
     font-family: 'GimhaeGaya';
     font-size: 12px;
     font-weight: 400;
+    transition: color var(--transition-normal);
 }

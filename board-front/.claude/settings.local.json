@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start)",
+      "Bash(timeout 10 tail:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-create-pages",
+      "Bash(set PORT=3002:*)",
+      "mcp__playwright__browser_wait_for",
+      "Bash(timeout /t 8)",
+      "mcp__playwright__browser_navigate",
+      "Bash(PORT=3002 npm start)",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_console_messages"
+    ]
+  }
+}

@@ -13,7 +13,9 @@ export default function Container() {
     return (
         <>
             <Header />
-            <Outlet />
+            <main>
+                <Outlet />
+            </main>
             {pathname !== AUTH_PATH() && <Footer />}
         </>
     )
