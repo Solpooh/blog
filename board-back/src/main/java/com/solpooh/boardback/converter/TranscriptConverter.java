@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class TranscriptConverter {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static String parseTranscript(Path path) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree(path.toFile());
+//        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = OBJECT_MAPPER.readTree(path.toFile());
 
         StringBuilder sb = new StringBuilder();
         for (JsonNode event : root.get("events")) {

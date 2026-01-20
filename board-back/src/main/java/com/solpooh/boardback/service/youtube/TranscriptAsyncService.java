@@ -88,8 +88,6 @@ public class TranscriptAsyncService {
 
         // 4. ES 필드 업데이트
         videoIndexService.updateTranscriptField(videoId, summarizedTranscript);
-
-        log.debug("Transcript 처리 성공 - videoId: {}", videoId);
     }
 
     /**
@@ -130,7 +128,7 @@ public class TranscriptAsyncService {
     /**
      * Transcript DB 저장 (REQUIRES_NEW 트랜잭션)
      */
-    public void saveTranscript(String videoId, String transcript) {
+    private void saveTranscript(String videoId, String transcript) {
         VideoEntity videoEntity = videoRepository.findByVideoId(videoId)
                 .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_VIDEO));
         videoEntity.setTranscript(transcript);

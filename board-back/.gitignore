@@ -41,4 +41,5 @@ application.yaml
 application-*.yaml
 
 /transcript
+/cookies
 CLAUDE.md
