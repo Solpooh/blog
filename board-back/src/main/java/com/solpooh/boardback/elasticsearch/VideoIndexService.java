@@ -78,7 +78,6 @@ public class VideoIndexService {
         doc.setPublishedAt(entity.getPublishedAt().toString());
         doc.setViewCount(entity.getViewCount());
         doc.setIsShort(entity.isShort());
-        doc.setTranscript(entity.getTranscript());
 
         return doc;
     }

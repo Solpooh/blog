@@ -146,5 +146,38 @@ SELECT B.board_number   AS board_number,
 FROM board AS B
          INNER JOIN user AS U
                     ON B.writer_email = U.email
-         LEFT JOIN (SELECT board_number, ANY_VALUE(image) AS image FROM image WHERE is_deleted = 0 GROUP BY board_number) AS I
+         LEFT JOIN (SELECT board_number, ANY_VALUE(image) AS image
+                    FROM image
+                    WHERE is_deleted = 0
+                    GROUP BY board_number) AS I
                    ON B.board_number = I.board_number;
+
+-- transcript 테이블 생성
+CREATE TABLE IF NOT EXISTS `transcript`
+(
+    `video_id`              VARCHAR(20) NOT NULL COMMENT 'YouTube 영상 ID (PK, 동시성 제어 키)',
+    `summarized_transcript` TEXT        NULL COMMENT 'AI 요약된 자막 (사용자에게 제공되는 최종 데이터)',
+    `status`                VARCHAR(20) NOT NULL COMMENT '처리 상태 (PROCESSING, COMPLETED, FAILED)',
+    `error_message`         TEXT        NULL COMMENT '실패 시 에러 메시지',
+    `started_at`            DATETIME    NULL COMMENT '처리 시작 시간',
+    `completed_at`          DATETIME    NULL COMMENT '처리 완료 시간',
+    `retry_count`           INT         NOT NULL DEFAULT 0 COMMENT '재시도 횟수',
+    `created_at`            DATETIME    NOT NULL COMMENT '레코드 생성 시간',
+    `updated_at`            DATETIME    NOT NULL COMMENT '레코드 수정 시간',
+
+    PRIMARY KEY (`video_id`),
+
+    -- video 테이블과 FK 관계 (video 삭제 시 transcript도 삭제)
+    CONSTRAINT `fk_transcript_video`
+        FOREIGN KEY (`video_id`)
+            REFERENCES `video` (`video_id`)
+            ON DELETE CASCADE,
+
+    -- 성능 최적화 인덱스
+    INDEX `idx_status` (`status`),
+    INDEX `idx_completed_at` (`completed_at`)
+
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='영상 자막 처리 테이블 (동시성 제어 및 AI 요약 저장)';
