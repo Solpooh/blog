@@ -3,7 +3,11 @@
     "allow": [
       "mcp__playwright__browser_click",
       "WebFetch(domain:github.com)",
-      "mcp__notion__notion-create-pages"
+      "mcp__notion__notion-create-pages",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(npm run build:*)",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch"
     ]
   }
 }

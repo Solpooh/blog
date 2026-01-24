@@ -22,8 +22,10 @@ public enum ResponseApi implements ResponseApiInterface {
     NOT_EXISTED_VIDEO("NV", "존재하지 않은 비디오입니다.", HttpStatus.BAD_REQUEST),
 
     // Transcript 관련
-    TRANSCRIPT_PROCESSING("TP", "자막이 현재 처리 중입니다. 잠시 후 다시 시도해주세요.", HttpStatus.CONFLICT),
-    TRANSCRIPT_FAILED("TF", "자막 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    TRANSCRIPT_PROCESSING("TP", "자막이 현재 처리 중입니다. 잠시 후 다시 시도해주세요.", HttpStatus.ACCEPTED),
+    TRANSCRIPT_FAILED("TF", "자막 처리에 실패했습니다. 다시 시도해주세요.", HttpStatus.SERVICE_UNAVAILABLE),
+    TRANSCRIPT_UNAVAILABLE("TU", "해당 영상은 자막을 제공하지 않습니다.", HttpStatus.NOT_FOUND),
+    TRANSCRIPT_RETRY_EXHAUSTED("TR", "자막 처리 재시도 횟수를 초과했습니다.", HttpStatus.GONE),
 
     // HTTP Status 401
     SIGN_IN_FAIL("SF", "로그인 정보가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),

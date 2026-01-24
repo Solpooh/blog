@@ -44,6 +44,22 @@ public interface TranscriptRepository extends JpaRepository<TranscriptEntity, St
     );
 
     /**
+     * FAILED 상태를 PROCESSING으로 전환 (재시도용 CAS)
+     * 조건: status='FAILED' AND retryCount=expectedRetryCount
+     * 동시 재시도 요청 방지
+     */
+    @Modifying
+    @Query(value =
+            "UPDATE transcript " +
+            "SET status = 'PROCESSING', started_at = NOW(), retry_count = retry_count + 1, error_message = NULL " +
+            "WHERE video_id = :videoId AND status = 'FAILED' AND retry_count = :expectedRetryCount",
+            nativeQuery = true)
+    int resetFailedToProcessing(
+            @Param("videoId") String videoId,
+            @Param("expectedRetryCount") int expectedRetryCount
+    );
+
+    /**
      * videoId로 존재 여부 확인
      */
     boolean existsByVideoId(String videoId);
