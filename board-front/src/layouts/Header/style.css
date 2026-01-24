@@ -1,5 +1,5 @@
 #header {
-    padding: 20px 0;
+    padding: 16px 40px;
     display: flex;
     justify-content: center;
     background-color: var(--color-bg-primary);
@@ -12,7 +12,8 @@
 }
 
 .header-container {
-    width: 1200px;
+    width: 100%;
+    max-width: 1500px;
     display: flex;
     justify-content: space-between;
     align-items: center;

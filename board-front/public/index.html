@@ -47,6 +47,40 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+
+    <!-- Theme initialization script - 페이지 로드 전에 테마 적용 -->
+    <script>
+      (function() {
+        try {
+          // localStorage에서 테마 설정 가져오기
+          var themeStorage = localStorage.getItem('theme-storage');
+          if (themeStorage) {
+            var parsed = JSON.parse(themeStorage);
+            var theme = parsed.state && parsed.state.theme;
+            var resolvedTheme = theme;
+
+            // system 테마인 경우 시스템 설정 확인
+            if (theme === 'system') {
+              resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            // 테마 즉시 적용
+            if (resolvedTheme === 'dark') {
+              document.documentElement.setAttribute('data-theme', 'dark');
+              document.documentElement.classList.add('dark');
+              document.documentElement.classList.remove('light');
+            } else {
+              document.documentElement.setAttribute('data-theme', 'light');
+              document.documentElement.classList.add('light');
+              document.documentElement.classList.remove('dark');
+            }
+          }
+        } catch (e) {
+          // 에러 발생 시 기본값(light) 유지
+          console.error('Theme initialization error:', e);
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

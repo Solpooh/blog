@@ -20,6 +20,12 @@ enum ResponseCode {
     // HTTP Status 403
     NO_PERMISSION = "NP",
 
+    // Transcript 관련
+    TRANSCRIPT_PROCESSING = "TP",      // HTTP 202 - 처리 중
+    TRANSCRIPT_FAILED = "TF",          // HTTP 503 - 일시적 실패
+    TRANSCRIPT_UNAVAILABLE = "TU",     // HTTP 404 - 자막 없음
+    TRANSCRIPT_RETRY_EXHAUSTED = "TR", // HTTP 410 - 재시도 초과
+
     // HTTP Status 500
     DATABASE_ERROR = "DBE",
 }

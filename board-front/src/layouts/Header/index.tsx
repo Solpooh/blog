@@ -46,13 +46,25 @@ export default function Header() {
 
     //  event handler: 로고 클릭 이벤트 처리 함수 //
     const onLogoClickHandler = () => {
-        navigate('/');
+        if (pathname === MAIN_PATH()) {
+            window.location.reload();
+        } else {
+            navigate(MAIN_PATH());
+        }
     }
     const onYoutubeClickHandler = () => {
-        navigate(YOUTUBE_PATH())
+        if (pathname === YOUTUBE_PATH()) {
+            window.location.reload();
+        } else {
+            navigate(YOUTUBE_PATH());
+        }
     }
     const onTrendClickHandler = () => {
-        navigate(YOUTUBE_TREND_PATH())
+        if (pathname === YOUTUBE_TREND_PATH()) {
+            window.location.reload();
+        } else {
+            navigate(YOUTUBE_TREND_PATH());
+        }
     }
 
     //  event handler: 키보드 네비게이션 이벤트 처리 함수 //
