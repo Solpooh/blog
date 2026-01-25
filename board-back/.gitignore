@@ -43,3 +43,5 @@ application-*.yaml
 /transcript
 /cookies
 CLAUDE.md
+.claude
+.playwright-mcp

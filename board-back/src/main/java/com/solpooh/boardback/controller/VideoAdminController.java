@@ -1,5 +1,6 @@
 package com.solpooh.boardback.controller;
 
+import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
 import com.solpooh.boardback.elasticsearch.VideoIndexService;
@@ -15,9 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class VideoAdminController {
     private final YoutubeBatchService youtubeBatchService;
     private final VideoIndexService videoIndexService;
+    private final CacheService cacheService;
     @PostMapping("")
     public PostVideoResponse postVideo() {
-        return youtubeBatchService.postVideo();
+        PostVideoResponse response = youtubeBatchService.postVideo();
+        cacheService.syncFromDB();  // 캐시 동기화
+        return response;
     }
     @DeleteMapping("/{videoId}")
     public DeleteVideoResponse deleteVideo(

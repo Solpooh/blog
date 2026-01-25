@@ -132,7 +132,9 @@ public class ChannelProvider {
             "UCebXwimGkd5YrhPV7vmqKgA",
             "UCwbg0dHtGEdLJWATaWJv96Q",
             "UCam_67rnKIG4KVX1IhTyL7A",
-            "UC1_ZZYZsHh2_DzCXN4VGVcQ"
+            "UC1_ZZYZsHh2_DzCXN4VGVcQ",
+            "UCRpOx7jjy2PuuVeRrYKbdCA",
+            ""
     );
     public static List<String> getChannelIds() {
         return Collections.unmodifiableList(CHANNEL_IDS);

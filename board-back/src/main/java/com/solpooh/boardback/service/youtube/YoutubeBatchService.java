@@ -1,6 +1,7 @@
 package com.solpooh.boardback.service.youtube;
 
 import com.google.api.services.youtube.model.Video;
+import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoMetaData;
@@ -29,6 +30,7 @@ public class YoutubeBatchService {
     private final YoutubeApiFetcher youtubeApiService;
     private final VideoJdbcRepository videoJdbcRepository;
     private final VideoCollectorService videoCollectorService;
+    private final CacheService cacheService;
 
     /**
      * 영상 수집 메인 메서드
@@ -38,16 +40,19 @@ public class YoutubeBatchService {
         return videoCollectorService.collectVideos();
     }
 
+    /**
+     * Score 기반의 조회수, 댓글수, 좋아요 수 갱신
+     * @return 업데이트된 영상 수
+     */
     @Transactional
-    // Score 기반의 조회수, 댓글수, 좋아요 수 갱신
-    public void updateVideoData() {
+    public int updateVideoData() {
         List<VideoEntity> videoEntities = videoRepository.findAll();
 
         // trend score 정렬
         Comparator<VideoEntity> descByScore =
                 Comparator.comparingDouble(VideoEntity::getTrendScore).reversed();
 
-        // 상위 200개 videoId
+        // 상위 400개 videoId
         List<String> topVideoIds = videoEntities.stream()
                 .sorted(descByScore)
                 .limit(400)
@@ -57,8 +62,10 @@ public class YoutubeBatchService {
         // Entity Map 구성 (기존 DB 값 활용)
         Map<String, VideoEntity> entityMap = videoEntities.stream()
                 .collect(Collectors.toMap(VideoEntity::getVideoId, v -> v));
+
         // videoId 50개 단위로 chunk 나누기
         var chunks = chunk(topVideoIds, CHUNK_SIZE);
+        int totalUpdated = 0;
 
         for (List<String> chunk : chunks) {
             // Youtube API 요청 + 신규 MetaData 생성
@@ -67,7 +74,7 @@ public class YoutubeBatchService {
             Map<String, VideoMetaData> metaMap = apiList.stream()
                     .collect(Collectors.toMap(
                             Video::getId,
-                            YoutubeConverter::convertToMetaData // 신규 값만 생성함
+                            YoutubeConverter::convertToMetaData
                     ));
 
             // entity + meta를 합쳐 업데이트용 MetaData 생성(이전 조회수 백업을 위해)
@@ -91,9 +98,11 @@ public class YoutubeBatchService {
 
             if (!mergedList.isEmpty()) {
                 videoJdbcRepository.updateVideoMetaData(mergedList);
+                totalUpdated += mergedList.size();
             }
-
         }
+
+        return totalUpdated;
     }
 
     public DeleteVideoResponse deleteVideo(String videoId) {
@@ -102,7 +111,7 @@ public class YoutubeBatchService {
                 .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_VIDEO));
 
         videoRepository.delete(videoEntity);
-//        cacheService.remove();
+        cacheService.remove(videoId);
         return new DeleteVideoResponse();
     }
 
@@ -114,7 +123,12 @@ public class YoutubeBatchService {
         return chunks;
     }
 
-    public void updateVideoScore() {
+    /**
+     * 전체 영상의 트렌드 스코어 재계산
+     * @return 업데이트된 영상 수
+     */
+    @Transactional
+    public int updateVideoScore() {
         List<VideoEntity> videoEntities = videoRepository.findAll();
         List<VideoMetaData> updateList = videoEntities.stream()
                 .map(entity -> VideoMetaData.builder()
@@ -124,6 +138,7 @@ public class YoutubeBatchService {
                 .toList();
 
         videoJdbcRepository.updateTrendScore(updateList);
+        return updateList.size();
     }
 
     public static double calculateScore(VideoEntity entity) {

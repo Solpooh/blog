@@ -181,3 +181,25 @@ CREATE TABLE IF NOT EXISTS `transcript`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT ='영상 자막 처리 테이블 (동시성 제어 및 AI 요약 저장)';
+
+-- batch_history 테이블 생성
+CREATE TABLE IF NOT EXISTS `batch_history`
+(
+    `id`              BIGINT       NOT NULL AUTO_INCREMENT COMMENT '배치 이력 ID',
+    `job_name`        VARCHAR(50)  NOT NULL COMMENT '배치 작업명 (VIDEO_COLLECT, VIDEO_DATA_UPDATE, VIDEO_SCORE_UPDATE, IMAGE_CLEANUP)',
+    `status`          VARCHAR(20)  NOT NULL COMMENT '실행 상태 (RUNNING, SUCCESS, FAILED)',
+    `started_at`      DATETIME     NOT NULL COMMENT '실행 시작 시간',
+    `finished_at`     DATETIME     NULL COMMENT '실행 종료 시간',
+    `processed_count` INT          NULL COMMENT '처리된 건수',
+    `duration_ms`     BIGINT       NULL COMMENT '실행 소요 시간 (밀리초)',
+    `error_message`   VARCHAR(500) NULL COMMENT '실패 시 에러 메시지',
+
+    PRIMARY KEY (`id`),
+
+    INDEX `idx_job_started` (`job_name`, `started_at` DESC),
+    INDEX `idx_status` (`status`)
+
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='배치 작업 실행 이력 테이블';
