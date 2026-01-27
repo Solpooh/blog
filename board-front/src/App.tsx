@@ -45,7 +45,7 @@ function App() {
             resetLoginUser();
             return;
         }
-        const loginUser: User = { ...responseBody as GetSignInUserResponseDto };
+        const loginUser: User = { ...responseBody.data as GetSignInUserResponseDto };
         setLoginUser(loginUser);
     }
 

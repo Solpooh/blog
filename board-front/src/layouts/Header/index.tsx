@@ -1,6 +1,7 @@
 import React, {ChangeEvent, KeyboardEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import defaultProfileImage from 'assets/image/default-profile-image.png';
 import {
     AUTH_PATH,
     BOARD_DETAIL_PATH, BOARD_PATH,
@@ -31,6 +32,11 @@ export default function Header() {
     const [cookies, setCookie] = useCookies();
     //  state: 로그인 상태 //
     const [isLogin, setLogin] = useState<boolean>(false);
+
+    //  effect: loginUser 변경될 때마다 isLogin 업데이트 //
+    useEffect(() => {
+        setLogin(loginUser !== null);
+    }, [loginUser]);
 
     const isAuthPage = pathname.startsWith(AUTH_PATH());
     const isMainPage = pathname === MAIN_PATH();
@@ -103,11 +109,6 @@ export default function Header() {
             }
         }, [searchWord]);
 
-        //  effect: login user 변경 될때마다 실행될 함수 //
-        useEffect(() => {
-            setLogin(loginUser !== null);
-        }, [loginUser])
-
         // render: 검색 버튼 컴포넌트 렌더링 //
         return (
             <div className='header-search-box'>
@@ -123,13 +124,16 @@ export default function Header() {
 
     //  component: 마이페이지 버튼 컴포넌트 //
     const MyPageButton = () => {
-        //  state: userEmail path variable 상태 //
-        const { userEmail } = useParams();
+        //  state: 프로필 메뉴 표시 여부 상태 //
+        const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
+        //  state: 프로필 메뉴 참조 //
+        const profileMenuRef = useRef<HTMLDivElement>(null);
 
         //  event handler: 마이페이지 버튼 클릭 이벤트 처리 함수 //
         const onMyPageButtonClickHandler = () => {
             if (!loginUser) return;
             const { email } = loginUser;
+            setShowProfileMenu(false);
             navigate(USER_PATH(email));
         }
         //  event handler: 로그아웃 버튼 클릭 이벤트 처리 함수 //
@@ -139,33 +143,84 @@ export default function Header() {
             resetLoginUser();
             setCookie('accessToken', '', { path: '/', expires: new Date() });
             setLogin(false);
-            navigate(MAIN_PATH());
+            setShowProfileMenu(false);
+
+            // 로그아웃 시 인증 필요 페이지가 아니면 현재 페이지 유지
+            if (isBoardWritePage || isBoardUpdatePage) {
+                navigate(MAIN_PATH());
+            }
+            // 다른 페이지는 현재 페이지 유지 (리렌더링만 발생)
         }
 
         //  event handler: 로그인 버튼 클릭 이벤트 처리 함수 //
         const onSignInButtonClickHandler = () => {
-            navigate(AUTH_PATH());
+            // 로그인 후 현재 페이지로 돌아오기 위해 현재 경로를 state로 전달
+            navigate(AUTH_PATH(), { state: { from: pathname } });
         }
 
-        //  effect: 새로고침 시 isLogin true 유지  //
-        useEffect(() => {
-            // 쿠키에서 토큰 확인 후 로그인 상태 복원
-            if (!cookies.accessToken) {
-                setLogin(false);
-            } else {
-                setLogin(true);
-            }
-        }, []);
+        //  event handler: 프로필 이미지 클릭 이벤트 처리 함수 //
+        const onProfileImageClickHandler = () => {
+            setShowProfileMenu(!showProfileMenu);
+        }
 
-        //    render: 로그아웃 버튼 컴포넌트 렌더링  //
-        if(isLogin && (userEmail === loginUser?.email))
-        return(
-            <div className='black-button' onClick={onSignOutButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onSignOutButtonClickHandler)} role='button' aria-label='로그아웃' tabIndex={0}>{'로그아웃'}</div>
-        )
+        //  effect: 외부 클릭 시 메뉴 닫기 //
+        useEffect(() => {
+            const handleClickOutside = (event: MouseEvent) => {
+                if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+                    setShowProfileMenu(false);
+                }
+            };
+
+            if (showProfileMenu) {
+                document.addEventListener('mousedown', handleClickOutside);
+            }
+
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+            };
+        }, [showProfileMenu]);
+
+        //  render: 로그인 시 프로필 이미지 + 메뉴 렌더링 //
         if(isLogin)
-        //    render: 마이페이지 버튼 컴포넌트 렌더링  //
         return(
-            <div className='white-button' onClick={onMyPageButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onMyPageButtonClickHandler)} role='button' aria-label='마이페이지로 이동' tabIndex={0}>{'마이페이지'}</div>
+            <div className='profile-menu-wrapper' ref={profileMenuRef}>
+                <div
+                    className='profile-image-button'
+                    onClick={onProfileImageClickHandler}
+                    onKeyDown={(e) => onKeyDownHandler(e, onProfileImageClickHandler)}
+                    role='button'
+                    aria-label='프로필 메뉴'
+                    tabIndex={0}
+                >
+                    <div
+                        className='profile-image'
+                        style={{backgroundImage: `url(${loginUser?.profileImage || defaultProfileImage})`}}
+                    ></div>
+                </div>
+                {showProfileMenu && (
+                    <div className='profile-dropdown-menu'>
+                        <div
+                            className='profile-menu-item'
+                            onClick={onMyPageButtonClickHandler}
+                            role='button'
+                            tabIndex={0}
+                        >
+                            <div className='icon user-icon'></div>
+                            <span>내가 작성한 글</span>
+                        </div>
+                        <div className='profile-menu-divider'></div>
+                        <div
+                            className='profile-menu-item'
+                            onClick={onSignOutButtonClickHandler}
+                            role='button'
+                            tabIndex={0}
+                        >
+                            <div className='icon logout-icon'></div>
+                            <span>로그아웃</span>
+                        </div>
+                    </div>
+                )}
+            </div>
         )
         //    render: 로그인 버튼 컴포넌트 렌더링  //
         return(
@@ -190,7 +245,10 @@ export default function Header() {
             if (!responseBody) return;
             const { code } = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
-            if (code === 'AF' || code === 'NU') navigate(AUTH_PATH());
+            if (code === 'AF' || code === 'NU') {
+                navigate(AUTH_PATH(), { state: { from: pathname } });
+                return;
+            }
             if (code === 'VF') alert('제목과 내용을 입력해주세요.');
             if (code !== 'SU') return;
 
@@ -203,7 +261,10 @@ export default function Header() {
         const patchBoardResponse = (responseBody: PatchBoardResponseDto | ResponseDto | null) => {
             if (!responseBody) return;
             const { code } = responseBody;
-            if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NP') navigate(AUTH_PATH());
+            if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NP') {
+                navigate(AUTH_PATH(), { state: { from: pathname } });
+                return;
+            }
             if (code === 'VF') alert('제목과 내용은 필수입니다.');
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
@@ -220,7 +281,7 @@ export default function Header() {
             const accessToken = cookies.accessToken;
             if (!accessToken) {
                 alert("로그인 정보가 만료되었습니다.");
-                navigator(AUTH_PATH());
+                navigator(AUTH_PATH(), { state: { from: pathname } });
                 return;
             }
 

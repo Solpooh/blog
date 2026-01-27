@@ -2,7 +2,7 @@ import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import './style.css';
 import {useBoardStore, useEditorStore} from '../../../stores';
 import {AUTH_PATH} from '../../../constants';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import {
     AtomicBlockUtils, ContentBlock,
@@ -71,6 +71,8 @@ export default function BoardWrite() {
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
+    //  state: location 상태 (현재 경로 저장용) //
+    const location = useLocation();
 
     //  function: CodeBlock에서 'Enter' 및 'Tab' 키 처리 함수 //
     const handleKeyCommand = (command: string): 'handled' | 'not-handled' => {
@@ -188,7 +190,8 @@ export default function BoardWrite() {
     useEffect(() => {
         const accessToken = cookies.accessToken;
         if (!accessToken) {
-            navigator(AUTH_PATH());
+            // 로그인 후 이 페이지로 돌아오기 위해 현재 경로를 state로 전달
+            navigator(AUTH_PATH(), { state: { from: location.pathname } });
             return;
         }
         if (editorRef.current) {

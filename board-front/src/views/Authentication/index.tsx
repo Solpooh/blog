@@ -7,7 +7,7 @@ import {SignInResponseDto} from 'apis/response/auth';
 import {ResponseDto} from 'apis/response';
 import {useCookies} from 'react-cookie';
 import {MAIN_PATH} from '../../constants';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import {Address, useDaumPostcodePopup} from 'react-daum-postcode';
 import {SignUpRequestDto} from 'apis/request/auth';
 import {SignUpResponseDto} from 'apis/response/auth';
@@ -22,6 +22,8 @@ export default function Authentication() {
 
     //  function: 네비게이트 함수 //
     const navigator = useNavigate();
+    //  state: location 상태 (이전 경로 복원용) //
+    const location = useLocation();
 
     //  component: sign in card 컴포넌트 //
     const SignInCard = () => {
@@ -60,7 +62,9 @@ export default function Authentication() {
             const expirationTimeInMs = decodedToken.exp * 1000; // `exp` 필드를 밀리초로 변환
             setCookie('accessToken', token, { expires: new Date(expirationTimeInMs), path: '/' });
 
-            navigator(MAIN_PATH());
+            // 로그인 성공 시 이전 페이지로 복귀 (없으면 메인으로)
+            const from = location.state?.from || MAIN_PATH();
+            navigator(from);
         }
 
         //  event handler: 이메일 변경 이벤트 처리 //
