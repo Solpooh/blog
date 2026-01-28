@@ -9,3 +9,6 @@ export const BOARD_UPDATE_PATH = (boardNumber: string | number) => `update/${boa
 export const YOUTUBE_PATH = () => '/youtube';
 export const YOUTUBE_SEARCH_PATH = (searchWord: string) => `/youtube/${searchWord}`;
 export const YOUTUBE_TREND_PATH = () => '/youtube/trending';
+export const ADMIN_PATH = () => '/admin';
+export const ADMIN_CHANNEL_PATH = () => '/admin/channel';
+export const ADMIN_VIDEO_PATH = () => '/admin/video';

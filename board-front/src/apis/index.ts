@@ -39,6 +39,14 @@ import {
     GetSearchVideoListResponseDto,
     GetHotVideoListResponseDto, GetTopViewVideoListResponseDto, GetShortsVideoListResponseDto, GetTranscriptResponseDto
 } from "./response/youtube";
+import {DeleteVideosRequestDto, PostChannelRequestDto} from "./request/admin";
+import {
+    DeleteChannelResponseDto,
+    DeleteVideosResponseDto,
+    GetAdminVideoListResponseDto,
+    GetChannelListResponseDto,
+    PostChannelResponseDto
+} from "./response/admin";
 
 const DOMAIN = 'http://localhost:4000/api';
 // const DOMAIN = 'https://devhubs.site/api';
@@ -493,5 +501,101 @@ export const getTranscriptRequest = async (videoId: string) => {
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         })
+    return result;
+};
+
+// ===== Admin API =====
+
+const GET_CHANNEL_LIST_URL = () => `${API_DOMAIN}/admin/channel`;
+const POST_CHANNEL_URL = () => `${API_DOMAIN}/admin/channel`;
+const DELETE_CHANNEL_URL = (channelId: string) => `${API_DOMAIN}/admin/channel/${channelId}`;
+
+export const getChannelListRequest = async () => {
+    const result = await axios.get(GET_CHANNEL_LIST_URL())
+        .then(response => {
+            const responseBody: GetChannelListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+export const postChannelRequest = async (requestBody: PostChannelRequestDto) => {
+    const result = await axios.post(POST_CHANNEL_URL(), requestBody)
+        .then(response => {
+            const responseBody: PostChannelResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+export const deleteChannelRequest = async (channelId: string) => {
+    const result = await axios.delete(DELETE_CHANNEL_URL(channelId))
+        .then(response => {
+            const responseBody: DeleteChannelResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+const GET_ADMIN_VIDEO_LIST_URL = (page: number, size: number) => `${API_DOMAIN}/admin/videos?page=${page}&size=${size}`;
+const SEARCH_ADMIN_VIDEOS_URL = (channelTitle: string, page: number, size: number) =>
+    `${API_DOMAIN}/admin/videos/search?channelTitle=${encodeURIComponent(channelTitle)}&page=${page}&size=${size}`;
+
+export const getAdminVideoListRequest = async (page: number = 0, size: number = 20) => {
+    const result = await axios.get(GET_ADMIN_VIDEO_LIST_URL(page, size))
+        .then(response => {
+            const responseBody: GetAdminVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+export const searchAdminVideosByChannelRequest = async (channelTitle: string, page: number = 0, size: number = 20) => {
+    const result = await axios.get(SEARCH_ADMIN_VIDEOS_URL(channelTitle, page, size))
+        .then(response => {
+            const responseBody: GetAdminVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+
+const DELETE_VIDEOS_URL = () => `${API_DOMAIN}/admin/videos`;
+
+export const deleteVideosRequest = async (requestBody: DeleteVideosRequestDto) => {
+    const result = await axios.delete(DELETE_VIDEOS_URL(), { data: requestBody })
+        .then(response => {
+            const responseBody: DeleteVideosResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
     return result;
 };

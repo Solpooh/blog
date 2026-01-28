@@ -108,13 +108,17 @@ export default function Main() {
             }
 
             const { boardList, categoryList } = (responseBody as GetLatestBoardListResponseDto).data;
-            // ✅ All일 때만 전체 게시글 수를 따로 저장
+
+            // ✅ All일 때는 응답의 totalElements를 직접 사용
+            const allCount = categoryName === 'All' ? boardList.totalElements : totalBoardCount;
+
+            // ✅ state 업데이트 (다음 렌더링을 위해)
             if (categoryName === 'All') {
                 setTotalBoardCount(boardList.totalElements);
-                console.log(totalBoardCount);
             }
-            // ✅ 'All' 카테고리는 항상 저장된 totalBoardCount 사용
-            const allCategory = { name: 'All', count: totalBoardCount };
+
+            // ✅ 'All' 카테고리는 현재 응답의 totalElements 사용
+            const allCategory = { name: 'All', count: allCount };
 
             // ✅ 서버 응답에서 나머지 카테고리
             const otherCategories = categoryList

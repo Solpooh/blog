@@ -101,6 +101,7 @@ export default function Youtube() {
     const onPageChange = useCallback((page: number) => {
         setSearchParams({ page: String(page) });
         setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [setSearchParams]);
 
     //  effect: page param 변경될 때마다 적용 //
