@@ -7,6 +7,7 @@ import com.solpooh.boardback.converter.YoutubeConverter;
 import com.solpooh.boardback.dto.common.VideoMetaData;
 import com.solpooh.boardback.dto.response.youtube.DeleteVideoResponse;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
+import com.solpooh.boardback.elasticsearch.VideoIndexService;
 import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.fetcher.YoutubeApiFetcher;
@@ -31,6 +32,7 @@ public class YoutubeBatchService {
     private final VideoJdbcRepository videoJdbcRepository;
     private final VideoCollectorService videoCollectorService;
     private final CacheService cacheService;
+    private final VideoIndexService videoIndexService;
 
     /**
      * 영상 수집 메인 메서드
@@ -105,14 +107,46 @@ public class YoutubeBatchService {
         return totalUpdated;
     }
 
+    @Transactional
     public DeleteVideoResponse deleteVideo(String videoId) {
 
         VideoEntity videoEntity = videoRepository.findByVideoId(videoId)
                 .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_VIDEO));
 
+        // DB 삭제
         videoRepository.delete(videoEntity);
+
+        // Cache 삭제
         cacheService.remove(videoId);
+
+        // Elasticsearch 삭제
+        videoIndexService.deleteVideo(videoId);
+
         return new DeleteVideoResponse();
+    }
+
+    @Transactional
+    public int deleteVideos(List<String> videoIds) {
+        if (videoIds == null || videoIds.isEmpty()) {
+            return 0;
+        }
+
+        List<VideoEntity> videoEntities = videoRepository.findByVideoIdIn(videoIds);
+
+        if (videoEntities.isEmpty()) {
+            throw new CustomException(ResponseApi.NOT_EXISTED_VIDEO);
+        }
+
+        // DB 삭제
+        videoRepository.deleteAll(videoEntities);
+
+        // Cache 삭제
+        cacheService.removeAll(videoIds);
+
+        // Elasticsearch 삭제
+        videoIndexService.deleteVideos(videoIds);
+
+        return videoEntities.size();
     }
 
     private <T> List<List<T>> chunk(List<T> list, int size) {

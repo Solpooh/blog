@@ -188,7 +188,14 @@ public class VideoCollectorService {
             videoEntities.add(video);
         }
 
+        // DB 저장
         List<VideoEntity> savedEntities = videoRepository.saveAll(videoEntities);
+
+        // Cache에 추가
+        List<String> savedVideoIds = savedEntities.stream()
+                .map(VideoEntity::getVideoId)
+                .toList();
+        cacheService.addAll(savedVideoIds);
 
         // ES 인덱싱 (신규 영상만)
         videoIndexService.indexVideos(savedEntities);

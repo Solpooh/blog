@@ -1,6 +1,5 @@
 package com.solpooh.boardback.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,8 +25,6 @@ public class ChannelEntity extends BaseTimeEntity {
     private String customUrl;
     @Column(length = 2)
     private String lang;
-    @Column(nullable = false)
-    private String category;
 
     // deprecated
 //    @JsonBackReference

@@ -3,7 +3,7 @@ package com.solpooh.boardback.dto.common;
 import lombok.Builder;
 
 @Builder
-public record VideoListResponse(
+public record VideoResponse(
         String videoId,
         String title,
         String description,

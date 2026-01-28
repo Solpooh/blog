@@ -8,7 +8,10 @@
       "Bash(npm run build:*)",
       "mcp__notion__notion-search",
       "mcp__notion__notion-fetch",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:mp4.okdevtv.com)",
+      "Bash(curl:*)",
+      "mcp__notion__notion-update-page"
     ]
   }
 }

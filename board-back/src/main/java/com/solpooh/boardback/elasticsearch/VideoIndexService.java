@@ -133,4 +133,45 @@ public class VideoIndexService {
             indexOps.putMapping(indexOps.createMapping(VideoDocument.class));
         }
     }
+
+    /**
+     * 단일 비디오 삭제
+     */
+    public void deleteVideo(String videoId) {
+        if (videoId == null || videoId.isBlank()) {
+            return;
+        }
+
+        IndexCoordinates index = IndexCoordinates.of("video");
+        try {
+            elasticsearchOperations.delete(videoId, index);
+            log.info("ES 인덱스 삭제 완료: {}", videoId);
+        } catch (Exception e) {
+            log.warn("ES 인덱스 삭제 실패: {} - {}", videoId, e.getMessage());
+        }
+    }
+
+    /**
+     * 여러 비디오 일괄 삭제
+     */
+    public void deleteVideos(List<String> videoIds) {
+        if (videoIds == null || videoIds.isEmpty()) {
+            return;
+        }
+
+        IndexCoordinates index = IndexCoordinates.of("video");
+        try {
+            // Bulk delete
+            videoIds.forEach(videoId -> {
+                try {
+                    elasticsearchOperations.delete(videoId, index);
+                } catch (Exception e) {
+                    log.warn("ES 인덱스 삭제 실패: {} - {}", videoId, e.getMessage());
+                }
+            });
+            log.info("ES 인덱스 일괄 삭제 완료: {}개", videoIds.size());
+        } catch (Exception e) {
+            log.error("ES 인덱스 일괄 삭제 중 오류: {}", e.getMessage(), e);
+        }
+    }
 }

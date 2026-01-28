@@ -1,9 +1,6 @@
 package com.solpooh.boardback.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +26,14 @@ public class UserEntity {
     private String addressDetail;
     private String profileImage;
     private boolean agreedPersonal;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -41,4 +46,7 @@ public class UserEntity {
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+    // 의도된 변경만 허용
+    public void setToAdmin() { this.role = Role.ADMIN;}
 }

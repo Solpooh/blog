@@ -1,7 +1,6 @@
 package com.solpooh.boardback.dto.response.youtube;
 
-public record GetChannelResponse(
+public record DeleteChannelResponse(
         String channelId,
-        String title,
-        String thumbnail
+        int deletedVideoCount
 ) {}

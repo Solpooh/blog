@@ -24,13 +24,12 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
     QChannelEntity channel = QChannelEntity.channelEntity;
 
     @Override
-    public Page<VideoEntity> getLatestVideo(Pageable pageable, String category, String lang) {
+    public Page<VideoEntity> getLatestVideo(Pageable pageable, String lang) {
 
         List<VideoEntity> videoList = queryFactory
                 .selectFrom(video)
                 .join(video.channel, channel).fetchJoin()
                 .where(
-                        channel.category.eq(category),
                         channel.lang.eq(lang)
                 )
                 .orderBy(video.publishedAt.desc())
@@ -46,34 +45,6 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
 
         return new PageImpl<>(videoList, pageable, total);
     }
-
-//    @Override
-//    public Page<VideoEntity> getSearchVideoList(String searchWord, String type, Pageable pageable) {
-//        BooleanBuilder builder = new BooleanBuilder();
-//        switch (type.toLowerCase()) {
-//            case "channel" -> builder.and(channel.title.containsIgnoreCase(searchWord));
-//            case "title" -> builder.and(video.title.containsIgnoreCase(searchWord));
-//            default -> throw new IllegalArgumentException("지원하지 않는 검색 타입입니다.");
-//        }
-//
-//        List<VideoEntity> videoList = queryFactory
-//                .selectFrom(video)
-//                .join(video.channel, channel).fetchJoin()
-//                .where(builder)
-//                .orderBy(video.publishedAt.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        long total = queryFactory
-//                .select(video.count())
-//                .from(video)
-//                .join(video.channel, channel)
-//                .where(builder)
-//                .fetchOne();
-//
-//        return new PageImpl<>(videoList, pageable, total);
-//    }
 
     @Override
     public List<VideoEntity> getHotVideoList() {
@@ -104,5 +75,44 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
                 .orderBy(video.publishedAt.desc())
                 .limit(16)
                 .fetch();
+    }
+
+    @Override
+    public Page<VideoEntity> getAllVideos(Pageable pageable) {
+        List<VideoEntity> videoList = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .orderBy(video.publishedAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long totalCount = queryFactory
+                .select(video.count())
+                .from(video)
+                .fetchOne();
+
+        return new PageImpl<>(videoList, pageable, totalCount != null ? totalCount : 0L);
+    }
+
+    @Override
+    public Page<VideoEntity> searchVideosByChannelTitle(String channelTitle, Pageable pageable) {
+        List<VideoEntity> videoList = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .where(channel.title.containsIgnoreCase(channelTitle))
+                .orderBy(video.publishedAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long totalCount = queryFactory
+                .select(video.count())
+                .from(video)
+                .join(video.channel, channel)
+                .where(channel.title.containsIgnoreCase(channelTitle))
+                .fetchOne();
+
+        return new PageImpl<>(videoList, pageable, totalCount != null ? totalCount : 0L);
     }
 }

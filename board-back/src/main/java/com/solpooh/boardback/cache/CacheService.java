@@ -32,6 +32,20 @@ public class CacheService {
         cache.invalidate(id);
     }
 
+    public void removeAll(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        cache.invalidateAll(ids);
+    }
+
+    public void addAll(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        ids.forEach(id -> cache.put(id, Boolean.TRUE));
+    }
+
     public boolean contains(String id) {
         return cache.getIfPresent(id) != null;
     }

@@ -1,14 +1,11 @@
 package com.solpooh.boardback.service.implement;
 
 
-import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
-import co.elastic.clients.elasticsearch._types.query_dsl.FunctionBoostMode;
-import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.Pagination;
 import com.solpooh.boardback.converter.YoutubeConverter;
-import com.solpooh.boardback.dto.common.VideoListResponse;
+import com.solpooh.boardback.dto.common.VideoResponse;
+import com.solpooh.boardback.dto.object.AdminVideoItem;
 import com.solpooh.boardback.dto.response.youtube.*;
 import com.solpooh.boardback.elasticsearch.VideoDocument;
 import com.solpooh.boardback.entity.VideoEntity;
@@ -20,11 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.core.query.StringQuery;
 import org.springframework.stereotype.Service;
@@ -47,14 +41,14 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public GetVideoListResponse getLatestVideoList(Pageable pageable) {
         Page<VideoEntity> videoEntities =
-                videoRepository.getLatestVideo(pageable, "dev", "ko");
+                videoRepository.getLatestVideo(pageable, "ko");
 
-        List<VideoListResponse> videoList = videoEntities.getContent()
+        List<VideoResponse> videoList = videoEntities.getContent()
                 .stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
-        Pagination<VideoListResponse> pagedList = Pagination.of(videoEntities, videoList);
+        Pagination<VideoResponse> pagedList = Pagination.of(videoEntities, videoList);
 
         return new GetVideoListResponse(pagedList);
     }
@@ -117,12 +111,12 @@ public class VideoServiceImplement implements VideoService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        List<VideoListResponse> videoList = sorted
+        List<VideoResponse> videoList = sorted
                 .stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
-        Pagination<VideoListResponse> pagedList = Pagination.ofFromSearch(videoList, pageable, hits.getTotalHits());
+        Pagination<VideoResponse> pagedList = Pagination.ofFromSearch(videoList, pageable, hits.getTotalHits());
 
         return new GetSearchVideoListResponse(pagedList);
     }
@@ -130,7 +124,7 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public GetHotVideoListResponse getHotVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getHotVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
+        List<VideoResponse> videoList = videoEntities.stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
@@ -140,7 +134,7 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public GetTopViewVideoListResponse getTopViewVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getTopViewVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
+        List<VideoResponse> videoList = videoEntities.stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
@@ -150,10 +144,44 @@ public class VideoServiceImplement implements VideoService {
     @Override
     public GetShortsVideoListResponse getShortsVideoList() {
         List<VideoEntity> videoEntities = videoRepository.getShortsVideoList();
-        List<VideoListResponse> videoList = videoEntities.stream()
+        List<VideoResponse> videoList = videoEntities.stream()
                 .map(YoutubeConverter::toResponse)
                 .toList();
 
         return new GetShortsVideoListResponse(videoList);
+    }
+
+    @Override
+    public GetAdminVideoListResponse getAdminVideoList(Pageable pageable) {
+        Page<VideoEntity> videoEntities = videoRepository.getAllVideos(pageable);
+
+        List<AdminVideoItem> videoList = videoEntities.getContent()
+                .stream()
+                .map(AdminVideoItem::new)
+                .toList();
+
+        return new GetAdminVideoListResponse(
+                videoList,
+                videoEntities.getNumber(),
+                videoEntities.getTotalPages(),
+                videoEntities.getTotalElements()
+        );
+    }
+
+    @Override
+    public GetAdminVideoListResponse searchAdminVideosByChannel(String channelTitle, Pageable pageable) {
+        Page<VideoEntity> videoEntities = videoRepository.searchVideosByChannelTitle(channelTitle, pageable);
+
+        List<AdminVideoItem> videoList = videoEntities.getContent()
+                .stream()
+                .map(AdminVideoItem::new)
+                .toList();
+
+        return new GetAdminVideoListResponse(
+                videoList,
+                videoEntities.getNumber(),
+                videoEntities.getTotalPages(),
+                videoEntities.getTotalElements()
+        );
     }
 }

@@ -15,4 +15,8 @@ public interface VideoService {
     // GET: Shorts 비디오 가져오기
     GetShortsVideoListResponse getShortsVideoList();
 
+    // Admin: 전체 비디오 목록
+    GetAdminVideoListResponse getAdminVideoList(Pageable pageable);
+    // Admin: 채널명 검색
+    GetAdminVideoListResponse searchAdminVideosByChannel(String channelTitle, Pageable pageable);
 }

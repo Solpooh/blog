@@ -3,23 +3,29 @@ package com.solpooh.boardback.service.implement;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.common.ResponseApi;
 import com.solpooh.boardback.converter.YoutubeConverter;
-import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
+import com.solpooh.boardback.dto.common.ChannelResponse;
+import com.solpooh.boardback.dto.request.channel.PostChannelRequest;
+import com.solpooh.boardback.dto.response.youtube.DeleteChannelResponse;
+import com.solpooh.boardback.dto.response.youtube.GetChannelListResponse;
 import com.solpooh.boardback.dto.response.youtube.PostChannelResponse;
+import com.solpooh.boardback.elasticsearch.VideoIndexService;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.exception.CustomException;
 import com.solpooh.boardback.provider.ChannelProvider;
 import com.solpooh.boardback.repository.ChannelRepository;
+import com.solpooh.boardback.repository.VideoRepository;
 import com.solpooh.boardback.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,34 +34,9 @@ public class ChannelServiceImplement implements ChannelService {
     private String apiKey;
     private final YouTube youtube;
     private final ChannelRepository channelRepository;
-
-    // GET: 특정 채널 정보 가져오기
-    // 단순 channelId로 ChannelEntity 정보 반환
-    @Override
-    public GetChannelResponse getChannel(String channelId) {
-        ChannelEntity channelEntity = channelRepository.findByChannelId(channelId)
-                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_CHANNEL));
-
-        return YoutubeConverter.toResponse(channelEntity);
-    }
-
-    @Override
-    public PostChannelResponse postChannel() {
-
-        List<String> channelIds = channelRepository.findAllIds();
-        // 이미 DB에 존재하는 채널은 제외(API 호출 최소화)
-        List<String> newChannelIds = ChannelProvider.getChannelIds().stream()
-                .filter(channelId -> !channelIds.contains(channelId))
-                .toList();
-
-        newChannelIds.stream()
-                .map(this::fetchChannelFromYoutube)
-                .flatMap(Optional::stream)
-                .map(YoutubeConverter::toChannelEntity)
-                .forEach(channelRepository::save);
-
-        return new PostChannelResponse();
-    }
+    private final VideoRepository videoRepository;
+    private final CacheService cacheService;
+    private final VideoIndexService videoIndexService;
 
     private Optional<Channel> fetchChannelFromYoutube(String channelId) {
         try {
@@ -73,5 +54,66 @@ public class ChannelServiceImplement implements ChannelService {
         } catch (IOException e) {
             return Optional.empty();
         }
+    }
+
+    // ===== Admin 채널 관리 =====
+
+    @Override
+    public GetChannelListResponse getChannelList() {
+        List<ChannelEntity> channelEntities = channelRepository.findAll();
+
+        List<ChannelResponse> channelList = channelEntities.stream()
+                .map(YoutubeConverter::toResponse)
+                .toList();
+
+        return new GetChannelListResponse(channelList);
+    }
+
+    @Override
+    public PostChannelResponse addChannel(PostChannelRequest request) {
+        // channelId 필수
+        if (request.channelId() == null || request.channelId().isBlank()) {
+            throw new CustomException(ResponseApi.VALIDATION_FAILED);
+        }
+
+        // 이미 존재하는 채널인지 확인
+        if (channelRepository.existsById(request.channelId())) {
+            throw new CustomException(ResponseApi.VALIDATION_FAILED);
+        }
+
+        Channel channel = fetchChannelFromYoutube(request.channelId())
+                .orElseThrow(() -> new CustomException(ResponseApi.NOT_EXISTED_CHANNEL));
+
+        ChannelEntity entity = YoutubeConverter.toChannelEntity(channel);
+        channelRepository.save(entity);
+
+        return new PostChannelResponse();
+    }
+
+    @Override
+    @Transactional
+    public DeleteChannelResponse deleteChannel(String channelId) {
+        // 채널 존재 여부 확인
+        if (!channelRepository.existsById(channelId)) {
+            throw new CustomException(ResponseApi.NOT_EXISTED_CHANNEL);
+        }
+
+        // 채널에 속한 비디오 ID 목록 조회 (Cache/ES 삭제용)
+        List<String> videoIds = videoRepository.findVideoIdsByChannelId(channelId);
+        int deletedVideoCount = videoIds.size();
+
+        // 비디오 DB 삭제
+        videoRepository.deleteAllByChannel_ChannelId(channelId);
+
+        // 채널 DB 삭제
+        channelRepository.deleteById(channelId);
+
+        // Cache에서 삭제
+        cacheService.removeAll(videoIds);
+
+        // Elasticsearch에서 삭제
+        videoIndexService.deleteVideos(videoIds);
+
+        return new DeleteChannelResponse(channelId, deletedVideoCount);
     }
 }

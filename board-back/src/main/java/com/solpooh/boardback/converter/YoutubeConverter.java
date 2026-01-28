@@ -1,19 +1,15 @@
 package com.solpooh.boardback.converter;
 
 import com.google.api.services.youtube.model.*;
-import com.solpooh.boardback.dto.common.VideoListResponse;
+import com.solpooh.boardback.dto.common.ChannelResponse;
+import com.solpooh.boardback.dto.common.VideoResponse;
 import com.solpooh.boardback.dto.common.VideoMetaData;
-import com.solpooh.boardback.dto.response.youtube.GetChannelResponse;
-import com.solpooh.boardback.elasticsearch.VideoDocument;
 import com.solpooh.boardback.entity.ChannelEntity;
 import com.solpooh.boardback.entity.VideoEntity;
 import java.math.BigInteger;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Optional;
 
 public class YoutubeConverter {
@@ -53,12 +49,11 @@ public class YoutubeConverter {
                                 .orElse("unknown")
                 )
                 .lang("ko")
-                .category("dev")
                 .build();
     }
 
-    public static VideoListResponse toResponse(VideoEntity videoEntity) {
-        return new VideoListResponse(
+    public static VideoResponse toResponse(VideoEntity videoEntity) {
+        return new VideoResponse(
                 videoEntity.getVideoId(),
                 videoEntity.getTitle(),
                 videoEntity.getDescription(),
@@ -76,11 +71,15 @@ public class YoutubeConverter {
     }
 
 
-    public static GetChannelResponse toResponse(ChannelEntity entity) {
-        return new GetChannelResponse(
-                entity.getChannelId(),
-                entity.getTitle(),
-                entity.getThumbnail()
+    public static ChannelResponse toResponse(ChannelEntity channelEntity) {
+        return new ChannelResponse(
+                channelEntity.getChannelId(),
+                channelEntity.getTitle(),
+                channelEntity.getThumbnail(),
+                channelEntity.getCustomUrl(),
+                channelEntity.getLang(),
+                channelEntity.getCreatedAt(),
+                channelEntity.getUpdatedAt()
         );
     }
 

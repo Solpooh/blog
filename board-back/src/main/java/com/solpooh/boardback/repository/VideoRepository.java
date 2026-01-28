@@ -22,7 +22,10 @@ public interface VideoRepository extends JpaRepository<VideoEntity, String>, Vid
     // 50개 chunk에 해당하는 엔티티 조회
     List<VideoEntity> findByVideoIdIn(List<String> videoIds);
 
-//    @Modifying
-//    @Query("UPDATE VideoEntity v SET v.transcript = :transcript WHERE v.videoId = :videoId")
-//    int updateTranscript(@Param("videoId") String videoId, @Param("transcript") String transcript);
+    // 채널별 비디오 삭제
+    void deleteAllByChannel_ChannelId(String channelId);
+
+    // 채널별 비디오 ID 목록 조회
+    @Query("SELECT v.videoId FROM VideoEntity v WHERE v.channel.channelId = :channelId")
+    List<String> findVideoIdsByChannelId(@Param("channelId") String channelId);
 }
