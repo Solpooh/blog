@@ -1,10 +1,27 @@
-import React from 'react';
-import {Link, Outlet, useLocation} from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {Link, Outlet, useLocation, useNavigate} from 'react-router-dom';
 import './style.css';
 import {Video, Users, Settings} from 'lucide-react';
+import {useLoginUserStore} from 'stores';
+import {MAIN_PATH} from 'constants/index';
 
 export default function Admin() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { loginUser } = useLoginUserStore();
+
+    // 관리자 권한 확인
+    useEffect(() => {
+        if (!loginUser || loginUser.role !== 'ADMIN') {
+            alert('관리자 권한이 필요합니다.');
+            navigate(MAIN_PATH());
+        }
+    }, [loginUser, navigate]);
+
+    // 권한이 없으면 렌더링하지 않음
+    if (!loginUser || loginUser.role !== 'ADMIN') {
+        return null;
+    }
 
     const menuItems = [
         {

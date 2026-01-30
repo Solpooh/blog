@@ -172,7 +172,7 @@
 }
 
 /* Pagination Box */
-.main-bottom-pagination-box {
+.main-bottom-container .main-bottom-pagination-box {
     margin-top: 20px;
     text-align: center;
     display: flex;

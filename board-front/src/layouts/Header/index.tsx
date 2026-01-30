@@ -9,7 +9,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH, YOUTUBE_PATH, YOUTUBE_TREND_PATH
+    USER_PATH, YOUTUBE_PATH, YOUTUBE_TREND_PATH, ADMIN_PATH
 } from '../../constants';
 import {useCookies} from 'react-cookie';
 import {useBoardStore, useEditorStore, useLoginUserStore} from '../../stores';
@@ -129,12 +129,21 @@ export default function Header() {
         //  state: 프로필 메뉴 참조 //
         const profileMenuRef = useRef<HTMLDivElement>(null);
 
+        //  관리자 여부 확인 //
+        const isAdmin = loginUser?.role === 'ADMIN';
+
         //  event handler: 마이페이지 버튼 클릭 이벤트 처리 함수 //
         const onMyPageButtonClickHandler = () => {
             if (!loginUser) return;
             const { email } = loginUser;
             setShowProfileMenu(false);
             navigate(USER_PATH(email));
+        }
+
+        //  event handler: 관리자 페이지 버튼 클릭 이벤트 처리 함수 //
+        const onAdminButtonClickHandler = () => {
+            setShowProfileMenu(false);
+            navigate(ADMIN_PATH());
         }
         //  event handler: 로그아웃 버튼 클릭 이벤트 처리 함수 //
         const onSignOutButtonClickHandler = () => {
@@ -208,6 +217,20 @@ export default function Header() {
                             <div className='icon user-icon'></div>
                             <span>내가 작성한 글</span>
                         </div>
+                        {isAdmin && (
+                            <>
+                                <div className='profile-menu-divider'></div>
+                                <div
+                                    className='profile-menu-item admin-menu-item'
+                                    onClick={onAdminButtonClickHandler}
+                                    role='button'
+                                    tabIndex={0}
+                                >
+                                    <div className='icon admin-icon'></div>
+                                    <span>⚙️ 관리자 페이지</span>
+                                </div>
+                            </>
+                        )}
                         <div className='profile-menu-divider'></div>
                         <div
                             className='profile-menu-item'

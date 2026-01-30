@@ -9,7 +9,7 @@ import './style.css';
 import Pagination from 'types/interface/pagination.interface';
 import Paging from 'components/Paging';
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {YOUTUBE_SEARCH_PATH} from "../../constants";
+import {YOUTUBE_SEARCH_PATH, YOUTUBE_PATH} from "../../constants";
 import SearchAutocomplete from 'components/SearchAutocomplete';
 
 //  component: Youtube 컴포넌트  //
@@ -125,16 +125,45 @@ export default function Youtube() {
 
     return (
         <div className="youtube-wrapper">
-            <header className="youtube-header">
-                <h1>최신 개발 Youtube</h1>
+            <header className="youtube-hero">
+                <div className="hero-content">
+                    <h1 className="hero-title">개발 트렌드 영상 플랫폼</h1>
+                    <p className="hero-description">
+                        개발 트렌드와 최신 기술 영상을 불필요한 노이즈 없이 빠르게 탐색하고 시청하세요!
+                    </p>
 
-                <div className="youtube-search-box">
-                    <SearchAutocomplete
-                        value={word}
-                        onChange={onSearchWordChange}
-                        onSearch={onSearch}
-                        placeholder="검색어를 입력해주세요."
-                    />
+                    {/* 검색 상태에 따라 다른 UI 표시 */}
+                    {searchWord ? (
+                        <div className="search-result-info">
+                            <p className="search-result-text">
+                                <span className="search-keyword">"{searchWord}"</span>로 검색된 영상
+                                <span className="search-count"> {pagination ? pagination.totalElements.toLocaleString() : '0'}개</span>
+                            </p>
+                            <button className="view-all-btn" onClick={() => navigate(YOUTUBE_PATH())}>
+                                전체 목록 보기
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="hero-stats">
+                            <div className="stat-badge">
+                                <span className="stat-number">{pagination ? pagination.totalElements.toLocaleString() : '...'}</span>
+                                <span className="stat-label">개발 영상</span>
+                            </div>
+                            <div className="stat-badge">
+                                <span className="stat-number">50+</span>
+                                <span className="stat-label">채널</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="hero-search-box">
+                        <SearchAutocomplete
+                            value={word}
+                            onChange={onSearchWordChange}
+                            onSearch={onSearch}
+                            placeholder="영상 제목, 채널명으로 검색하세요"
+                        />
+                    </div>
                 </div>
             </header>
             <section className="video-grid">

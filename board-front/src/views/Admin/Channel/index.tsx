@@ -8,6 +8,9 @@ import {
     ChannelItem
 } from '../../../apis/response/admin';
 import {Trash2, Plus, X, Search} from 'lucide-react';
+import {useCookies} from 'react-cookie';
+import {useNavigate} from 'react-router-dom';
+import {AUTH_PATH} from '../../../constants';
 
 export default function AdminChannel() {
     const [channels, setChannels] = useState<ChannelItem[]>([]);
@@ -16,13 +19,22 @@ export default function AdminChannel() {
     const [isLoading, setIsLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{key: keyof ChannelItem, direction: 'asc' | 'desc'} | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [cookies] = useCookies();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchChannels();
     }, []);
 
     const fetchChannels = async () => {
-        const response = await getChannelListRequest();
+        const accessToken = cookies.accessToken;
+        if (!accessToken) {
+            alert('로그인이 필요합니다.');
+            navigate(AUTH_PATH());
+            return;
+        }
+
+        const response = await getChannelListRequest(accessToken);
         if (!response) {
             console.error('API 응답이 없습니다.');
             return;
@@ -42,8 +54,15 @@ export default function AdminChannel() {
             return;
         }
 
+        const accessToken = cookies.accessToken;
+        if (!accessToken) {
+            alert('로그인이 필요합니다.');
+            navigate(AUTH_PATH());
+            return;
+        }
+
         setIsLoading(true);
-        const response = await postChannelRequest({channelId: channelId.trim()});
+        const response = await postChannelRequest({channelId: channelId.trim()}, accessToken);
         setIsLoading(false);
 
         if (!response) {
@@ -77,7 +96,14 @@ export default function AdminChannel() {
             return;
         }
 
-        const response = await deleteChannelRequest(channelId);
+        const accessToken = cookies.accessToken;
+        if (!accessToken) {
+            alert('로그인이 필요합니다.');
+            navigate(AUTH_PATH());
+            return;
+        }
+
+        const response = await deleteChannelRequest(channelId, accessToken);
         if (!response) {
             alert('네트워크 오류가 발생했습니다.');
             return;

@@ -510,8 +510,8 @@ const GET_CHANNEL_LIST_URL = () => `${API_DOMAIN}/admin/channel`;
 const POST_CHANNEL_URL = () => `${API_DOMAIN}/admin/channel`;
 const DELETE_CHANNEL_URL = (channelId: string) => `${API_DOMAIN}/admin/channel/${channelId}`;
 
-export const getChannelListRequest = async () => {
-    const result = await axios.get(GET_CHANNEL_LIST_URL())
+export const getChannelListRequest = async (accessToken: string) => {
+    const result = await axios.get(GET_CHANNEL_LIST_URL(), authorization(accessToken))
         .then(response => {
             const responseBody: GetChannelListResponseDto = response.data;
             return responseBody;
@@ -524,8 +524,8 @@ export const getChannelListRequest = async () => {
     return result;
 };
 
-export const postChannelRequest = async (requestBody: PostChannelRequestDto) => {
-    const result = await axios.post(POST_CHANNEL_URL(), requestBody)
+export const postChannelRequest = async (requestBody: PostChannelRequestDto, accessToken: string) => {
+    const result = await axios.post(POST_CHANNEL_URL(), requestBody, authorization(accessToken))
         .then(response => {
             const responseBody: PostChannelResponseDto = response.data;
             return responseBody;
@@ -538,8 +538,8 @@ export const postChannelRequest = async (requestBody: PostChannelRequestDto) => 
     return result;
 };
 
-export const deleteChannelRequest = async (channelId: string) => {
-    const result = await axios.delete(DELETE_CHANNEL_URL(channelId))
+export const deleteChannelRequest = async (channelId: string, accessToken: string) => {
+    const result = await axios.delete(DELETE_CHANNEL_URL(channelId), authorization(accessToken))
         .then(response => {
             const responseBody: DeleteChannelResponseDto = response.data;
             return responseBody;
@@ -556,8 +556,8 @@ const GET_ADMIN_VIDEO_LIST_URL = (page: number, size: number) => `${API_DOMAIN}/
 const SEARCH_ADMIN_VIDEOS_URL = (channelTitle: string, page: number, size: number) =>
     `${API_DOMAIN}/admin/videos/search?channelTitle=${encodeURIComponent(channelTitle)}&page=${page}&size=${size}`;
 
-export const getAdminVideoListRequest = async (page: number = 0, size: number = 20) => {
-    const result = await axios.get(GET_ADMIN_VIDEO_LIST_URL(page, size))
+export const getAdminVideoListRequest = async (page: number = 0, size: number = 20, accessToken: string) => {
+    const result = await axios.get(GET_ADMIN_VIDEO_LIST_URL(page, size), authorization(accessToken))
         .then(response => {
             const responseBody: GetAdminVideoListResponseDto = response.data;
             return responseBody;
@@ -570,8 +570,8 @@ export const getAdminVideoListRequest = async (page: number = 0, size: number = 
     return result;
 };
 
-export const searchAdminVideosByChannelRequest = async (channelTitle: string, page: number = 0, size: number = 20) => {
-    const result = await axios.get(SEARCH_ADMIN_VIDEOS_URL(channelTitle, page, size))
+export const searchAdminVideosByChannelRequest = async (channelTitle: string, page: number = 0, size: number = 20, accessToken: string) => {
+    const result = await axios.get(SEARCH_ADMIN_VIDEOS_URL(channelTitle, page, size), authorization(accessToken))
         .then(response => {
             const responseBody: GetAdminVideoListResponseDto = response.data;
             return responseBody;
@@ -586,8 +586,8 @@ export const searchAdminVideosByChannelRequest = async (channelTitle: string, pa
 
 const DELETE_VIDEOS_URL = () => `${API_DOMAIN}/admin/videos`;
 
-export const deleteVideosRequest = async (requestBody: DeleteVideosRequestDto) => {
-    const result = await axios.delete(DELETE_VIDEOS_URL(), { data: requestBody })
+export const deleteVideosRequest = async (requestBody: DeleteVideosRequestDto, accessToken: string) => {
+    const result = await axios.delete(DELETE_VIDEOS_URL(), { data: requestBody, ...authorization(accessToken) })
         .then(response => {
             const responseBody: DeleteVideosResponseDto = response.data;
             return responseBody;

@@ -1,33 +1,228 @@
 .youtube-wrapper {
-    padding: 32px 40px;
-    max-width: 1500px;
-    margin: 0 auto;
+    padding: 0;
+    min-height: 100vh;
     background-color: var(--color-bg-primary);
     transition: background-color var(--transition-normal);
 }
 
-.youtube-header {
+/* ===== Hero Section ===== */
+.youtube-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 80px 40px 100px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: visible;
+    z-index: 10;
+}
+
+.youtube-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 32px;
+    gap: 32px;
 }
 
-.youtube-header h1 {
-    font-size: 28px;
+.hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin: 0;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.hero-description {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* ===== Stats Badges ===== */
+.hero-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 16px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.stat-badge:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+/* ===== Search Result Info ===== */
+.search-result-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.search-result-text {
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    margin: 0;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.search-keyword {
+    font-weight: 700;
+    color: #FFD93D;
+    font-size: 22px;
+}
+
+.search-count {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.view-all-btn {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    padding: 12px 32px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 16px;
-    color: var(--color-text-primary);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
-.search-box {
+.view-all-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.view-all-btn:active {
+    transform: translateY(0);
+}
+
+/* ===== Hero Search Box ===== */
+.hero-search-box {
+    width: 100%;
+    max-width: 800px;
+}
+
+/* SearchAutocomplete 컴포넌트 커스터마이징 */
+.hero-search-box .search-input-container {
+    height: 56px !important;
+    padding: 0 24px !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 50px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.hero-search-box .search-input-container:hover {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.hero-search-box .search-input-container:focus-within {
+    border-color: white !important;
+    background: white !important;
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-2px);
+}
+
+.hero-search-box .search-icon {
+    color: #667eea !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.hero-search-box .search-input-enhanced {
+    font-size: 16px !important;
+    padding: 0 16px !important;
+    color: #1a202c !important;
+    font-weight: 400 !important;
+}
+
+.hero-search-box .search-input-enhanced::placeholder {
+    color: #718096 !important;
+    font-weight: 400 !important;
+}
+
+.hero-search-box .clear-button {
+    color: #718096 !important;
+}
+
+.hero-search-box .clear-button:hover {
+    color: #1a202c !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 드롭다운 z-index 높이기 */
+.hero-search-box .suggestions-dropdown {
+    z-index: 9999 !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Legacy styles (keeping for compatibility) */
+.youtube-wrapper .search-box {
     display: flex;
     align-items: center;
     gap: 8px;
     justify-content: center;
 }
 
-.search-box input {
+.youtube-wrapper .search-box input {
     padding: 8px 12px;
     border: 1px solid var(--color-input-border);
     border-radius: var(--radius-md);
@@ -38,40 +233,103 @@
     transition: all var(--transition-fast);
 }
 
-.search-box input:focus {
+.youtube-wrapper .search-box input:focus {
     border-color: var(--color-input-focus);
     box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
     outline: none;
 }
 
-.search-box input::placeholder {
+.youtube-wrapper .search-box input::placeholder {
     color: var(--color-text-muted);
 }
 
-/* SearchAutocomplete 컴포넌트용 */
-.youtube-search-box {
-    width: 500px;
+.youtube-wrapper .youtube-search-box {
+    width: 100%;
     max-width: 100%;
-}
-
-.youtube-header h2 {
-    font-size: 24px;
-    margin-bottom: 24px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--color-text-primary);
-    transition: color var(--transition-normal);
 }
 
 .video-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
+    gap: 32px;
+    padding: 60px 40px;
+    max-width: 1500px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
-.main-bottom-pagination-box {
+.youtube-wrapper .main-bottom-pagination-box {
     margin-top: 20px;
+    padding-bottom: 60px;
     text-align: center;
     display: flex;
     justify-content: center;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .youtube-hero {
+        padding: 60px 24px 80px;
+    }
+
+    .hero-title {
+        font-size: 32px;
+    }
+
+    .hero-description {
+        font-size: 16px;
+    }
+
+    .hero-search-box {
+        max-width: 100%;
+    }
+
+    .hero-stats {
+        gap: 12px;
+    }
+
+    .stat-badge {
+        min-width: 120px;
+        padding: 12px 24px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    .search-result-text {
+        font-size: 18px;
+    }
+
+    .search-keyword {
+        font-size: 19px;
+    }
+
+    .view-all-btn {
+        padding: 10px 28px;
+        font-size: 14px;
+    }
+
+    /* 모바일 검색창 스타일 조정 */
+    .hero-search-box .search-input-container {
+        height: 48px !important;
+        padding: 0 20px !important;
+    }
+
+    .hero-search-box .search-icon {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    .hero-search-box .search-input-enhanced {
+        font-size: 15px !important;
+        padding: 0 12px !important;
+    }
+
+    .video-grid {
+        padding: 40px 24px;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
 }

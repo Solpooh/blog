@@ -8,6 +8,9 @@ import {
 import {AdminVideoItem, GetAdminVideoListResponseDto} from '../../../apis/response/admin';
 import {Trash2, Search} from 'lucide-react';
 import Paging from '../../../components/Paging';
+import {useCookies} from 'react-cookie';
+import {useNavigate} from 'react-router-dom';
+import {AUTH_PATH} from '../../../constants';
 
 export default function AdminVideo() {
     const [videos, setVideos] = useState<AdminVideoItem[]>([]);
@@ -16,16 +19,25 @@ export default function AdminVideo() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const pageSize = 20;
+    const [cookies] = useCookies();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchVideos(1); // 1-based index
     }, []);
 
     const fetchVideos = async (page: number) => {
+        const accessToken = cookies.accessToken;
+        if (!accessToken) {
+            alert('로그인이 필요합니다.');
+            navigate(AUTH_PATH());
+            return;
+        }
+
         const pageIndex = page - 1; // 0-based index
         const response = isSearching
-            ? await searchAdminVideosByChannelRequest(searchQuery, pageIndex, pageSize)
-            : await getAdminVideoListRequest(pageIndex, pageSize);
+            ? await searchAdminVideosByChannelRequest(searchQuery, pageIndex, pageSize, accessToken)
+            : await getAdminVideoListRequest(pageIndex, pageSize, accessToken);
 
         if (!response) {
             console.error('API 응답이 없습니다.');
@@ -98,7 +110,14 @@ export default function AdminVideo() {
             return;
         }
 
-        const response = await deleteVideosRequest({ videoIds: Array.from(selectedVideos) });
+        const accessToken = cookies.accessToken;
+        if (!accessToken) {
+            alert('로그인이 필요합니다.');
+            navigate(AUTH_PATH());
+            return;
+        }
+
+        const response = await deleteVideosRequest({ videoIds: Array.from(selectedVideos) }, accessToken);
         if (!response) {
             alert('네트워크 오류가 발생했습니다.');
             return;
