@@ -1,5 +1,7 @@
 package com.solpooh.boardback.provider;
 
+import com.solpooh.boardback.dto.common.JwtClaims;
+import com.solpooh.boardback.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,7 +20,7 @@ public class JwtProvider {
     @Value("${secret-key}")
     private String secretKey;
 
-    public String create(String email) {
+    public String create(String email, UserEntity.Role role) {
         // 만료시간 = 현재시간으로부터 3시간 후
         Date expiredDate = Date.from(Instant.now().plus(3, ChronoUnit.HOURS));
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -26,12 +28,13 @@ public class JwtProvider {
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(email) // 토큰의 주체(subject) 설정
+                .claim("role", role.name()) // role 정보 추가
                 .setIssuedAt(new Date()) // 발급 시간을 현재 시간으로
                 .setExpiration(expiredDate) // 만료시간 설정
                 .compact();
     }
 
-    public String validate(String jwt) {
+    public JwtClaims validate(String jwt) {
         Claims claims = null;
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
@@ -46,6 +49,10 @@ public class JwtProvider {
             return null;
         }
 
-        return claims.getSubject();
+        String email = claims.getSubject();
+        String roleStr = claims.get("role", String.class);
+        UserEntity.Role role = roleStr != null ? UserEntity.Role.valueOf(roleStr) : UserEntity.Role.USER;
+
+        return new JwtClaims(email, role);
     }
 }

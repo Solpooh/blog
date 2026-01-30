@@ -45,6 +45,7 @@ public class TranscriptEntity extends BaseTimeEntity {
     public enum TranscriptStatus {
         PROCESSING,  // 처리 중
         COMPLETED,   // 완료
-        FAILED       // 실패 (재처리 가능)
+        FAILED,      // 실패 (재처리 가능)
+        UNAVAILABLE  // 자막 없음 (영구적, 재시도 불가)
     }
 }

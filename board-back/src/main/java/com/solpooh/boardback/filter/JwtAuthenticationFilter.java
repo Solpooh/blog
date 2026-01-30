@@ -1,5 +1,6 @@
 package com.solpooh.boardback.filter;
 
+import com.solpooh.boardback.dto.common.JwtClaims;
 import com.solpooh.boardback.provider.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -50,15 +52,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // JWT 클레임에서 email 추출
-            String email = jwtProvider.validate(token);
-            if (email == null) {
+            // JWT 클레임에서 email과 role 추출
+            JwtClaims jwtClaims = jwtProvider.validate(token);
+            if (jwtClaims == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            // Spring Security의 인증 객체 생성
+
+            String email = jwtClaims.email();
+            // role을 Spring Security의 GrantedAuthority로 변환 (ROLE_ prefix 필요)
+            List<SimpleGrantedAuthority> authorities = List.of(
+                    new SimpleGrantedAuthority("ROLE_" + jwtClaims.role().name())
+            );
+
+            // Spring Security의 인증 객체 생성 (권한 정보 포함)
             AbstractAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.NO_AUTHORITIES);
+                    new UsernamePasswordAuthenticationToken(email, null, authorities);
             // 요청(Request)과 연결된 세부 인증 정보 설정
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

@@ -60,7 +60,7 @@ public class VideoBatchScheduler {
     }
 
     // 24시간 주기 - 비디오 Score 계산
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void postDailyCalculate() {
         String jobName = "VIDEO_SCORE_UPDATE";
         log.info("[BATCH:{}] 시작", jobName);

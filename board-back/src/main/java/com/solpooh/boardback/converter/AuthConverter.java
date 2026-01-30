@@ -16,6 +16,7 @@ public class AuthConverter {
                 .address(dto.address())
                 .addressDetail(dto.addressDetail())
                 .agreedPersonal(dto.agreedPersonal())
+                .role(UserEntity.Role.USER) // 기본 role은 USER
                 .build();
     }
 

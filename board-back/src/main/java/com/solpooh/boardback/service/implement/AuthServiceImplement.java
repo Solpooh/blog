@@ -45,8 +45,8 @@ public class AuthServiceImplement implements AuthService {
         if (!passwordEncoder.matches(dto.password(), userEntity.getPassword()))
             throw new CustomException(ResponseApi.SIGN_IN_FAIL);
 
-        String token = jwtProvider.create(dto.email());
+        String token = jwtProvider.create(dto.email(), userEntity.getRole());
 
-        return new SignInResponse(token, 3600);
+        return new SignInResponse(token, 3600, userEntity.getRole().name());
     }
 }

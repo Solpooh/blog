@@ -13,12 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 // 관리자용 API 호출 컨트롤러
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
+@PreAuthorize("hasRole('ADMIN')") // 클래스 레벨 보안: 모든 메서드에 ADMIN 권한 필요
 public class AdminController {
     private final YoutubeBatchService youtubeBatchService;
     private final VideoIndexService videoIndexService;

@@ -8,7 +8,8 @@ public class UserConverter {
         return new GetUserResponse(
                 userEntity.getEmail(),
                 userEntity.getNickname(),
-                userEntity.getProfileImage()
+                userEntity.getProfileImage(),
+                userEntity.getRole().name()
         );
     }
 }

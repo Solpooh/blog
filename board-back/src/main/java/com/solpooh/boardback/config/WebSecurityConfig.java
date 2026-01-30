@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -16,6 +17,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,6 +28,7 @@ import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity // WebSecurity에 대한 config
+@EnableMethodSecurity // 메서드 레벨 보안 활성화
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -41,13 +45,16 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않음 (stateless)
                 )
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/api/v1/channel/**", "/api/v1/video/**", "/actuator/prometheus", "/api/v1/admin/**").permitAll()
+                        .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/api/v1/channel/**", "/api/v1/video/**", "/actuator/prometheus").permitAll()
                         // GET 메서드 사용하는 것들에는 인증X
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*", "/api/v1/channel/**").permitAll()
+                        // 관리자 API는 ADMIN 권한 필요
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -81,5 +88,15 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         // 인증 실패시 반환 코드
         response.getWriter().write("{\"code\": \"AF\", \"message\": \"Authorization Failed.\"}");
+    }
+}
+
+class CustomAccessDeniedHandler implements AccessDeniedHandler {
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        // 권한 부족 시 반환 코드
+        response.getWriter().write("{\"code\": \"NP\", \"message\": \"No Permission. Admin role required.\"}");
     }
 }

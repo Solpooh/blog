@@ -11,19 +11,23 @@ import com.solpooh.boardback.repository.TranscriptRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
- * Transcript 서비스 (동시성 제어 적용)
- * - DB 레벨 CAS(Compare-And-Set)로 중복 처리 방지
- * - TranscriptEntity 분리로 Video 테이블 복잡도 감소
+ * Transcript 서비스
+ *
+ * 동시성 제어: DB 레벨 CAS로 중복 처리 방지
+ * 재시도 제한: 3회 실패 시 UNAVAILABLE 상태로 영구 변경
+ *
+ * 주의: self-injection을 사용하여 같은 클래스 내 @Transactional 메서드 호출 시
+ *       프록시를 통해 REQUIRES_NEW가 제대로 작동하도록 함
  */
 @Slf4j
 @Service
@@ -37,190 +41,229 @@ public class TranscriptService {
     private static final int MAX_RETRY_COUNT = 3;
 
     /**
-     * Transcript 조회 및 처리
-     * 1. 기존 상태 확인 (COMPLETED / PROCESSING / FAILED)
-     * 2. Lock 획득 시도 (DB 레벨 CAS)
-     * 3. 처리 실행 또는 적절한 응답 반환
+     * Self-injection: 같은 클래스 내 트랜잭션 메서드 호출 시 프록시를 통하도록 함
      */
-    @Transactional
+    @Lazy
+    @Autowired
+    private TranscriptService self;
+
+    /**
+     * Transcript 조회
+     *
+     * 상태별 처리:
+     * - COMPLETED: 즉시 반환
+     * - PROCESSING: 폴링 유도 (202 ACCEPTED)
+     * - UNAVAILABLE: 자막 없음 (404 NOT FOUND)
+     * - FAILED: 재시도 가능 여부 확인 후 처리
+     * - 없음: 신규 처리 시작
+     */
+    @Transactional(readOnly = true)
     public GetTranscriptResponse getTranscript(String videoId) {
-        // 1. 기존 Transcript 상태 확인
-        Optional<TranscriptEntity> existedTranscript = transcriptRepository.findById(videoId);
+        return transcriptRepository.findById(videoId)
+                .map(entity -> handleExistingTranscript(videoId, entity))
+                .orElseGet(() -> startNewTranscript(videoId));
+    }
 
-        if (existedTranscript.isPresent()) {
-            TranscriptEntity entity = existedTranscript.get();
+    /**
+     * 기존 Transcript 상태별 처리
+     */
+    private GetTranscriptResponse handleExistingTranscript(String videoId, TranscriptEntity entity) {
+        switch (entity.getStatus()) {
+            case COMPLETED:
+                log.debug("Transcript 캐시 히트 - videoId: {}", videoId);
+                return new GetTranscriptResponse(entity.getSummarizedTranscript());
 
-            switch (entity.getStatus()) {
-                case COMPLETED:
-                    log.debug("Transcript 캐시 히트 - videoId: {}", videoId);
-                    return new GetTranscriptResponse(entity.getSummarizedTranscript());
+            case PROCESSING:
+                log.info("Transcript 처리 중 - videoId: {}", videoId);
+                throw new CustomException(ResponseApi.TRANSCRIPT_PROCESSING);
 
-                case PROCESSING:
-                    log.info("Transcript 이미 처리 중 - videoId: {}", videoId);
-                    throw new CustomException(ResponseApi.TRANSCRIPT_PROCESSING);
+            case UNAVAILABLE:
+                log.info("Transcript 자막 없음 - videoId: {}", videoId);
+                throw new CustomException(ResponseApi.TRANSCRIPT_UNAVAILABLE);
 
-                case FAILED:
-                    return handleFailedTranscript(entity);
-            }
-        }
+            case FAILED:
+                return retryFailedTranscript(videoId, entity.getRetryCount());
 
-        // 2. Lock 획득 시도 (DB 레벨 CAS)
-        boolean acquired = tryAcquireLockSafely(videoId);
-
-        if (!acquired) {
-            // Race condition: 다른 요청이 방금 Lock을 획득함
-            log.info("Transcript 처리 중 (동시 요청) - videoId: {}", videoId);
-            throw new CustomException(ResponseApi.TRANSCRIPT_PROCESSING);
-        }
-
-        // 3. Lock 획득 성공 → 처리 시작
-        log.info("Transcript 처리 시작 - videoId: {}", videoId);
-        try {
-            return processAndSaveTranscript(videoId);
-        } catch (Exception e) {
-            log.error("Transcript 처리 실패 - videoId: {}, error: {}", videoId, e.getMessage(), e);
-            markAsFailed(videoId, e.getMessage());
-            throw new CustomException(ResponseApi.TRANSCRIPT_FAILED);
+            default:
+                throw new IllegalStateException("Unknown transcript status: " + entity.getStatus());
         }
     }
 
     /**
-     * FAILED 상태 Transcript 처리
-     * - 재시도 횟수 확인 후 재처리 또는 에러 반환
+     * 신규 Transcript 처리 시작
      */
-    private GetTranscriptResponse handleFailedTranscript(TranscriptEntity entity) {
-        String videoId = entity.getVideoId();
+    private GetTranscriptResponse startNewTranscript(String videoId) {
+        // self를 통해 프록시 호출 → REQUIRES_NEW 트랜잭션 적용
+        if (!self.acquireProcessingLock(videoId)) {
+            log.info("Transcript 동시 요청 감지 - videoId: {}", videoId);
+            throw new CustomException(ResponseApi.TRANSCRIPT_PROCESSING);
+        }
 
+        log.info("Transcript 신규 처리 시작 - videoId: {}", videoId);
+        return executeTranscriptProcessing(videoId);
+    }
+
+    /**
+     * 실패한 Transcript 재시도
+     */
+    private GetTranscriptResponse retryFailedTranscript(String videoId, int currentRetryCount) {
         // 재시도 횟수 초과 확인
-        if (entity.getRetryCount() >= MAX_RETRY_COUNT) {
+        if (currentRetryCount >= MAX_RETRY_COUNT) {
             log.warn("Transcript 재시도 횟수 초과 - videoId: {}, retryCount: {}",
-                    videoId, entity.getRetryCount());
-            throw new CustomException(ResponseApi.TRANSCRIPT_RETRY_EXHAUSTED);
+                    videoId, currentRetryCount);
+            // self를 통해 프록시 호출 → REQUIRES_NEW 트랜잭션 적용
+            self.markAsUnavailablePermanently(videoId);
+            throw new CustomException(ResponseApi.TRANSCRIPT_UNAVAILABLE);
         }
 
-        // 재시도 가능 → FAILED 상태 삭제 후 재처리
-        log.info("Transcript 재처리 시도 - videoId: {}, retryCount: {}/{}",
-                videoId, entity.getRetryCount() + 1, MAX_RETRY_COUNT);
-
-        boolean acquired = resetAndAcquireLock(videoId, entity.getRetryCount());
-
-        if (!acquired) {
-            // 다른 요청이 먼저 재시도 시작
+        // self를 통해 프록시 호출 → REQUIRES_NEW 트랜잭션 적용
+        if (!self.acquireRetryLock(videoId, currentRetryCount)) {
+            log.info("Transcript 동시 재시도 요청 감지 - videoId: {}", videoId);
             throw new CustomException(ResponseApi.TRANSCRIPT_PROCESSING);
         }
 
-        try {
-            return processAndSaveTranscript(videoId);
-        } catch (Exception e) {
-            log.error("Transcript 재처리 실패 - videoId: {}, error: {}", videoId, e.getMessage(), e);
-            markAsFailed(videoId, e.getMessage());
-            throw new CustomException(ResponseApi.TRANSCRIPT_FAILED);
-        }
+        log.info("Transcript 재시도 시작 - videoId: {}, 시도: {}/{}",
+                videoId, currentRetryCount + 1, MAX_RETRY_COUNT);
+        return executeTranscriptProcessing(videoId);
     }
 
     /**
-     * DB 레벨 CAS로 Lock 획득 (예외 안전)
+     * Transcript 처리 실행 (yt-dlp + AI 요약 + DB 저장)
      */
-    private boolean tryAcquireLockSafely(String videoId) {
+    private GetTranscriptResponse executeTranscriptProcessing(String videoId) {
         try {
-            return tryAcquireLock(videoId);
-        } catch (CustomException e) {
-            throw e; // NOT_EXISTED_VIDEO 등 비즈니스 예외는 그대로 전파
+            // 1. yt-dlp로 자막 추출
+            Path transcriptPath = transcriptFetcher.fetchTranscriptJson(videoId);
+            String rawTranscript = TranscriptConverter.parseTranscript(transcriptPath);
+            log.debug("자막 추출 완료 - videoId: {}, length: {}", videoId, rawTranscript.length());
+
+            // 2. AI 요약
+            String summarized = summaryAgent.summarize(rawTranscript);
+            log.debug("AI 요약 완료 - videoId: {}, length: {}", videoId, summarized.length());
+
+            // 3. COMPLETED 상태로 저장 (self를 통해 프록시 호출)
+            self.completeTranscript(videoId, summarized);
+            log.info("Transcript 처리 완료 - videoId: {}", videoId);
+
+            return new GetTranscriptResponse(summarized);
+
         } catch (Exception e) {
-            log.error("Lock 획득 중 예외 발생 - videoId: {}, error: {}", videoId, e.getMessage(), e);
+            log.error("Transcript 처리 실패 - videoId: {}, error: {}", videoId, e.getMessage());
+            // self를 통해 프록시 호출 → REQUIRES_NEW 트랜잭션 적용 (별도 커밋)
+            self.handleProcessingFailure(videoId, e.getMessage());
             throw new CustomException(ResponseApi.TRANSCRIPT_FAILED);
         }
     }
 
     /**
-     * DB 레벨 CAS로 Lock 획득
-     * - INSERT ON DUPLICATE KEY UPDATE로 Atomic 연산
-     * - 반환값: 1 = 성공, 0 = 실패 (이미 존재)
+     * 처리 실패 시 상태 업데이트
+     * retry_count를 1 증가시키고, MAX_RETRY_COUNT 도달 시 UNAVAILABLE로 변경
+     *
+     * 주의: 반드시 self를 통해 호출해야 REQUIRES_NEW가 적용됨
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean tryAcquireLock(String videoId) {
-        // Video 존재 여부 확인
+    public void handleProcessingFailure(String videoId, String errorMessage) {
+        int updatedRows = transcriptRepository.incrementRetryCountAndMarkFailed(videoId, errorMessage);
+        log.debug("실패 처리 업데이트 - videoId: {}, updatedRows: {}", videoId, updatedRows);
+
+        if (updatedRows > 0) {
+            // 업데이트된 retry_count 확인
+            transcriptRepository.findById(videoId).ifPresent(entity -> {
+                int retryCount = entity.getRetryCount();
+
+                if (retryCount >= MAX_RETRY_COUNT) {
+                    // 재시도 횟수 초과 → UNAVAILABLE로 영구 변경
+                    entity.setStatus(TranscriptEntity.TranscriptStatus.UNAVAILABLE);
+                    entity.setErrorMessage("재시도 횟수 초과: 자막을 제공하지 않는 영상입니다");
+                    transcriptRepository.save(entity);
+                    log.warn("Transcript 재시도 한계 도달 → UNAVAILABLE 전환 - videoId: {}, retryCount: {}",
+                            videoId, retryCount);
+                } else {
+                    log.warn("Transcript 실패 (재시도 가능) - videoId: {}, retryCount: {}/{}",
+                            videoId, retryCount, MAX_RETRY_COUNT);
+                }
+            });
+        }
+    }
+
+    // ==================== Lock 관리 ====================
+
+    /**
+     * 신규 처리용 Lock 획득
+     * INSERT를 통해 PROCESSING 상태로 생성 (retry_count=0)
+     *
+     * 주의: 반드시 self를 통해 호출해야 REQUIRES_NEW가 적용됨
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean acquireProcessingLock(String videoId) {
         if (!videoRepository.existsByVideoId(videoId)) {
             throw new CustomException(ResponseApi.NOT_EXISTED_VIDEO);
         }
 
-        // DB 레벨 CAS 실행
         int affected = transcriptRepository.tryAcquireProcessingLock(videoId);
         boolean acquired = affected > 0;
 
         if (acquired) {
             log.debug("Lock 획득 성공 - videoId: {}", videoId);
         } else {
-            log.debug("Lock 획득 실패 (이미 처리 중) - videoId: {}", videoId);
+            log.debug("Lock 획득 실패 (이미 존재) - videoId: {}", videoId);
         }
 
         return acquired;
     }
 
     /**
-     * FAILED 상태 → PROCESSING으로 변경하며 Lock 획득 (재시도용)
-     * CAS로 동시 재시도 방지
+     * 재시도용 Lock 획득
+     * FAILED → PROCESSING 전환 및 retry_count 증가 (CAS)
+     *
+     * 주의: 반드시 self를 통해 호출해야 REQUIRES_NEW가 적용됨
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean resetAndAcquireLock(String videoId, int expectedRetryCount) {
+    public boolean acquireRetryLock(String videoId, int expectedRetryCount) {
         int affected = transcriptRepository.resetFailedToProcessing(videoId, expectedRetryCount);
         boolean acquired = affected > 0;
 
         if (acquired) {
-            log.debug("FAILED → PROCESSING 전환 성공 - videoId: {}", videoId);
+            log.debug("재시도 Lock 획득 - videoId: {}, retryCount: {} → {}",
+                    videoId, expectedRetryCount, expectedRetryCount + 1);
         } else {
-            log.debug("FAILED → PROCESSING 전환 실패 (동시 요청) - videoId: {}", videoId);
+            log.debug("재시도 Lock 실패 (동시 요청) - videoId: {}", videoId);
         }
 
         return acquired;
     }
 
+    // ==================== 상태 변경 ====================
+
     /**
-     * Transcript 처리 및 저장
-     * 1. yt-dlp 실행
-     * 2. AI 요약
-     * 3. DB 저장 (COMPLETED 상태)
+     * COMPLETED 상태로 변경
+     *
+     * 주의: 반드시 self를 통해 호출해야 REQUIRES_NEW가 적용됨
      */
-    private GetTranscriptResponse processAndSaveTranscript(String videoId) throws IOException, InterruptedException {
-        // 1. yt-dlp 실행 → 자막 파싱
-        Path path = transcriptFetcher.fetchTranscriptJson(videoId);
-        String rawTranscript = TranscriptConverter.parseTranscript(path);
-
-        log.debug("yt-dlp 완료 - videoId: {}, length: {}", videoId, rawTranscript.length());
-
-        // 2. AI 요약
-        String summarized = summaryAgent.summarize(rawTranscript);
-
-        log.debug("AI 요약 완료 - videoId: {}, length: {}", videoId, summarized.length());
-
-        // 3. DB 저장
-        TranscriptEntity entity = transcriptRepository.findById(videoId)
-                .orElseThrow(() -> new IllegalStateException("Lock acquired but entity not found"));
-
-        entity.setSummarizedTranscript(summarized);
-        entity.setStatus(TranscriptEntity.TranscriptStatus.COMPLETED);
-        entity.setCompletedAt(LocalDateTime.now());
-
-        transcriptRepository.save(entity);
-
-        log.info("Transcript 처리 완료 - videoId: {}", videoId);
-
-        return new GetTranscriptResponse(summarized);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void completeTranscript(String videoId, String summarizedTranscript) {
+        transcriptRepository.findById(videoId).ifPresent(entity -> {
+            entity.setSummarizedTranscript(summarizedTranscript);
+            entity.setStatus(TranscriptEntity.TranscriptStatus.COMPLETED);
+            entity.setCompletedAt(LocalDateTime.now());
+            entity.setErrorMessage(null);
+            transcriptRepository.save(entity);
+        });
     }
 
     /**
-     * 처리 실패 시 FAILED 상태로 변경
+     * UNAVAILABLE 상태로 영구 변경 (자막 제공 불가)
+     *
+     * 주의: 반드시 self를 통해 호출해야 REQUIRES_NEW가 적용됨
      */
-    @Transactional
-    public void markAsFailed(String videoId, String errorMessage) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markAsUnavailablePermanently(String videoId) {
         transcriptRepository.findById(videoId).ifPresent(entity -> {
-            entity.setStatus(TranscriptEntity.TranscriptStatus.FAILED);
-            entity.setErrorMessage(errorMessage);
-            entity.setRetryCount(entity.getRetryCount() + 1);
+            entity.setStatus(TranscriptEntity.TranscriptStatus.UNAVAILABLE);
+            entity.setErrorMessage("재시도 횟수 초과: 자막을 제공하지 않는 영상입니다");
             transcriptRepository.save(entity);
 
-            log.warn("Transcript FAILED 상태로 변경 - videoId: {}, retryCount: {}",
-                    videoId, entity.getRetryCount());
+            log.warn("Transcript UNAVAILABLE 상태로 영구 변경 - videoId: {}", videoId);
         });
     }
 }

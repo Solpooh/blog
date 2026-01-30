@@ -11,7 +11,8 @@
       "Bash(find:*)",
       "WebFetch(domain:mp4.okdevtv.com)",
       "Bash(curl:*)",
-      "mcp__notion__notion-update-page"
+      "mcp__notion__notion-update-page",
+      "Bash(dir:*)"
     ]
   }
 }
