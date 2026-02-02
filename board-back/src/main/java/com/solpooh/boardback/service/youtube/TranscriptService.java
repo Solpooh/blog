@@ -138,7 +138,7 @@ public class TranscriptService {
             log.debug("자막 추출 완료 - videoId: {}, length: {}", videoId, rawTranscript.length());
 
             // 2. AI 요약
-            String summarized = summaryAgent.summarize(rawTranscript);
+            String summarized = summaryAgent.summarizeVideo(rawTranscript);
             log.debug("AI 요약 완료 - videoId: {}, length: {}", videoId, summarized.length());
 
             // 3. COMPLETED 상태로 저장 (self를 통해 프록시 호출)

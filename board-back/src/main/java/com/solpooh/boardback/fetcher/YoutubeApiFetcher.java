@@ -26,7 +26,7 @@ public class YoutubeApiFetcher {
             YouTube.Activities.List request = youtube.activities()
                     .list("snippet, contentDetails")
                     .setChannelId(channelId)
-                    .setMaxResults(10L)
+                    .setMaxResults(15L)
                     .setKey(apiKey);
 
             return request.execute().getItems();

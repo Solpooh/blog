@@ -49,8 +49,9 @@ public class VideoServiceImplement implements VideoService {
                 .toList();
 
         Pagination<VideoResponse> pagedList = Pagination.of(videoEntities, videoList);
+        Long totalChannelCount = channelRepository.count();
 
-        return new GetVideoListResponse(pagedList);
+        return new GetVideoListResponse(pagedList, totalChannelCount);
     }
 
     @Override

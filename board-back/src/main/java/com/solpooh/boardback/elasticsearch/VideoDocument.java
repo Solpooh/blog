@@ -35,4 +35,8 @@ public class VideoDocument {
     private Boolean isShort;
     @Field(type = FieldType.Text)
     private String transcript;
+    @Field(type = FieldType.Keyword)
+    private String mainCategory;
+    @Field(type = FieldType.Keyword)
+    private String subCategory;
 }

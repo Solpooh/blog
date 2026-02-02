@@ -27,6 +27,7 @@ public class AdminController {
     private final CacheService cacheService;
     private final ChannelService channelService;
     private final VideoService videoService;
+
     // ===== 수동 API 호출 -> Video 관리 =====
 
     @PostMapping("/video")

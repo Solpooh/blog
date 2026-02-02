@@ -2,6 +2,8 @@ package com.solpooh.boardback.entity;
 
 import com.solpooh.boardback.converter.JsonStringListConverter;
 import com.solpooh.boardback.entity.base.BaseTimeEntity;
+import com.solpooh.boardback.enums.MainCategory;
+import com.solpooh.boardback.enums.SubCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,4 +54,12 @@ public class VideoEntity extends BaseTimeEntity {
     @Column(columnDefinition = "json")
     @Convert(converter = JsonStringListConverter.class)
     private List<String> tags;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "main_category", length = 50)
+    private MainCategory mainCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sub_category", length = 50)
+    private SubCategory subCategory;
 }

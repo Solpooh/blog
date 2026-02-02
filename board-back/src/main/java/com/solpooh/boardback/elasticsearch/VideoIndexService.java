@@ -78,6 +78,8 @@ public class VideoIndexService {
         doc.setPublishedAt(entity.getPublishedAt().toString());
         doc.setViewCount(entity.getViewCount());
         doc.setIsShort(entity.isShort());
+        doc.setMainCategory(entity.getMainCategory() != null ? entity.getMainCategory().name() : null);
+        doc.setSubCategory(entity.getSubCategory() != null ? entity.getSubCategory().name() : null);
 
         return doc;
     }
@@ -123,6 +125,28 @@ public class VideoIndexService {
             log.debug("ES transcript 업데이트 완료: {}", videoId);
         } catch (Exception e) {
             log.warn("ES transcript 업데이트 실패: {} - {}", videoId, e.getMessage());
+        }
+    }
+
+    /**
+     * category 필드만 부분 업데이트
+     */
+    public void updateCategoryFields(String videoId, String mainCategory, String subCategory) {
+        IndexCoordinates index = IndexCoordinates.of("video");
+
+        Document updateDoc = Document.create();
+        updateDoc.put("mainCategory", mainCategory);
+        updateDoc.put("subCategory", subCategory);
+
+        UpdateQuery updateQuery = UpdateQuery.builder(videoId)
+                .withDocument(updateDoc)
+                .build();
+
+        try {
+            elasticsearchOperations.update(updateQuery, index);
+            log.debug("ES category 업데이트 완료: {} - main={}, sub={}", videoId, mainCategory, subCategory);
+        } catch (Exception e) {
+            log.warn("ES category 업데이트 실패: {} - {}", videoId, e.getMessage());
         }
     }
 

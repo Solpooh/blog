@@ -40,8 +40,8 @@ public class VideoBatchScheduler {
         }
     }
 
-    // 1시간 주기 - Score 기반 비디오 메타데이터 갱신
-    @Scheduled(cron = "0 0 * * * *")
+    // 3시간 주기 - Score 기반 비디오 메타데이터 갱신
+    @Scheduled(cron = "0 0 */3 * * *")
     public void postMinutelyVideoData() {
         String jobName = "VIDEO_DATA_UPDATE";
         log.info("[BATCH:{}] 시작", jobName);
@@ -59,7 +59,7 @@ public class VideoBatchScheduler {
         }
     }
 
-    // 24시간 주기 - 비디오 Score 계산
+    // 1시간 주기 - 비디오 Score 계산
     @Scheduled(cron = "0 0 * * * *")
     public void postDailyCalculate() {
         String jobName = "VIDEO_SCORE_UPDATE";

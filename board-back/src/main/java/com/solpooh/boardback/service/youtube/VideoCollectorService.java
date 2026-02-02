@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * Phase 1: 영상 수집 전용 서비스
  * - 외부 API 호출 (트랜잭션 외부)
  * - DB 저장 + ES 인덱싱 (단일 트랜잭션)
- * - Transcript 처리 이벤트 발행
+ * - Transcript 처리 이벤트 발행 (자막 분석 + 카테고리 분류는 TranscriptAsyncService에서 처리)
  */
 @Slf4j
 @Service
@@ -51,7 +51,7 @@ public class VideoCollectorService {
      * 1. Activities API 병렬 호출 (트랜잭션 외부)
      * 2. Video API 호출 (트랜잭션 외부)
      * 3. DB 저장 + ES 인덱싱 (트랜잭션 내부)
-     * 4. Transcript 처리 이벤트 발행
+     * 4. Transcript 처리 이벤트 발행 (자막 분석 + 카테고리 자동 분류)
      */
     public PostVideoResponse collectVideos() {
         List<String> channelIds = channelRepository.findAllIds();
@@ -85,7 +85,7 @@ public class VideoCollectorService {
 
         log.info("신규 영상 {}개 저장 완료", savedVideoIds.size());
 
-        // Phase 2 트리거: Transcript 비동기 처리 이벤트 발행
+        // Phase 2 트리거: Transcript 비동기 처리 이벤트 발행 (자막 분석 + 카테고리 분류 포함)
         if (!savedVideoIds.isEmpty()) {
             eventPublisher.publishEvent(new NewVideosCollectedEvent(this, savedVideoIds));
         }
