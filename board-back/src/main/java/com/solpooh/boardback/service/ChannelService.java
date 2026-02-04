@@ -10,4 +10,7 @@ public interface ChannelService {
     GetChannelListResponse getChannelList();
     PostChannelResponse addChannel(PostChannelRequest request);
     DeleteChannelResponse deleteChannel(String channelId);
+
+    // 캐시된 채널 총 개수 조회
+    Long getTotalChannelCount();
 }

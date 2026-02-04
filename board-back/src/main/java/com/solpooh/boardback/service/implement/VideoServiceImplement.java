@@ -14,6 +14,7 @@ import com.solpooh.boardback.enums.SortType;
 import com.solpooh.boardback.enums.SubCategory;
 import com.solpooh.boardback.repository.ChannelRepository;
 import com.solpooh.boardback.repository.VideoRepository;
+import com.solpooh.boardback.service.ChannelService;
 import com.solpooh.boardback.service.VideoService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class VideoServiceImplement implements VideoService {
     private final CacheService cacheService;
     private final ChannelRepository channelRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final ChannelService channelService;
 
 
     @Override
@@ -57,7 +59,7 @@ public class VideoServiceImplement implements VideoService {
                 .toList();
 
         Pagination<VideoResponse> pagedList = Pagination.of(videoEntities, videoList);
-        Long totalChannelCount = channelRepository.count();
+        Long totalChannelCount = channelService.getTotalChannelCount();
 
         return new GetVideoListResponse(pagedList, totalChannelCount);
     }
@@ -118,27 +120,55 @@ public class VideoServiceImplement implements VideoService {
 
     @Override
     public GetCategoryStatsResponse getCategoryStats() {
+        // GROUP BY 한방 쿼리로 모든 카테고리 통계 조회
+        var statsResults = videoRepository.getCategoryStatsGroupBy();
+
+        // MainCategory별로 그룹핑
+        Map<String, Map<String, Long>> categoryMap = new HashMap<>();
+        Map<String, Long> mainCategoryTotals = new HashMap<>();
+
+        for (var result : statsResults) {
+            String mainCat = result.getMainCategory();
+            String subCat = result.getSubCategory();
+            Long count = result.getCount();
+
+            // MainCategory별 SubCategory 맵 생성
+            categoryMap.computeIfAbsent(mainCat, k -> new HashMap<>())
+                    .put(subCat != null ? subCat : "NONE", count);
+
+            // MainCategory별 총합 계산
+            mainCategoryTotals.merge(mainCat, count, Long::sum);
+        }
+
+        // Response 객체 생성
         List<GetCategoryStatsResponse.MainCategoryStats> categoryStatsList = new ArrayList<>();
 
         for (MainCategory mainCategory : MainCategory.values()) {
-            Long mainCount = videoRepository.countByMainCategory(mainCategory);
+            String mainCatName = mainCategory.name();
+            Long mainCount = mainCategoryTotals.get(mainCatName);
 
-            // count가 0인 대분류는 제외
-            if (mainCount == 0) {
+            // count가 0이거나 없는 대분류는 제외
+            if (mainCount == null || mainCount == 0) {
                 continue;
             }
 
-            // 해당 대분류에 속하는 소분류 통계 조회
+            // 해당 대분류의 소분류 통계
+            Map<String, Long> subMap = categoryMap.get(mainCatName);
             List<GetCategoryStatsResponse.SubCategoryStats> subCategoryStatsList = new ArrayList<>();
-            for (SubCategory subCategory : SubCategory.values()) {
-                if (subCategory.getMainCategory() == mainCategory) {
-                    Long subCount = videoRepository.countBySubCategory(mainCategory, subCategory);
-                    if (subCount > 0) {
-                        subCategoryStatsList.add(new GetCategoryStatsResponse.SubCategoryStats(
-                                subCategory.name(),
-                                subCategory.getDisplayName(),
-                                subCount
-                        ));
+
+            if (subMap != null) {
+                for (SubCategory subCategory : SubCategory.values()) {
+                    if (subCategory.getMainCategory() == mainCategory) {
+                        String subCatName = subCategory.name();
+                        Long subCount = subMap.get(subCatName);
+
+                        if (subCount != null && subCount > 0) {
+                            subCategoryStatsList.add(new GetCategoryStatsResponse.SubCategoryStats(
+                                    subCatName,
+                                    subCategory.getDisplayName(),
+                                    subCount
+                            ));
+                        }
                     }
                 }
             }
@@ -147,7 +177,7 @@ public class VideoServiceImplement implements VideoService {
             subCategoryStatsList.sort((a, b) -> Long.compare(b.count(), a.count()));
 
             categoryStatsList.add(new GetCategoryStatsResponse.MainCategoryStats(
-                    mainCategory.name(),
+                    mainCatName,
                     mainCategory.getDisplayName(),
                     mainCount,
                     subCategoryStatsList
@@ -171,7 +201,7 @@ public class VideoServiceImplement implements VideoService {
                 .toList();
 
         Pagination<VideoResponse> pagedList = Pagination.of(videoEntities, videoList);
-        Long totalChannelCount = channelRepository.count();
+        Long totalChannelCount = channelService.getTotalChannelCount();
 
         return new GetVideoListResponse(pagedList, totalChannelCount);
     }
@@ -187,7 +217,7 @@ public class VideoServiceImplement implements VideoService {
                 .toList();
 
         Pagination<VideoResponse> pagedList = Pagination.of(videoEntities, videoList);
-        Long totalChannelCount = channelRepository.count();
+        Long totalChannelCount = channelService.getTotalChannelCount();
 
         return new GetVideoListResponse(pagedList, totalChannelCount);
     }

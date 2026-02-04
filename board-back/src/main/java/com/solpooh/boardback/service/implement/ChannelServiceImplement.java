@@ -38,6 +38,10 @@ public class ChannelServiceImplement implements ChannelService {
     private final CacheService cacheService;
     private final VideoIndexService videoIndexService;
 
+    // 캐시된 채널 개수 (10분마다 갱신)
+    private volatile Long cachedChannelCount = null;
+    private volatile long lastCacheTime = 0;
+
     private Optional<Channel> fetchChannelFromYoutube(String channelId) {
         try {
 
@@ -87,6 +91,9 @@ public class ChannelServiceImplement implements ChannelService {
         ChannelEntity entity = YoutubeConverter.toChannelEntity(channel);
         channelRepository.save(entity);
 
+        // 캐시 무효화
+        cachedChannelCount = null;
+
         return new PostChannelResponse();
     }
 
@@ -114,6 +121,23 @@ public class ChannelServiceImplement implements ChannelService {
         // Elasticsearch에서 삭제
         videoIndexService.deleteVideos(videoIds);
 
+        // 캐시 무효화
+        cachedChannelCount = null;
+
         return new DeleteChannelResponse(channelId, deletedVideoCount);
+    }
+
+    @Override
+    public Long getTotalChannelCount() {
+        long currentTime = System.currentTimeMillis();
+        long cacheExpireTime = 10 * 60 * 1000; // 10분
+
+        // 캐시가 없거나 만료되었으면 DB 조회
+        if (cachedChannelCount == null || (currentTime - lastCacheTime) > cacheExpireTime) {
+            cachedChannelCount = channelRepository.count();
+            lastCacheTime = currentTime;
+        }
+
+        return cachedChannelCount;
     }
 }

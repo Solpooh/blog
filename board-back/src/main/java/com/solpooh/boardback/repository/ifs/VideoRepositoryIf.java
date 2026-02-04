@@ -4,6 +4,7 @@ import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.enums.MainCategory;
 import com.solpooh.boardback.enums.SortType;
 import com.solpooh.boardback.enums.SubCategory;
+import com.solpooh.boardback.repository.resultSet.CategoryStatsResultSet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,7 +27,10 @@ public interface VideoRepositoryIf {
     Page<VideoEntity> getVideosByMainCategory(MainCategory mainCategory, Pageable pageable, SortType sortType);
     Page<VideoEntity> getVideosBySubCategory(MainCategory mainCategory, SubCategory subCategory, Pageable pageable, SortType sortType);
 
-    // 카테고리 통계
-    Long countByMainCategory(MainCategory mainCategory);
-    Long countBySubCategory(MainCategory mainCategory, SubCategory subCategory);
+    // 카테고리 통계 (Deprecated)
+//    Long countByMainCategory(MainCategory mainCategory);
+//    Long countBySubCategory(MainCategory mainCategory, SubCategory subCategory);
+
+    // 카테고리 통계 (GROUP BY 한방 쿼리)
+    List<CategoryStatsResultSet> getCategoryStatsGroupBy();
 }
