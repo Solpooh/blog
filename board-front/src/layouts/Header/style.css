@@ -24,35 +24,75 @@
     align-items: center;
 }
 
-.header-leftOne-box, .header-leftTwo-box, .header-leftThree-box {
+/* DevTube 로고 (맨 왼쪽, YouTube 아이콘 포함) */
+.header-devtube-box {
     display: flex;
     align-items: center;
-    padding-right: 24px;
-    position: relative;
+    gap: 12px;
+    margin-right: 32px;
     cursor: pointer;
     transition: opacity var(--transition-fast);
 }
 
-.header-leftOne-box:hover, .header-leftTwo-box:hover, .header-leftThree-box:hover {
+.header-devtube-box:hover {
     opacity: 0.8;
 }
 
-.header-leftTwo-box::before {
-    content: '|';
-    position: absolute;
-    right: 125px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-border-primary);
+.header-devtube-box .icon-box {
+    width: 48px;
+    height: 48px;
 }
 
-.header-logo {
+.header-devtube-box .logo-youtube-icon {
+    width: 48px;
+    height: 48px;
+    background-size: contain;
+}
+
+.devtube-logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.devtube-main {
     color: var(--color-text-primary);
-    font-family: 'GimhaeGaya', serif;
     font-size: 20px;
-    font-weight: 400;
-    line-height: 140%;
-    letter-spacing: -0.4px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    transition: color var(--transition-normal);
+}
+
+.devtube-subtitle {
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.3px;
+    margin-top: -2px;
+    transition: color var(--transition-normal);
+}
+
+/* DevLog 메뉴 */
+.header-devlog-box {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color var(--transition-fast);
+}
+
+.header-devlog-box:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.header-menu-text {
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 500;
     transition: color var(--transition-normal);
 }
 

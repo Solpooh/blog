@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @font-face {
   font-family: 'GowoonDodum';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff');
@@ -15,20 +17,22 @@
 :root {
   /* Light Theme (Default) */
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f9f9f9;
+  --color-bg-secondary: #fafafa;
   --color-bg-tertiary: #f0f0f0;
   --color-bg-elevated: #ffffff;
   --color-bg-hover: rgba(0, 0, 0, 0.02);
   --color-bg-active: rgba(0, 0, 0, 0.05);
 
-  --color-text-primary: rgba(0, 0, 0, 1);
-  --color-text-secondary: rgba(0, 0, 0, 0.7);
-  --color-text-tertiary: rgba(0, 0, 0, 0.5);
-  --color-text-muted: rgba(0, 0, 0, 0.4);
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-tertiary: #94a3b8;
+  --color-text-muted: #cbd5e1;
   --color-text-inverse: #ffffff;
 
   --color-border-primary: rgba(0, 0, 0, 0.2);
   --color-border-secondary: rgba(0, 0, 0, 0.1);
+  --color-border-light: #e2e8f0;
+  --color-border-medium: #cbd5e1;
   --color-border-hover: rgba(0, 0, 0, 0.3);
 
   --color-button-primary: rgba(0, 0, 0, 1);
@@ -36,6 +40,9 @@
   --color-button-secondary: #ffffff;
   --color-button-disabled: rgba(0, 0, 0, 0.4);
 
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-primary-dark: #4f46e5;
   --color-accent: #007bff;
   --color-accent-hover: #0056b3;
   --color-success: #28a745;
@@ -48,13 +55,18 @@
 
   --color-input-bg: #ffffff;
   --color-input-border: rgba(0, 0, 0, 0.2);
-  --color-input-focus: #007bff;
+  --color-input-focus: #6366f1;
 
   --color-badge-bg: #ececec;
   --color-badge-text: rgba(0, 0, 0, 0.5);
   --color-badge-hover: #ddd;
 
   --color-divider: rgba(0, 0, 0, 0.2);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-warm: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+  --gradient-cool: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -73,6 +85,20 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-full: 9999px;
+
+  /* Typography */
+  --font-family-primary: 'Inter', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  --font-size-7xl: 4.5rem;
 }
 
 /* ===== Dark Theme ===== */
@@ -92,6 +118,8 @@
 
   --color-border-primary: rgba(255, 255, 255, 0.15);
   --color-border-secondary: rgba(255, 255, 255, 0.1);
+  --color-border-light: rgba(255, 255, 255, 0.1);
+  --color-border-medium: rgba(255, 255, 255, 0.15);
   --color-border-hover: rgba(255, 255, 255, 0.25);
 
   --color-button-primary: #e6edf3;
@@ -99,6 +127,9 @@
   --color-button-secondary: #21262d;
   --color-button-disabled: rgba(230, 237, 243, 0.3);
 
+  --color-primary: #818cf8;
+  --color-primary-light: #a5b4fc;
+  --color-primary-dark: #6366f1;
   --color-accent: #58a6ff;
   --color-accent-hover: #79b8ff;
   --color-success: #3fb950;
@@ -111,13 +142,18 @@
 
   --color-input-bg: #0d1117;
   --color-input-border: rgba(255, 255, 255, 0.15);
-  --color-input-focus: #58a6ff;
+  --color-input-focus: #818cf8;
 
   --color-badge-bg: #21262d;
   --color-badge-text: rgba(230, 237, 243, 0.7);
   --color-badge-hover: #30363d;
 
   --color-divider: rgba(255, 255, 255, 0.15);
+
+  /* Gradients (Dark Theme) */
+  --gradient-primary: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  --gradient-warm: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
+  --gradient-cool: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
 
   /* Dark Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -165,4 +201,47 @@ body {
 ::selection {
   background: var(--color-accent);
   color: var(--color-text-inverse);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }

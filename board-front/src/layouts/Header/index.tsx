@@ -20,6 +20,7 @@ import {ResponseDto} from '../../apis/response';
 import { convertToRaw, EditorState} from 'draft-js';
 import SearchAutocomplete from '../../components/SearchAutocomplete';
 import ThemeToggle from '../../components/ThemeToggle';
+import CategoryDropdown from '../../components/CategoryDropdown';
 
 //  component: 헤더 레이아웃 //
 export default function Header() {
@@ -386,28 +387,26 @@ export default function Header() {
         <header id='header'>
             <div className='header-container'>
                 <nav className='header-left-box' aria-label='주요 네비게이션'>
-                    <div className='header-leftOne-box' onClick={onLogoClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onLogoClickHandler)} role='button' aria-label='홈으로 이동' tabIndex={0}>
-                        <div className='icon-box'>
-                            <div className='icon logo-dark-icon' role='img' aria-label='DevHub 로고'></div>
-                        </div>
-                        <div className='header-logo'>{'DevHub'}</div>
-                    </div>
-                    <div className='header-leftTwo-box' onClick={onYoutubeClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onYoutubeClickHandler)} role='button' aria-label='DevTube로 이동' tabIndex={0}>
+                    {/* DevTube 로고 (맨 왼쪽, YouTube 아이콘 포함) */}
+                    <div className='header-devtube-box' onClick={onYoutubeClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onYoutubeClickHandler)} role='button' aria-label='DevTube로 이동' tabIndex={0}>
                         <div className='icon-box'>
                             <div className='icon logo-youtube-icon' role='img' aria-label='YouTube 아이콘'></div>
                         </div>
-                        <div className='header-logo'>{'DevTube'}</div>
-                    </div>
-                    <div className='header-leftThree-box' onClick={onTrendClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onTrendClickHandler)} role='button' aria-label='트렌드 페이지로 이동' tabIndex={0}>
-                        <div className='icon-box'>
-                            <div className='icon logo-trend-icon' role='img' aria-label='트렌드 아이콘'></div>
+                        <div className='devtube-logo-wrapper'>
+                            <div className='devtube-main'>DevTube</div>
+                            <div className='devtube-subtitle'>Developer Video Hub</div>
                         </div>
-                        <div className='header-logo'>{'Trend'}</div>
+                    </div>
+
+                    {/* Category 메뉴 (DevTube 페이지에서만 표시, hover 드롭다운) */}
+                    {isYoutubePage && <CategoryDropdown />}
+
+                    {/* DevLog 메뉴 */}
+                    <div className='header-devlog-box' onClick={onLogoClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onLogoClickHandler)} role='button' aria-label='DevLog' tabIndex={0}>
+                        <div className='header-menu-text'>DevLog</div>
                     </div>
                 </nav>
                 <div className='header-right-box'>
-                    {/*{(isMainPage || isSearchPage || isBoardDetailPage) && <SearchButton />}*/}
-                    {/*{(isMainPage || isSearchPage || isBoardDetailPage || isUserPage || isYoutubePage) && <MyPageButton />}*/}
                     {!isYoutubePage && <SearchButton />}
                     <ThemeToggle />
                     <MyPageButton />

@@ -2,16 +2,33 @@
 
 .video-card {
     width: 100%;
-    background-color: transparent;
+    background: #ffffff;
+    border: 1px solid var(--color-border-light);
+    border-radius: 1rem;
+    padding: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-family-primary);
 }
 
 .video-card:hover {
-    /* transform 제거 - fixed 모달의 스태킹 컨텍스트 문제 방지 */
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-border-medium);
+}
+
+[data-theme="dark"] .video-card {
+    background: var(--color-card-bg);
+    border-color: var(--color-card-border);
+}
+
+[data-theme="dark"] .video-card:hover {
+    border-color: var(--color-border-hover);
 }
 
 /* ===== Thumbnail Section ===== */
@@ -32,7 +49,7 @@
 }
 
 .video-thumbnail-container:hover .video-thumbnail {
-    transform: scale(1.03);
+    transform: scale(1.05);
 }
 
 /* SHORTS Badge */
@@ -91,7 +108,7 @@
 .video-details {
     display: flex;
     gap: 12px;
-    padding: 12px 4px 4px 4px;
+    padding: 1rem;
 }
 
 /* Channel Avatar */
@@ -122,10 +139,11 @@
 
 /* Title */
 .video-title {
-    font-size: 15px;
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-base);
     font-weight: 600;
-    line-height: 22px;
-    letter-spacing: -0.2px;
+    line-height: 1.5;
+    letter-spacing: -0.025em;
     color: var(--color-text-primary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -138,7 +156,7 @@
 }
 
 .video-title:hover {
-    color: #667eea;
+    color: var(--color-primary);
 }
 
 /* Channel Name */
@@ -188,18 +206,18 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 7px 12px;
-    font-size: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: -0.1px;
     color: var(--color-text-secondary);
     background-color: var(--color-bg-tertiary);
     border: none;
-    border-radius: 20px;
+    border-radius: 9999px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: var(--font-family-primary);
 }
 
 .action-btn svg {
@@ -210,23 +228,24 @@
 .action-btn:hover {
     background-color: var(--color-bg-hover);
     color: var(--color-text-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* AI Button Special Style */
 .action-btn.ai-btn {
-    background-color: rgba(37, 99, 235, 0.1);
-    color: #2563EB;
-    border: 1px solid rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
 }
 
 .action-btn.ai-btn svg {
-    color: #2563EB;
+    color: white;
 }
 
 .action-btn.ai-btn:hover {
-    background-color: #2563EB;
-    color: white;
-    border-color: #2563EB;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
 }
 
 .action-btn.ai-btn:hover svg {
@@ -281,7 +300,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+    animation: modalFadeIn 0.2s ease-out;
+    /* GPU 가속 및 flickering 방지 */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 .video-modal-content {
@@ -291,6 +317,32 @@
     position: relative;
     width: 90%;
     max-width: 960px;
+    animation: modalScaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* GPU 가속 */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Modal 애니메이션 */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
 }
 
 .video-modal-content iframe {
@@ -328,7 +380,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+    animation: modalFadeIn 0.2s ease-out;
+    /* GPU 가속 및 flickering 방지 */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 .summary-modal {
@@ -340,7 +399,11 @@
     padding: 24px;
     position: relative;
     overflow-y: auto;
-    animation: fadeUp 0.2s ease-out;
+    animation: modalScaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* GPU 가속 */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .summary-modal button {

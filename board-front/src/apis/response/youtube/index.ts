@@ -5,6 +5,7 @@ import {GetHotVideoListResponseDto} from "./get-hot-video-list.response.dto";
 import {GetTopViewVideoListResponseDto} from "./get-top-view-video-list.response.dto";
 import {GetShortsVideoListResponseDto} from "./get-shorts-video-list.response.dto";
 import {GetTranscriptResponseDto} from "./get-transcript.response.dto";
+import GetCategoryStatsResponseDto from "./get-category-stats.response.dto";
 
 export type {
     DeleteVideoResponseDto,
@@ -13,5 +14,6 @@ export type {
     GetSearchVideoListResponseDto,
     GetShortsVideoListResponseDto,
     GetTopViewVideoListResponseDto,
-    GetTranscriptResponseDto
+    GetTranscriptResponseDto,
+    GetCategoryStatsResponseDto
 }

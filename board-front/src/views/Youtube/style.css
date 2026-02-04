@@ -7,7 +7,7 @@
 
 /* ===== Hero Section ===== */
 .youtube-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     padding: 80px 40px 100px;
     position: relative;
     overflow-x: hidden;
@@ -37,25 +37,27 @@
     flex-direction: column;
     align-items: center;
     gap: 32px;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-title {
-    font-size: 48px;
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-4xl);
     font-weight: 700;
     color: white;
     text-align: center;
     margin: 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.025em;
     line-height: 1.2;
 }
 
 .hero-description {
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     color: rgba(255, 255, 255, 0.95);
     text-align: center;
     margin: 0;
     max-width: 600px;
-    line-height: 1.6;
+    line-height: 1.75;
     font-weight: 400;
 }
 
@@ -69,22 +71,23 @@
 }
 
 .stat-badge {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
     padding: 16px 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
     min-width: 140px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-badge:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
@@ -177,7 +180,7 @@
 .hero-search-box .search-input-container:focus-within {
     border-color: white !important;
     background: white !important;
-    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
     transform: translateY(-2px);
 }
 
@@ -235,7 +238,7 @@
 
 .youtube-wrapper .search-box input:focus {
     border-color: var(--color-input-focus);
-    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     outline: none;
 }
 
@@ -248,11 +251,64 @@
     max-width: 100%;
 }
 
+/* ===== Category Result Info ===== */
+.category-result-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.category-result-text {
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    margin: 0;
+}
+
+.category-count {
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.search-category {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ===== Video Controls (Sort Section) ===== */
+.video-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 24px 40px 0;
+}
+
+.video-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.video-count {
+    font-size: 14px;
+    color: var(--color-text-secondary, #666);
+    font-weight: 500;
+}
+
+.video-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .video-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 32px;
-    padding: 60px 40px;
+    padding: 24px 40px 60px;
     max-width: 1500px;
     margin: 0 auto;
     position: relative;
@@ -328,8 +384,26 @@
     }
 
     .video-grid {
-        padding: 40px 24px;
+        padding: 16px 24px 40px;
         gap: 24px;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .video-controls {
+        padding: 16px 24px 0;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .video-count {
+        font-size: 13px;
+    }
+
+    .category-result-text {
+        font-size: 18px;
+    }
+
+    .category-count {
+        font-size: 20px;
     }
 }

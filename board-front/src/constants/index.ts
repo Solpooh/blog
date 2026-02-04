@@ -7,7 +7,11 @@ export const BOARD_DETAIL_PATH = (category: string, boardNumber: string | number
 export const BOARD_WRITE_PATH = () => 'write';
 export const BOARD_UPDATE_PATH = (boardNumber: string | number) => `update/${boardNumber}`;
 export const YOUTUBE_PATH = () => '/youtube';
-export const YOUTUBE_SEARCH_PATH = (searchWord: string) => `/youtube/${searchWord}`;
+export const YOUTUBE_SEARCH_PATH = (searchWord: string) => `/youtube/search/${searchWord}`;
+export const YOUTUBE_CATEGORY_PATH = (mainCategory: string) => `/youtube/category/${mainCategory}`;
+export const YOUTUBE_SUBCATEGORY_PATH = (mainCategory: string, subCategory: string) => `/youtube/category/${mainCategory}/${subCategory}`;
+export const YOUTUBE_CATEGORY_SEARCH_PATH = (mainCategory: string, searchWord: string) => `/youtube/category/${mainCategory}/search/${searchWord}`;
+export const YOUTUBE_SUBCATEGORY_SEARCH_PATH = (mainCategory: string, subCategory: string, searchWord: string) => `/youtube/category/${mainCategory}/${subCategory}/search/${searchWord}`;
 export const YOUTUBE_TREND_PATH = () => '/youtube/trending';
 export const ADMIN_PATH = () => '/admin';
 export const ADMIN_CHANNEL_PATH = () => '/admin/channel';

@@ -4,5 +4,6 @@ import Pagination from 'types/interface/pagination.interface';
 
 export interface GetVideoList {
     videoList: Pagination<VideoListItem>;
+    totalChannelCount: number;
 }
 export type GetVideoListResponseDto = ResponseDto<GetVideoList>;

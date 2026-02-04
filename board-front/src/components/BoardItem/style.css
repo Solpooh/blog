@@ -1,113 +1,216 @@
+/* ===== Fresh Insights Card (BoardItem) ===== */
 .board-list-item {
-    padding: 24px;
-    background-color: var(--color-card-bg);
-    display: flex;
-    align-items: center;
-    gap: 30px;
+    background: white;
+    border: 1px solid var(--color-border-light);
+    border-radius: 1rem;
+    padding: 0;
+    overflow: hidden;
     cursor: pointer;
-    transition: all var(--transition-fast);
-    border-bottom: 1px solid var(--color-border-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Featured Image Container */
+.board-featured-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--color-bg-tertiary);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.board-list-item:hover .board-featured-image {
+    transform: scale(1.03);
+}
+
+[data-theme="dark"] .board-list-item {
+    background: var(--color-card-bg);
+    border-color: var(--color-card-border);
 }
 
 .board-list-item:hover {
-    background-color: var(--color-bg-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-border-medium);
 }
 
-.board-list-item-main-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.board-list-item-top {
+/* Top Meta Row */
+.board-item-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 20px 28px 0;
+    margin: 0;
 }
 
-.board-list-item-profile-box {
-    width: 32px;
-    height: 32px;
+.board-category-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
 }
 
-.board-list-item-profile-image {
+/* Author Info */
+.board-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.board-author-avatar {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    width: 100%;
-    height: 100%;
-    background-position: 50% 50%;
     background-size: cover;
-    border: 1px solid var(--color-border-secondary);
+    background-position: center;
+    border: 2px solid var(--color-border-light);
+    flex-shrink: 0;
 }
 
-.board-list-item-write-box {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.board-list-item-nickname {
-    color: var(--color-text-secondary);
-    font-size: 12px;
+.board-author-name {
+    font-family: var(--font-family-primary);
+    font-size: 14px;
     font-weight: 500;
-    line-height: 140%;
-    transition: color var(--transition-normal);
+    color: var(--color-text-secondary);
 }
 
-.board-list-item-write-date {
-    color: var(--color-text-muted);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 140%;
-    transition: color var(--transition-normal);
+.new-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
 }
 
-.board-list-item-middle {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
+/* Title */
 .board-list-item-title {
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    line-height: 1.4;
     color: var(--color-text-primary);
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 140%;
-    transition: color var(--transition-normal);
+    margin: 16px 28px 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* Content */
 .board-list-item-content {
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
     color: var(--color-text-secondary);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 140%;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color var(--transition-normal);
+    margin: 0 28px 12px;
 }
 
-.board-list-item-counts {
-    color: var(--color-text-tertiary);
+/* Tags */
+.board-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 28px 16px;
+}
+
+.board-tag {
     font-size: 12px;
-    font-weight: 400;
-    line-height: 140%;
-    transition: color var(--transition-normal);
+    color: var(--color-text-tertiary);
+    background: var(--color-bg-secondary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
-.board-list-item-image-box {
-    width: 152px;
-    height: 152px;
-    flex-shrink: 0;
+[data-theme="dark"] .board-tag {
+    background: var(--color-bg-tertiary);
 }
 
-.board-list-item-image {
-    border-radius: var(--radius-md);
-    width: 100%;
-    height: 100%;
-    background-position: 50% 50%;
-    background-size: cover;
-    border: 1px solid var(--color-border-secondary);
+.board-tag:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+/* Bottom Row */
+.board-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding: 16px 28px 24px;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.board-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+}
+
+.board-date svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Read Link */
+.board-read-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-family-primary);
+    font-size: 14px;
+    font-weight: 600;
+    color: #10b981;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.board-read-link svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.board-read-link:hover {
+    color: #059669;
+    gap: 8px;
+}
+
+.board-read-link:hover svg {
+    transform: translateX(2px);
+}
+
+/* Stats (댓글, 좋아요, 조회수) */
+.board-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+}
+
+.board-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }

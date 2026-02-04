@@ -4,8 +4,10 @@ import {deleteVideoRequest, getTranscriptRequest} from 'apis';
 import {DeleteVideoResponseDto, GetTranscriptResponseDto} from 'apis/response/youtube';
 import {ResponseDto} from 'apis/response';
 import React, {useState, useRef, useCallback, useEffect} from "react";
+import {createPortal} from 'react-dom';
 import {Play, Eye, ThumbsUp, MessageCircle, Sparkles, Zap, RefreshCw, AlertCircle, Clock, CheckCircle2, Download, Brain} from 'lucide-react';
 import ResponseCode from 'types/enum/response-code.enum';
+import {useCookies} from 'react-cookie';
 
 // Transcript 상태 타입
 type TranscriptStatus = 'idle' | 'loading' | 'polling' | 'success' | 'error' | 'unavailable';
@@ -66,6 +68,9 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
     // 진행 바 너비 계산 (viewCount 기반, 최대 100만 조회수 기준)
     const progressWidth = Math.min((viewCount || 0) / 1000000 * 100, 100);
 
+    // accessToken 가져오기
+    const [cookies] = useCookies();
+
     // iframe 전용 모달 상태
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showIframe, setShowIframe] = useState(false);
@@ -91,14 +96,30 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
     const MAX_POLLING_COUNT = 30; // 최대 30회 (약 90초)
     const POLLING_INTERVAL = 3000; // 3초
 
+    // 삭제된 비디오 표시 상태
+    const [isDeleted, setIsDeleted] = useState(false);
 
     //  function: 이미지 삭제 응답 함수  //
     const deleteVideoResponse = (responseBody: DeleteVideoResponseDto | ResponseDto | null) => {
-        if (!responseBody) return;
+        if (!responseBody) {
+            console.error('삭제 API 응답 없음');
+            return;
+        }
         const { code } = responseBody;
-        if (code === 'DBE') alert('데이터베이스 오류입니다.');
-        if (code === 'NV') alert('존재하지 않는 비디오입니다.');
-        if (code !== 'SU') return;
+        console.log('삭제 API 응답 코드:', code);
+
+        if (code === 'DBE') {
+            console.error('데이터베이스 오류');
+            return;
+        }
+        if (code === 'NV') {
+            console.error('존재하지 않는 비디오');
+            return;
+        }
+        if (code === 'SU') {
+            console.log('비디오 삭제 성공, 화면에서 제거');
+            setIsDeleted(true);
+        }
     }
 
     //  function: Modal 제어 함수 //
@@ -166,6 +187,23 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
             clearCountdown();
         };
     }, [clearPolling, clearCountdown]);
+
+    // Modal 열릴 때 body 스크롤 방지
+    useEffect(() => {
+        if (isModalOpen || isSummaryModalOpen) {
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, [isModalOpen, isSummaryModalOpen]);
 
     // Transcript 요청 함수
     const fetchTranscript = useCallback((isInitial: boolean = false) => {
@@ -293,11 +331,23 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
         const img = e.currentTarget;
         // 유튜브의 기본 썸네일은 120x90 회색 이미지
         if (img.naturalWidth === 120 && img.naturalHeight === 90) {
-            console.log('이미지 로드 실패, 삭제 API 호출');
-            deleteVideoRequest(videoId).then(deleteVideoResponse);
+            console.log('이미지 로드 실패 감지 (120x90), 삭제 API 호출');
+
+            const accessToken = cookies.accessToken;
+            if (!accessToken) {
+                console.warn('삭제 권한 없음: 로그인되지 않음');
+                return;
+            }
+
+            deleteVideoRequest(videoId, accessToken).then(deleteVideoResponse);
         }
     }
 
+
+    // 삭제된 비디오는 렌더링하지 않음
+    if (isDeleted) {
+        return null;
+    }
 
     return (
         <article className="video-card">
@@ -411,7 +461,7 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
                 </div>
             </div>
 
-            {isSummaryModalOpen && (
+            {isSummaryModalOpen && createPortal(
                 <div className="summary-modal-overlay" onClick={() => {
                     // 폴링 중이 아닐 때만 모달 닫기 허용
                     if (transcriptState.status !== 'polling') {
@@ -517,12 +567,13 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
                             </div>
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            {isModalOpen && (
-                <div className="video-modal-overlay">
-                    <div className="video-modal-content">
+            {isModalOpen && createPortal(
+                <div className="video-modal-overlay" onClick={closeModal}>
+                    <div className="video-modal-content" onClick={(e) => e.stopPropagation()}>
                         <button className="video-modal-close-btn" onClick={closeModal}>
                             닫기 X
                         </button>
@@ -539,7 +590,8 @@ const VideoItem = React.memo(({ videoItem }: Props) => {
                             ></iframe>
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </article>
     );

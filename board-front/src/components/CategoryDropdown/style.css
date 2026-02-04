@@ -1,0 +1,295 @@
+/* ===== Category Mega Menu ===== */
+.category-mega-menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Category 버튼 */
+.category-mega-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.category-mega-button:hover,
+.category-mega-button.active {
+    background-color: var(--color-bg-hover);
+}
+
+.category-mega-text {
+    color: var(--color-text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.category-mega-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.category-mega-arrow.open {
+    transform: rotate(180deg);
+}
+
+.category-mega-arrow svg {
+    display: block;
+}
+
+/* 메가 메뉴 드롭다운 (화면 중앙 배치) */
+.category-mega-dropdown {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    max-height: 600px;
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+    animation: megaMenuFadeIn 0.2s ease-in-out;
+}
+
+[data-theme="dark"] .category-mega-dropdown {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes megaMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* 로딩/빈 상태 */
+.category-mega-loading,
+.category-mega-empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+/* 메가 메뉴 레이아웃 (왼쪽 Main + 오른쪽 Sub) */
+.category-mega-layout {
+    display: flex;
+    height: 100%;
+}
+
+/* ===== 왼쪽: Main Categories ===== */
+.category-main-list {
+    width: 240px;
+    border-right: 1px solid var(--color-border-secondary);
+    background-color: var(--color-bg-secondary);
+    border-radius: 12px 0 0 12px;
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+.category-main-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.category-main-item:hover {
+    background-color: var(--color-bg-hover);
+    border-left-color: #dc143c;
+}
+
+.category-main-item.active {
+    background: linear-gradient(90deg, rgba(220, 20, 60, 0.1) 0%, rgba(220, 20, 60, 0.05) 100%);
+    border-left-color: #dc143c;
+}
+
+.category-main-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
+}
+
+.category-main-item:hover .category-main-name,
+.category-main-item.active .category-main-name {
+    color: #dc143c;
+}
+
+.category-main-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+/* ===== 오른쪽: Sub Categories ===== */
+.category-sub-panel {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+.category-sub-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-border-secondary);
+}
+
+.category-sub-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.category-view-all {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-view-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+}
+
+/* Sub Categories 그리드 */
+.category-sub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.category-sub-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: var(--color-bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.category-sub-item:hover {
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+    border-color: #dc143c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 20, 60, 0.15);
+}
+
+.category-sub-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
+}
+
+.category-sub-item:hover .category-sub-name {
+    color: #dc143c;
+}
+
+.category-sub-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-primary);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Scrollbar styling */
+.category-main-list::-webkit-scrollbar,
+.category-sub-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-main-list::-webkit-scrollbar-track,
+.category-sub-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-main-list::-webkit-scrollbar-thumb,
+.category-sub-panel::-webkit-scrollbar-thumb {
+    background: var(--color-border-secondary);
+    border-radius: 3px;
+}
+
+.category-main-list::-webkit-scrollbar-thumb:hover,
+.category-sub-panel::-webkit-scrollbar-thumb:hover {
+    background: #dc143c;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+    .category-mega-dropdown {
+        width: 700px;
+    }
+
+    .category-main-list {
+        width: 200px;
+    }
+
+    .category-sub-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .category-mega-dropdown {
+        width: 90vw;
+        max-height: 500px;
+    }
+
+    .category-mega-layout {
+        flex-direction: column;
+    }
+
+    .category-main-list {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border-secondary);
+        border-radius: 12px 12px 0 0;
+        max-height: 200px;
+    }
+
+    .category-sub-panel {
+        padding: 16px;
+    }
+
+    .category-sub-grid {
+        grid-template-columns: 1fr;
+    }
+}

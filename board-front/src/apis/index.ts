@@ -37,7 +37,8 @@ import {
     GetVideoListResponseDto,
     DeleteVideoResponseDto,
     GetSearchVideoListResponseDto,
-    GetHotVideoListResponseDto, GetTopViewVideoListResponseDto, GetShortsVideoListResponseDto, GetTranscriptResponseDto
+    GetHotVideoListResponseDto, GetTopViewVideoListResponseDto, GetShortsVideoListResponseDto, GetTranscriptResponseDto,
+    GetCategoryStatsResponseDto
 } from "./response/youtube";
 import {DeleteVideosRequestDto, PostChannelRequestDto} from "./request/admin";
 import {
@@ -87,7 +88,7 @@ export const signUpRequest = async (requestBody: SignUpRequestDto) => {
 }
 
 const GET_BOARD_URL = (category: string, boardNumber: number | string) => `${API_DOMAIN}/board/${category}/${boardNumber}`;
-const GET_LATEST_BOARD_LIST_URL = (category: string | null, page: number = 0) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}?page=${page}`;
+const GET_LATEST_BOARD_LIST_URL = (category: string | null, page: number = 0) => `${API_DOMAIN}/board/latest-list${category ? '/' + category : ''}?page=${page}&size=6`;
 const GET_TOP_3_BOARD_LIST_URL = () => `${API_DOMAIN}/board/top-3`;
 const GET_SEARCH_BOARD_LIST_URL = (searchWord: string, preSearchWord: string | null, page: number = 0) => `${API_DOMAIN}/board/search-list/${searchWord}${preSearchWord ? '/' + preSearchWord : ''}?page=${page}`;
 const GET_USER_BOARD_LIST_URL = (email: string, page: number = 0) => `${API_DOMAIN}/board/user-board-list/${email}?page=${page}`;
@@ -403,10 +404,23 @@ export const fileUploadRequest = async (data: FormData) => {
     return result;
 }
 
-const GET_VIDEO_LIST_URL = (page: number = 0) => `${API_DOMAIN}/video?page=${page}`;
-const GET_SEARCH_VIDEO_LIST_URL = (searchWord: string, page: number = 0) => `${API_DOMAIN}/video/search-list/${searchWord}?page=${page}`;
-export const getVideoListRequest = async (page: number = 0) => {
-    const result = await axios.get(GET_VIDEO_LIST_URL(page))
+// ===== Video API with Sort =====
+const GET_VIDEO_LIST_URL = (page: number = 0, sort: string = 'LATEST') =>
+    `${API_DOMAIN}/video?page=${page}&sort=${sort}`;
+const GET_SEARCH_VIDEO_LIST_URL = (searchWord: string, page: number = 0, sort: string = 'RELEVANCE') =>
+    `${API_DOMAIN}/video/search-list/${encodeURIComponent(searchWord)}?page=${page}&sort=${sort}`;
+const GET_CATEGORY_STATS_URL = () => `${API_DOMAIN}/video/category/stats`;
+const GET_CATEGORY_VIDEO_LIST_URL = (mainCategory: string, page: number = 0, sort: string = 'LATEST') =>
+    `${API_DOMAIN}/video/category/${mainCategory}?page=${page}&sort=${sort}`;
+const GET_SUBCATEGORY_VIDEO_LIST_URL = (mainCategory: string, subCategory: string, page: number = 0, sort: string = 'LATEST') =>
+    `${API_DOMAIN}/video/category/${mainCategory}/${subCategory}?page=${page}&sort=${sort}`;
+const GET_CATEGORY_SEARCH_URL = (mainCategory: string, searchWord: string, page: number = 0, sort: string = 'RELEVANCE') =>
+    `${API_DOMAIN}/video/category/${mainCategory}/search/${encodeURIComponent(searchWord)}?page=${page}&sort=${sort}`;
+const GET_SUBCATEGORY_SEARCH_URL = (mainCategory: string, subCategory: string, searchWord: string, page: number = 0, sort: string = 'RELEVANCE') =>
+    `${API_DOMAIN}/video/category/${mainCategory}/${subCategory}/search/${encodeURIComponent(searchWord)}?page=${page}&sort=${sort}`;
+
+export const getVideoListRequest = async (page: number = 0, sort: string = 'LATEST') => {
+    const result = await axios.get(GET_VIDEO_LIST_URL(page, sort))
         .then(response => {
             const responseBody: GetVideoListResponseDto = response.data;
             return responseBody;
@@ -418,8 +432,73 @@ export const getVideoListRequest = async (page: number = 0) => {
         });
     return result;
 };
-export const getSearchVideoListRequest = async (searchWord: string, page: number = 0) => {
-    const result = await axios.get(GET_SEARCH_VIDEO_LIST_URL(searchWord, page))
+export const getSearchVideoListRequest = async (searchWord: string, page: number = 0, sort: string = 'RELEVANCE') => {
+    const result = await axios.get(GET_SEARCH_VIDEO_LIST_URL(searchWord, page, sort))
+        .then(response => {
+            const responseBody: GetSearchVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getCategoryStatsRequest = async () => {
+    const result = await axios.get(GET_CATEGORY_STATS_URL())
+        .then(response => {
+            const responseBody: GetCategoryStatsResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getCategoryVideoListRequest = async (mainCategory: string, page: number = 0, sort: string = 'LATEST') => {
+    const result = await axios.get(GET_CATEGORY_VIDEO_LIST_URL(mainCategory, page, sort))
+        .then(response => {
+            const responseBody: GetVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getSubCategoryVideoListRequest = async (mainCategory: string, subCategory: string, page: number = 0, sort: string = 'LATEST') => {
+    const result = await axios.get(GET_SUBCATEGORY_VIDEO_LIST_URL(mainCategory, subCategory, page, sort))
+        .then(response => {
+            const responseBody: GetVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getCategorySearchRequest = async (mainCategory: string, searchWord: string, page: number = 0, sort: string = 'RELEVANCE') => {
+    const result = await axios.get(GET_CATEGORY_SEARCH_URL(mainCategory, searchWord, page, sort))
+        .then(response => {
+            const responseBody: GetSearchVideoListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+};
+export const getSubCategorySearchRequest = async (mainCategory: string, subCategory: string, searchWord: string, page: number = 0, sort: string = 'RELEVANCE') => {
+    const result = await axios.get(GET_SUBCATEGORY_SEARCH_URL(mainCategory, subCategory, searchWord, page, sort))
         .then(response => {
             const responseBody: GetSearchVideoListResponseDto = response.data;
             return responseBody;
@@ -432,8 +511,8 @@ export const getSearchVideoListRequest = async (searchWord: string, page: number
     return result;
 };
 const DELETE_VIDEO_URL = (videoId: string) => `${API_DOMAIN}/admin/video/${videoId}`;
-export const deleteVideoRequest = async (videoId: string) => {
-    const result = await axios.delete(DELETE_VIDEO_URL(videoId))
+export const deleteVideoRequest = async (videoId: string, accessToken: string) => {
+    const result = await axios.delete(DELETE_VIDEO_URL(videoId), authorization(accessToken))
         .then(response => {
             const responseBody: DeleteVideoResponseDto = response.data;
             return responseBody;

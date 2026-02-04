@@ -8,7 +8,7 @@ import {
     BOARD_WRITE_PATH,
     MAIN_PATH,
     SEARCH_PATH,
-    USER_PATH, YOUTUBE_PATH, YOUTUBE_SEARCH_PATH, YOUTUBE_TREND_PATH,
+    USER_PATH, YOUTUBE_PATH, YOUTUBE_TREND_PATH,
     ADMIN_PATH, ADMIN_CHANNEL_PATH, ADMIN_VIDEO_PATH
 } from './constants';
 import {Cookies, useCookies} from 'react-cookie';
@@ -105,7 +105,11 @@ function App() {
                         <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
                     </Route>
                     <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
-                    <Route path={YOUTUBE_SEARCH_PATH(':searchWord')} element={<Youtube />} />
+                    <Route path="/youtube/search/:searchWord" element={<Youtube />} />
+                    <Route path="/youtube/category/:mainCategory" element={<Youtube />} />
+                    <Route path="/youtube/category/:mainCategory/:subCategory" element={<Youtube />} />
+                    <Route path="/youtube/category/:mainCategory/search/:searchWord" element={<Youtube />} />
+                    <Route path="/youtube/category/:mainCategory/:subCategory/search/:searchWord" element={<Youtube />} />
                     <Route path={YOUTUBE_TREND_PATH()} element={<YoutubeTrend />}/>
                     <Route path={ADMIN_PATH()} element={<Admin />}>
                         <Route path={ADMIN_CHANNEL_PATH()} element={<AdminChannel />} />

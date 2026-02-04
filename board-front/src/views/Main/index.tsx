@@ -50,13 +50,16 @@ export default function Main() {
         return (
             <div id='main-top-wrapper'>
                 <div className='main-top-container'>
-                    <p className='main-top-intro1'>{'평범한 개발자들의 소통의 장'}</p>
-                    <h1 className='main-top-intro2'>{'DevHub'}</h1>
-                    <div className='main-top-contents-box'>
-                        <h2 className='main-top-contents-title'>{'주간 TOP 3 게시글'}</h2>
-                        <div className='main-top-contents'>
-                            {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem}/>)}
-                        </div>
+                    <div className='section-header'>
+                        <h2 className='section-title'>
+                            <span className='highlight'>TOP 3 게시글</span>
+                        </h2>
+                        <p className='section-description'>
+                            주간동안 가장 반응이 뜨거운 게시글입니다.
+                        </p>
+                    </div>
+                    <div className='main-top-contents'>
+                        {top3BoardList.map(top3ListItem => <Top3Item key={top3ListItem.boardNumber} top3ListItem={top3ListItem}/>)}
                     </div>
                 </div>
             </div>
@@ -182,90 +185,95 @@ export default function Main() {
         return (
             <div id="main-bottom-wrapper">
                 <div className="main-bottom-container">
-                    <div className="main-bottom-flex-box">
-                        {/* 카테고리 박스 */}
-                        <aside className="main-bottom-category-popular-box">
-                            <div className="main-bottom-category-box">
-                                {categories.map((category) => (
-                                    <div
-                                        className={`category-item ${selectedCategory === category.name ? 'selected' : ''}`}
-                                        key={category.name} onClick={() => onCategoryClickHandler(category.name)}>
-                                        {`${category.name} (${category.count})`}
+                    {/* Section Header */}
+                    <div className='section-header'>
+                        <h2 className='section-title'>
+                            최신 <span className='highlight' style={{ background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>게시글</span>
+                        </h2>
+                        <p className='section-description'>
+                            전체 게시글과 카테고리 별 게시글입니다.
+                        </p>
+                    </div>
+
+                    {/* Category Pills */}
+                    <div className="category-pills-wrapper">
+                        <div className="category-pills">
+                            {categories.map((category) => (
+                                <button
+                                    className={`category-pill ${selectedCategory === category.name ? 'selected' : ''}`}
+                                    key={category.name}
+                                    onClick={() => onCategoryClickHandler(category.name)}
+                                >
+                                    {category.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Board Grid */}
+                    <section className="main-bottom-current-contents">
+                        {isLoading ? (
+                            // 로딩 중일 때 Skeleton UI 표시
+                            <>
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="board-item skeleton">
+                                        <div style={{ padding: '28px' }}>
+                                            <div className="skeleton skeleton-text" style={{ width: '80px', marginBottom: '16px' }}></div>
+                                            <div className="skeleton skeleton-title" style={{ marginBottom: '12px' }}></div>
+                                            <div className="skeleton skeleton-text"></div>
+                                            <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
+                                            <div className="skeleton skeleton-text" style={{ width: '70%' }}></div>
+                                        </div>
                                     </div>
                                 ))}
-                            </div>
-
-                            {/* 인기 검색어 박스 */}
-                            <div className="main-bottom-popular-box">
-                                <h3 className="main-bottom-popular-card-title">{'인기 검색어'}</h3>
-                                <div className="main-bottom-popular-card-contents">
-                                    {popularWordList.map((word) => (
-                                        <div className="word-badge" key={word}
-                                             onClick={() => onPopularWordClickHandler(word)}>
-                                            {word}
-                                        </div>
-                                    ))}
+                            </>
+                        ) : latestBoardList.length === 0 ? (
+                            // 데이터가 없을 때 Empty State 표시
+                            <div className="empty-state">
+                                <div className="empty-state-icon">📝</div>
+                                <div className="empty-state-title">게시글이 없습니다</div>
+                                <div className="empty-state-description">
+                                    첫 번째 게시글을 작성해보세요!
                                 </div>
                             </div>
-                        </aside>
+                        ) : (
+                            // 정상적으로 데이터 표시
+                            latestBoardList.map((boardListItem) => (
+                                <BoardItem key={boardListItem.boardNumber} boardListItem={boardListItem}/>
+                            ))
+                        )}
+                    </section>
 
-                        {/* 현재 컨텐츠 */}
-                        <section className="main-bottom-current-contents">
-                            {isLoading ? (
-                                // 로딩 중일 때 Skeleton UI 표시
-                                <>
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <div key={i} className="board-item">
-                                            <div style={{ padding: '20px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                                                    <div className="skeleton skeleton-avatar" style={{ marginRight: '12px' }}></div>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div className="skeleton skeleton-text" style={{ width: '120px', marginBottom: '4px' }}></div>
-                                                        <div className="skeleton skeleton-text" style={{ width: '80px' }}></div>
-                                                    </div>
-                                                </div>
-                                                <div className="skeleton skeleton-title"></div>
-                                                <div className="skeleton skeleton-text"></div>
-                                                <div className="skeleton skeleton-text" style={{ width: '90%' }}></div>
-                                                <div className="skeleton skeleton-text" style={{ width: '150px', marginTop: '12px' }}></div>
-                                            </div>
-                                            {i !== 5 && <div className="divider"></div>}
-                                        </div>
-                                    ))}
-                                </>
-                            ) : latestBoardList.length === 0 ? (
-                                // 데이터가 없을 때 Empty State 표시
-                                <div className="empty-state">
-                                    <div className="empty-state-icon">📝</div>
-                                    <div className="empty-state-title">게시글이 없습니다</div>
-                                    <div className="empty-state-description">
-                                        첫 번째 게시글을 작성해보세요!
-                                    </div>
+                    {/* Pagination */}
+                    {pagination && (
+                        <div className="main-bottom-pagination-box">
+                            <Paging
+                                pagination={pagination}
+                                onPageChange={onPageChange}
+                            />
+                        </div>
+                    )}
+
+                    {/* Popular Search Section */}
+                    <section className="popular-search-section">
+                        <div className="popular-search-header">
+                            <h3 className="popular-search-title">🔥 인기 검색어</h3>
+                            <p className="popular-search-description">지금 가장 많이 검색되는 키워드</p>
+                        </div>
+                        <div className="popular-search-grid">
+                            {popularWordList.map((word, index) => (
+                                <div
+                                    key={word}
+                                    className="popular-word-item"
+                                    onClick={() => onPopularWordClickHandler(word)}
+                                >
+                                    <span className="popular-word-rank">{index + 1}</span>
+                                    <span className="popular-word-text">{word}</span>
                                 </div>
-                            ) : (
-                                // 정상적으로 데이터 표시
-                                latestBoardList.map((boardListItem, index) => (
-                                    <div key={boardListItem.boardNumber} className="board-item">
-                                        <BoardItem boardListItem={boardListItem}/>
-                                        {index !== latestBoardList.length - 1 && (
-                                            <div className="divider"></div>
-                                        )}
-                                    </div>
-                                ))
-                            )}
-                        </section>
-                    </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
-
-                {/* Pagination */}
-                {pagination && (
-                    <div className="main-bottom-pagination-box">
-                        <Paging
-                            pagination={pagination}
-                            onPageChange={onPageChange}
-                        />
-                    </div>
-                )}
             </div>
         );
     }
