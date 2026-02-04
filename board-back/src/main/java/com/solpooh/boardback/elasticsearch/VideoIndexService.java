@@ -31,18 +31,32 @@ public class VideoIndexService {
 
     @Transactional(readOnly = true)
     public void indexAll(){
-        // 인덱스가 없으면 매핑을 생성
+        indexAll(false);
+    }
+
+    @Transactional(readOnly = true)
+    public void indexAll(boolean recreate){
+        // 인덱스 재생성 옵션이 true면 기존 인덱스 삭제
         IndexCoordinates index = IndexCoordinates.of("video");
         IndexOperations indexOps = elasticsearchOperations.indexOps(index);
 
+        if (recreate && indexOps.exists()) {
+            log.info("기존 ES 인덱스 삭제 중...");
+            indexOps.delete();
+        }
+
+        // 인덱스가 없으면 매핑을 생성
         if (!indexOps.exists()) {
+            log.info("ES 인덱스 생성 및 매핑 적용 중...");
             indexOps.create();
             indexOps.putMapping(indexOps.createMapping(VideoDocument.class));
         }
 
         int page = 0;
         Page<VideoEntity> pageResult;
+        int totalIndexed = 0;
 
+        log.info("ES 재인덱싱 시작...");
         do {
             PageRequest pageRequest = PageRequest.of(page, pageSize);
             pageResult = videoRepository.findAll(pageRequest);
@@ -63,10 +77,14 @@ public class VideoIndexService {
 
                 // Bulk Index => 문서가 없으면 생성, 있으면 덮어씀
                 elasticsearchOperations.bulkIndex(queries, index);
+                totalIndexed += docs.size();
+                log.info("ES 인덱싱 진행 중... {}/{}", totalIndexed, pageResult.getTotalElements());
             }
 
             page++;
         } while (pageResult.hasNext());
+
+        log.info("ES 재인덱싱 완료! 총 {}개 문서", totalIndexed);
     }
 
     private VideoDocument toDocument(VideoEntity entity) {

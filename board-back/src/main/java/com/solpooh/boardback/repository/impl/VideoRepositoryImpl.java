@@ -1,9 +1,13 @@
 package com.solpooh.boardback.repository.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.solpooh.boardback.entity.QChannelEntity;
 import com.solpooh.boardback.entity.QVideoEntity;
 import com.solpooh.boardback.entity.VideoEntity;
+import com.solpooh.boardback.enums.MainCategory;
+import com.solpooh.boardback.enums.SortType;
+import com.solpooh.boardback.enums.SubCategory;
 import com.solpooh.boardback.repository.ifs.VideoRepositoryIf;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
@@ -114,5 +118,109 @@ public class VideoRepositoryImpl implements VideoRepositoryIf {
                 .fetchOne();
 
         return new PageImpl<>(videoList, pageable, totalCount != null ? totalCount : 0L);
+    }
+
+    @Override
+    public Page<VideoEntity> getVideoListWithSort(Pageable pageable, String lang, SortType sortType) {
+        List<VideoEntity> videoList = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .where(channel.lang.eq(lang))
+                .orderBy(getOrderSpecifier(sortType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(video.count())
+                .from(video)
+                .join(video.channel, channel)
+                .where(channel.lang.eq(lang))
+                .fetchOne();
+
+        return new PageImpl<>(videoList, pageable, total != null ? total : 0L);
+    }
+
+    @Override
+    public Page<VideoEntity> getVideosByMainCategory(MainCategory mainCategory, Pageable pageable, SortType sortType) {
+        List<VideoEntity> videoList = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .where(video.mainCategory.eq(mainCategory))
+                .orderBy(getOrderSpecifier(sortType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(video.count())
+                .from(video)
+                .where(video.mainCategory.eq(mainCategory))
+                .fetchOne();
+
+        return new PageImpl<>(videoList, pageable, total != null ? total : 0L);
+    }
+
+    @Override
+    public Page<VideoEntity> getVideosBySubCategory(MainCategory mainCategory, SubCategory subCategory, Pageable pageable, SortType sortType) {
+        List<VideoEntity> videoList = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .where(
+                        video.mainCategory.eq(mainCategory),
+                        video.subCategory.eq(subCategory)
+                )
+                .orderBy(getOrderSpecifier(sortType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(video.count())
+                .from(video)
+                .where(
+                        video.mainCategory.eq(mainCategory),
+                        video.subCategory.eq(subCategory)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(videoList, pageable, total != null ? total : 0L);
+    }
+
+    @Override
+    public Long countByMainCategory(MainCategory mainCategory) {
+        Long count = queryFactory
+                .select(video.count())
+                .from(video)
+                .where(video.mainCategory.eq(mainCategory))
+                .fetchOne();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public Long countBySubCategory(MainCategory mainCategory, SubCategory subCategory) {
+        Long count = queryFactory
+                .select(video.count())
+                .from(video)
+                .where(
+                        video.mainCategory.eq(mainCategory),
+                        video.subCategory.eq(subCategory)
+                )
+                .fetchOne();
+        return count != null ? count : 0L;
+    }
+
+    /**
+     * SortType에 따른 정렬 조건 반환
+     */
+    private OrderSpecifier<?> getOrderSpecifier(SortType sortType) {
+        if (sortType == null) {
+            return video.publishedAt.desc();
+        }
+        return switch (sortType) {
+            case VIEWS -> video.viewCount.desc();
+            case RELEVANCE -> video.publishedAt.desc(); // DB 조회에서는 최신순으로 대체
+            default -> video.publishedAt.desc();
+        };
     }
 }

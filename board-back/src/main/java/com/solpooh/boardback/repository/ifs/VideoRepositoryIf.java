@@ -1,6 +1,9 @@
 package com.solpooh.boardback.repository.ifs;
 
 import com.solpooh.boardback.entity.VideoEntity;
+import com.solpooh.boardback.enums.MainCategory;
+import com.solpooh.boardback.enums.SortType;
+import com.solpooh.boardback.enums.SubCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,4 +18,15 @@ public interface VideoRepositoryIf {
     // Admin
     Page<VideoEntity> getAllVideos(Pageable pageable);
     Page<VideoEntity> searchVideosByChannelTitle(String channelTitle, Pageable pageable);
+
+    // 정렬 옵션 적용
+    Page<VideoEntity> getVideoListWithSort(Pageable pageable, String lang, SortType sortType);
+
+    // 카테고리 조회
+    Page<VideoEntity> getVideosByMainCategory(MainCategory mainCategory, Pageable pageable, SortType sortType);
+    Page<VideoEntity> getVideosBySubCategory(MainCategory mainCategory, SubCategory subCategory, Pageable pageable, SortType sortType);
+
+    // 카테고리 통계
+    Long countByMainCategory(MainCategory mainCategory);
+    Long countBySubCategory(MainCategory mainCategory, SubCategory subCategory);
 }

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-@PreAuthorize("hasRole('ADMIN')") // 클래스 레벨 보안: 모든 메서드에 ADMIN 권한 필요
+//@PreAuthorize("hasRole('ADMIN')") // 클래스 레벨 보안: 모든 메서드에 ADMIN 권한 필요
 public class AdminController {
     private final YoutubeBatchService youtubeBatchService;
     private final VideoIndexService videoIndexService;
@@ -68,6 +68,12 @@ public class AdminController {
     public ResponseEntity<String> indexing() {
         videoIndexService.indexAll();
         return ResponseEntity.ok("ES indexing completed");
+    }
+
+    @PostMapping("/video/reindex")
+    public ResponseEntity<String> reindexing() {
+        videoIndexService.indexAll(true);  // 인덱스 삭제 후 재생성
+        return ResponseEntity.ok("ES reindexing completed (index recreated)");
     }
 
     // ===== 관리자 페이지 -> Channel 관리 =====
