@@ -91,8 +91,8 @@ function App() {
             }>
                 <Routes>
                 <Route element={<Container/>}>
-                    {/* 기본 접속 시 all 카테고리로 리다이렉트 */}
-                    <Route path="/" element={<Main />} />
+                    {/* 기본 접속 시 YouTube 페이지로 리다이렉트 */}
+                    <Route path="/" element={<Navigate to={YOUTUBE_PATH()} replace />} />
 
                     {/* 게시글 카테고리 별 메인 목록 */}
                     <Route path={MAIN_PATH(':category')} element={<Main />} />

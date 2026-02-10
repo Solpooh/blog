@@ -49,8 +49,8 @@ import {
     PostChannelResponseDto
 } from "./response/admin";
 
-const DOMAIN = 'http://localhost:4000/api';
-// const DOMAIN = 'https://devhubs.site/api';
+// const DOMAIN = 'http://localhost:4000/api'; // 로컬 개발용
+const DOMAIN = 'https://devtube.site/api'; // 운영 환경
 const API_DOMAIN = `${DOMAIN}/v1`;
 
 const authorization = (accessToken: string) => {
@@ -385,8 +385,8 @@ export const patchProfileImageRequest = async (requestBody: PatchProfileImageReq
     return result;
 };
 
-const FILE_DOMAIN = `http://localhost:4000/file`;
-// const FILE_DOMAIN = 'https://devhubs.site/file';
+// const FILE_DOMAIN = `http://localhost:4000/file`; // 로컬 개발용
+const FILE_DOMAIN = 'https://devtube.site/file'; // 운영 환경
 
 const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;
 

@@ -60,11 +60,8 @@ export default function Header() {
         }
     }
     const onYoutubeClickHandler = () => {
-        if (pathname === YOUTUBE_PATH()) {
-            window.location.reload();
-        } else {
-            navigate(YOUTUBE_PATH());
-        }
+        // 항상 /youtube로 라우팅 (reload 제거)
+        navigate(YOUTUBE_PATH());
     }
     const onTrendClickHandler = () => {
         if (pathname === YOUTUBE_TREND_PATH()) {
