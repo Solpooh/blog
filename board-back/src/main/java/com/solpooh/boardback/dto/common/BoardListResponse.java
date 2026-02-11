@@ -8,7 +8,7 @@ public record BoardListResponse(
         int favoriteCount,
         int commentCount,
         int viewCount,
-        String writeDatetime,
+        java.time.LocalDateTime writeDatetime,
         String writerNickname,
         String writerProfileImage
 ) { }

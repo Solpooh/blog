@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -125,9 +126,7 @@ public class BoardServiceImplement implements BoardService {
     @Override
     public GetTop3BoardListResponse getTop3BoardList() {
         // 일주일 전 날짜 계산
-        Date beforeWeek = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sevenDaysAgo = simpleDateFormat.format(beforeWeek);
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
         List<BoardListViewEntity> boardListViewEntities =
                 boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(sevenDaysAgo);

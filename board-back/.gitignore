@@ -36,9 +36,14 @@ out/
 ### VS Code ###
 .vscode/
 
-# Environment-specific configuration files
-application.yaml
-application-*.yaml
+# Environment variables (민감 정보 포함!)
+.env
+.env.local
+.env.production
+
+# Logs
+/logs
+*.log
 
 /transcript
 /cookies

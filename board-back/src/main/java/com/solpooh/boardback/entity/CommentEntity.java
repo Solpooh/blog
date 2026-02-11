@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class CommentEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentNumber;
     private String content;
-    private String writeDatetime;
+    private LocalDateTime writeDatetime;
     private String userEmail;
     private Long boardNumber;
 
@@ -31,6 +32,6 @@ public class CommentEntity {
         String writeDatetime = simpleDateFormat.format(now);
 
         this.content = dto.content();
-        this.writeDatetime = writeDatetime;
+        this.writeDatetime = LocalDateTime.now();
     }
 }

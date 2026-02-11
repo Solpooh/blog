@@ -47,7 +47,7 @@ public class VideoEntity extends BaseTimeEntity {
     private Long likeCount = 0L;
     @Column(name = "comment_count", nullable = false)
     private Long commentCount = 0L;
-    @Column(name = "trend_score")
+    @Column(name = "trend_score", columnDefinition = "DECIMAL(10,3)")
     private Double trendScore; // 조회수 상승 비율 기반 점수
     @Column(name = "is_short")
     private boolean isShort;

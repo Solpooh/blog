@@ -25,39 +25,28 @@ public class TranscriptFetcher {
         Path outputDir = Paths.get("transcript").toAbsolutePath();
         Files.createDirectories(outputDir);
 
-        String outputTemplate = "/downloads/%(id)s.%(ext)s";
+        String outputTemplate = outputDir + "/%(id)s.%(ext)s";
 
-        // Docker 명령어 구성
+        // yt-dlp 명령어 직접 실행 (Docker 불필요)
         List<String> command = new ArrayList<>(List.of(
-                "docker", "run", "--rm",
-                "-v", outputDir + ":/downloads"
+                "yt-dlp",
+                "--skip-download",
+                "--write-auto-sub",
+                "--sub-lang", "ko",
+                "--sub-format", "json3",
+                "--js-runtimes", "node"
         ));
 
-        // 쿠키 파일이 설정되어 있으면 볼륨 마운트 추가
+        // 쿠키 파일이 설정되어 있으면 옵션 추가
         if (cookiesPath != null && !cookiesPath.isBlank()) {
             Path cookiesFile = Paths.get(cookiesPath).toAbsolutePath();
             if (Files.exists(cookiesFile)) {
-                command.add("-v");
-                command.add(cookiesFile + ":/cookies.txt");
+                command.add("--cookies");
+                command.add(cookiesFile.toString());
                 log.info("YouTube 쿠키 파일 사용: {}", cookiesFile);
             } else {
                 log.warn("쿠키 파일이 존재하지 않음: {}", cookiesFile);
             }
-        }
-
-        // yt-dlp 이미지 및 옵션
-        command.add("ghcr.io/jauderho/yt-dlp:latest");
-        command.add("--skip-download");
-        command.add("--write-auto-sub");
-        command.add("--sub-lang");
-        command.add("ko");
-        command.add("--sub-format");
-        command.add("json3");
-
-        // 쿠키 파일 옵션 추가
-        if (cookiesPath != null && !cookiesPath.isBlank() && Files.exists(Paths.get(cookiesPath))) {
-            command.add("--cookies");
-            command.add("/cookies.txt");
         }
 
         command.add("-o");

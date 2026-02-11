@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
@@ -19,7 +21,7 @@ public class BoardEntity {
     private String title;
     private String content;
     private String category;
-    private String writeDatetime;
+    private LocalDateTime writeDatetime;
     private int favoriteCount;
     private int commentCount;
     private int viewCount;

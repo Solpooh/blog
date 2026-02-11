@@ -14,7 +14,8 @@
       "mcp__notion__notion-update-page",
       "Bash(dir:*)",
       "WebFetch(domain:ytpeek.com)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew clean:*)",
+      "Bash(docker pull:*)"
     ]
   }
 }

@@ -1,12 +1,10 @@
 package com.solpooh.boardback.service.youtube;
 
-import com.solpooh.boardback.agent.SummaryAgent;
 import com.solpooh.boardback.common.ResponseApi;
-import com.solpooh.boardback.converter.TranscriptConverter;
+import com.solpooh.boardback.dto.common.TranscriptAnalysisResult;
 import com.solpooh.boardback.dto.response.youtube.GetTranscriptResponse;
 import com.solpooh.boardback.entity.TranscriptEntity;
 import com.solpooh.boardback.exception.CustomException;
-import com.solpooh.boardback.fetcher.TranscriptFetcher;
 import com.solpooh.boardback.repository.TranscriptRepository;
 import com.solpooh.boardback.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +15,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 /**
- * Transcript 서비스
+ * Transcript API 요청 처리 서비스
+ *
+ * 책임:
+ * - API 요청 처리 (조회, 상태 관리)
+ * - Lock 관리 (동시성 제어)
+ * - 트랜잭션 관리 (상태 변경)
  *
  * 동시성 제어: DB 레벨 CAS로 중복 처리 방지
  * 재시도 제한: 3회 실패 시 UNAVAILABLE 상태로 영구 변경
@@ -35,8 +37,7 @@ import java.time.LocalDateTime;
 public class TranscriptService {
     private final TranscriptRepository transcriptRepository;
     private final VideoRepository videoRepository;
-    private final TranscriptFetcher transcriptFetcher;
-    private final SummaryAgent summaryAgent;
+    private final TranscriptProcessor transcriptProcessor;
 
     private static final int MAX_RETRY_COUNT = 3;
 
@@ -128,24 +129,19 @@ public class TranscriptService {
     }
 
     /**
-     * Transcript 처리 실행 (yt-dlp + AI 요약 + DB 저장)
+     * Transcript 처리 실행
+     * TranscriptProcessor에 위임하여 핵심 로직 수행
      */
     private GetTranscriptResponse executeTranscriptProcessing(String videoId) {
         try {
-            // 1. yt-dlp로 자막 추출
-            Path transcriptPath = transcriptFetcher.fetchTranscriptJson(videoId);
-            String rawTranscript = TranscriptConverter.parseTranscript(transcriptPath);
-            log.debug("자막 추출 완료 - videoId: {}, length: {}", videoId, rawTranscript.length());
+            // TranscriptProcessor에 처리 위임
+            TranscriptAnalysisResult result = transcriptProcessor.process(videoId);
 
-            // 2. AI 요약
-            String summarized = summaryAgent.summarizeVideo(rawTranscript);
-            log.debug("AI 요약 완료 - videoId: {}, length: {}", videoId, summarized.length());
+            // Transcript DB 저장 (COMPLETED)
+            self.completeTranscript(videoId, result.summary());
 
-            // 3. COMPLETED 상태로 저장 (self를 통해 프록시 호출)
-            self.completeTranscript(videoId, summarized);
             log.info("Transcript 처리 완료 - videoId: {}", videoId);
-
-            return new GetTranscriptResponse(summarized);
+            return new GetTranscriptResponse(result.summary());
 
         } catch (Exception e) {
             log.error("Transcript 처리 실패 - videoId: {}, error: {}", videoId, e.getMessage());

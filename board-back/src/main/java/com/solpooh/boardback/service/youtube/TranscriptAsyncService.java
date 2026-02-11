@@ -1,15 +1,9 @@
 package com.solpooh.boardback.service.youtube;
 
-import com.solpooh.boardback.agent.SummaryAgent;
-import com.solpooh.boardback.converter.TranscriptConverter;
 import com.solpooh.boardback.dto.common.TranscriptAnalysisResult;
-import com.solpooh.boardback.elasticsearch.VideoIndexService;
 import com.solpooh.boardback.entity.TranscriptEntity;
-import com.solpooh.boardback.entity.VideoEntity;
 import com.solpooh.boardback.event.NewVideosCollectedEvent;
-import com.solpooh.boardback.fetcher.TranscriptFetcher;
 import com.solpooh.boardback.repository.TranscriptRepository;
-import com.solpooh.boardback.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +14,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
  * Transcript 비동기 배치 처리 서비스
  *
- * - 영상 수집 이벤트 수신 후 자막 처리 (백그라운드)
- * - TranscriptService와 동일한 Lock 메커니즘 공유
- * - UNAVAILABLE 영상은 자동 skip
- * - 자막 분석과 함께 카테고리 자동 분류 수행 (95%+ 정확도)
+ * 책임:
+ * - 영상 수집 이벤트 수신 및 배치 처리
+ * - TranscriptService와 Lock 메커니즘 공유
+ * - 배치 처리 실패 관리
  *
- * [카테고리 분류 전략]
- * 신규 영상: 자막(transcript) 기반 AI 분류 → 높은 정확도
- * 기존 영상: 재분류 안 함 (초기 설정 시 제목/태그/설명 기반으로 분류 완료)
+ * 특징:
+ * - UNAVAILABLE 영상은 자동 skip
+ * - 자막 분석과 함께 카테고리 자동 분류 수행 (TranscriptProcessor 위임)
+ * - 신규 영상: 자막(transcript) 기반 AI 분류 → 높은 정확도
  *
  * 주의: self-injection을 사용하여 같은 클래스 내 @Transactional 메서드 호출 시
  *       프록시를 통해 트랜잭션이 제대로 작동하도록 함
@@ -42,15 +36,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TranscriptAsyncService {
-    private static final int MAX_AI_RETRIES = 3;
     private static final int MAX_RETRY_COUNT = 3;
 
     private final TranscriptRepository transcriptRepository;
-    private final VideoRepository videoRepository;
-    private final TranscriptFetcher transcriptFetcher;
-    private final SummaryAgent summaryAgent;
-    private final VideoIndexService videoIndexService;
     private final TranscriptService transcriptService;
+    private final TranscriptProcessor transcriptProcessor;
 
     /**
      * Self-injection: 같은 클래스 내 트랜잭션 메서드 호출 시 프록시를 통하도록 함
@@ -132,30 +122,15 @@ public class TranscriptAsyncService {
     }
 
     /**
-     * Transcript 처리 실행 (yt-dlp + AI 요약/분류 + DB/ES 저장)
+     * Transcript 처리 실행
+     * TranscriptProcessor에 위임하여 핵심 로직 수행
      */
     private void executeTranscriptProcessing(String videoId) throws Exception {
-        // 1. yt-dlp로 자막 추출
-        String rawTranscript = fetchTranscriptWithRetry(videoId);
-        if (rawTranscript == null || rawTranscript.isBlank()) {
-            throw new IllegalStateException("자막 추출 실패: 자막이 없거나 비어있음");
-        }
-        log.debug("자막 추출 완료 - videoId: {}, length: {}", videoId, rawTranscript.length());
+        // TranscriptProcessor에 처리 위임
+        TranscriptAnalysisResult result = transcriptProcessor.process(videoId);
 
-        // 2. AI 요약 + 카테고리 분류 (최대 3회 재시도)
-        TranscriptAnalysisResult result = summarizeAndCategorizeWithRetry(rawTranscript);
-        if (result == null || result.summary() == null || result.summary().isBlank()) {
-            throw new IllegalStateException("AI 분석 실패: 재시도 횟수 초과");
-        }
-        log.debug("AI 분석 완료 - videoId: {}, mainCategory: {}, subCategory: {}",
-                videoId, result.mainCategory(), result.subCategory());
-
-        // 3. DB 저장 (Transcript + 카테고리)
+        // Transcript DB 저장 (COMPLETED)
         transcriptService.completeTranscript(videoId, result.summary());
-        updateVideoCategory(videoId, result);
-
-        // 4. Elasticsearch 업데이트 (실패 시 무시)
-        updateElasticsearch(videoId, result);
     }
 
     /**
@@ -198,94 +173,6 @@ public class TranscriptAsyncService {
         return transcriptRepository.findById(videoId)
                 .map(entity -> entity.getStatus() == TranscriptEntity.TranscriptStatus.UNAVAILABLE)
                 .orElse(false);
-    }
-
-    /**
-     * yt-dlp로 자막 추출 (재시도 없음, 배치는 1회만 시도)
-     */
-    private String fetchTranscriptWithRetry(String videoId) {
-        try {
-            Path path = transcriptFetcher.fetchTranscriptJson(videoId);
-            return TranscriptConverter.parseTranscript(path);
-        } catch (Exception e) {
-            log.debug("자막 추출 실패 - videoId: {}, error: {}", videoId, e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * AI 요약 + 카테고리 분류 (최대 3회 재시도, 점진적 대기)
-     */
-    private TranscriptAnalysisResult summarizeAndCategorizeWithRetry(String rawTranscript) {
-        for (int attempt = 1; attempt <= MAX_AI_RETRIES; attempt++) {
-            try {
-                return summaryAgent.summarizeAndCategorize(rawTranscript);
-
-            } catch (Exception e) {
-                log.warn("AI 분석 실패 - 시도: {}/{}, error: {}",
-                        attempt, MAX_AI_RETRIES, e.getMessage());
-
-                if (attempt < MAX_AI_RETRIES) {
-                    sleep(1000L * attempt); // 1초, 2초, 3초 대기
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * VideoEntity 카테고리 업데이트
-     */
-    private void updateVideoCategory(String videoId, TranscriptAnalysisResult result) {
-        try {
-            VideoEntity video = videoRepository.findById(videoId)
-                    .orElseThrow(() -> new IllegalArgumentException("영상을 찾을 수 없음: " + videoId));
-
-            video.setMainCategory(result.mainCategory());
-            video.setSubCategory(result.subCategory());
-            videoRepository.save(video);
-
-            log.info("Video 카테고리 업데이트 완료 - videoId: {}, mainCategory: {}, subCategory: {}",
-                    videoId, result.mainCategory(), result.subCategory());
-
-        } catch (Exception e) {
-            log.error("Video 카테고리 업데이트 실패 - videoId: {}", videoId, e);
-            // 카테고리 업데이트 실패해도 Transcript는 이미 저장되었으므로 무시
-        }
-    }
-
-    /**
-     * Elasticsearch transcript + category 필드 업데이트 (실패 시 무시)
-     */
-    private void updateElasticsearch(String videoId, TranscriptAnalysisResult result) {
-        try {
-            // Transcript 업데이트
-            videoIndexService.updateTranscriptField(videoId, result.summary());
-
-            // Category 업데이트
-            videoIndexService.updateCategoryFields(
-                    videoId,
-                    result.mainCategory().name(),
-                    result.subCategory().name()
-            );
-
-            log.debug("ES 업데이트 완료 - videoId: {}", videoId);
-        } catch (Exception e) {
-            log.warn("ES 업데이트 실패 (무시) - videoId: {}, error: {}", videoId, e.getMessage());
-            // ES 실패는 DB가 이미 저장되었으므로 무시
-        }
-    }
-
-    /**
-     * 스레드 sleep (InterruptedException 처리)
-     */
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("스레드 인터럽트 발생");
-        }
     }
 
     /**

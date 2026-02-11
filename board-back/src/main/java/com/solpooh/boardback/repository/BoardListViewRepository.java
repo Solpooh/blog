@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,7 +18,7 @@ public interface BoardListViewRepository extends JpaRepository<BoardListViewEnti
     // 유형별 게시물 조회
     Page<BoardListViewEntity> findByCategoryOrderByWriteDatetimeDesc(String category, Pageable pageable);
     // TOP3 게시물 조회
-    List<BoardListViewEntity> findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(String writeDatetime);
+    List<BoardListViewEntity> findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(LocalDateTime writeDatetime);
     // 검색 게시물 조회
     Page<BoardListViewEntity> findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(String title, String content, Pageable pageable);
     // 작성자 게시물 조회

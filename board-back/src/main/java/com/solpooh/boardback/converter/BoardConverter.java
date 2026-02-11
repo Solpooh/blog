@@ -18,6 +18,7 @@ import com.solpooh.boardback.repository.resultSet.GetFavoriteListResultSet;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -82,7 +83,7 @@ public class BoardConverter {
                 .title(dto.title())
                 .content(dto.content())
                 .category(dto.category())
-                .writeDatetime(formatDate())
+                .writeDatetime(LocalDateTime.now())
                 .favoriteCount(0)
                 .commentCount(0)
                 .viewCount(0)
@@ -93,7 +94,7 @@ public class BoardConverter {
     public static CommentEntity toEntity(PostCommentRequest dto, Long boardNumber, String email) {
         return CommentEntity.builder()
                 .content(dto.content())
-                .writeDatetime(formatDate())
+                .writeDatetime(LocalDateTime.now())
                 .userEmail(email)
                 .boardNumber(boardNumber)
                 .build();

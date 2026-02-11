@@ -50,7 +50,7 @@ import {
 } from "./response/admin";
 
 // const DOMAIN = 'http://localhost:4000/api'; // 로컬 개발용
-const DOMAIN = 'https://devtube.site/api'; // 운영 환경
+const DOMAIN = 'https://www.devtube.site/api'; // 운영 환경
 const API_DOMAIN = `${DOMAIN}/v1`;
 
 const authorization = (accessToken: string) => {
@@ -386,7 +386,7 @@ export const patchProfileImageRequest = async (requestBody: PatchProfileImageReq
 };
 
 // const FILE_DOMAIN = `http://localhost:4000/file`; // 로컬 개발용
-const FILE_DOMAIN = 'https://devtube.site/file'; // 운영 환경
+const FILE_DOMAIN = 'https://www.devtube.site/file'; // 운영 환경
 
 const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;
 
