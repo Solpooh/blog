@@ -59,7 +59,7 @@ export default function User() {
                 navigate(MAIN_PATH());
                 return;
             }
-            const {email, nickname, profileImage} = responseBody as GetUserResponseDto;
+            const {email, nickname, profileImage} = (responseBody as GetUserResponseDto).data;
             setNickname(nickname);
             setProfileImage(profileImage);
             const isMyPage = (email === loginUser?.email);

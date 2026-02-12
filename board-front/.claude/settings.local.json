@@ -21,7 +21,8 @@
       "Bash(npm run build:*)",
       "Bash(curl:*)",
       "Bash(dir:*)",
-      "Bash(git checkout -- src/App.tsx src/constants/index.ts src/index.css src/stores/index.ts src/types/interface/index.ts src/types/interface/user.interface.ts)"
+      "Bash(git checkout -- src/App.tsx src/constants/index.ts src/index.css src/stores/index.ts src/types/interface/index.ts src/types/interface/user.interface.ts)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

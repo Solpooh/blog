@@ -4,6 +4,7 @@ import {BoardListItem} from 'types/interface';
 import {useNavigate, useParams} from 'react-router-dom';
 import defaultProfileImage from 'assets/image/default-profile-image.png';
 import {BOARD_DETAIL_PATH, BOARD_PATH} from '../../constants';
+import dayjs from 'dayjs';
 
 interface Props {
     boardListItem: BoardListItem
@@ -31,6 +32,16 @@ const BoardItem = React.memo(({ boardListItem }: Props) => {
         const diffTime = Math.abs(now.getTime() - postDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays <= 3;
+    };
+
+    // function: 날짜 포맷 함수 //
+    const formatDate = (datetime: string) => {
+        const date = dayjs(datetime);
+        const today = dayjs();
+        if (date.isSame(today, 'day')) {
+            return `오늘 ${date.format('HH:mm')}`;
+        }
+        return date.format('YYYY-MM-DD HH:mm');
     };
 
     // function: 태그 추출 (간단 구현: 카테고리와 제목 키워드 사용)
@@ -91,15 +102,29 @@ const BoardItem = React.memo(({ boardListItem }: Props) => {
                         <line x1="8" y1="2" x2="8" y2="6"/>
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    {writeDatetime.split(' ')[0]}
+                    {formatDate(writeDatetime)}
                 </div>
-                <a className='board-read-link' onClick={(e) => { e.stopPropagation(); onClickHandler(); }}>
-                    Read
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </a>
+                <div className='board-stats'>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        {favoriteCount}
+                    </span>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        {commentCount}
+                    </span>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        {viewCount}
+                    </span>
+                </div>
             </div>
         </article>
     )

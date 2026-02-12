@@ -200,11 +200,11 @@
     transform: translateX(2px);
 }
 
-/* Stats (댓글, 좋아요, 조회수) */
+/* Stats (좋아요, 댓글, 조회수) */
 .board-stats {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     font-size: 13px;
     color: var(--color-text-tertiary);
 }
@@ -213,4 +213,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+.board-stats svg {
+    flex-shrink: 0;
 }

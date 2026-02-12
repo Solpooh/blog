@@ -4,7 +4,8 @@ import Top3Item from 'components/Top3Item';
 import {BoardListItem} from 'types/interface';
 import BoardItem from 'components/BoardItem';
 import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
-import {SEARCH_PATH} from '../../constants';
+import {BOARD_PATH, BOARD_WRITE_PATH, SEARCH_PATH} from '../../constants';
+import {useLoginUserStore} from 'stores';
 import {
     getLatestBoardListRequest,
     getPopularListRequest,
@@ -71,6 +72,8 @@ export default function Main() {
         const {category = 'All', page = '1'} = useParams();
         const [searchParams] = useSearchParams();
         const pageParam = parseInt(searchParams.get('page') || '1');
+        //  state: 로그인 유저 상태 //
+        const {loginUser} = useLoginUserStore();
 
         //  state: 카테고리 상태  //
         const [categories, setCategories] = useState<{ name: string; count: number }[]>([]);
@@ -156,6 +159,11 @@ export default function Main() {
             navigate(`/${categoryName}?page=1`);
         }, [navigate]);
 
+        //  event handler: 글쓰기 버튼 클릭 이벤트 처리  //
+        const onWriteButtonClickHandler = useCallback(() => {
+            navigate(BOARD_PATH() + '/' + BOARD_WRITE_PATH());
+        }, [navigate]);
+
         //  event handler: 인기 검색어 클릭 이벤트 처리  //
         const onPopularWordClickHandler = useCallback((word: string) => {
             navigate(SEARCH_PATH(word));
@@ -190,9 +198,17 @@ export default function Main() {
                         <h2 className='section-title'>
                             최신 <span className='highlight' style={{ background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>게시글</span>
                         </h2>
-                        <p className='section-description'>
-                            전체 게시글과 카테고리 별 게시글입니다.
-                        </p>
+                        <div className='section-description-row'>
+                            <p className='section-description'>
+                                전체 게시글과 카테고리 별 게시글입니다.
+                            </p>
+                            {loginUser && (
+                                <button className='write-button' onClick={onWriteButtonClickHandler}>
+                                    <div className='icon edit-icon'></div>
+                                    <span>글쓰기</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Category Pills */}

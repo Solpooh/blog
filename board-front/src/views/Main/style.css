@@ -65,6 +65,46 @@
     margin: 0 auto;
 }
 
+.section-description-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.section-description-row .section-description {
+    margin: 0;
+}
+
+.write-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border-radius: 9999px;
+    border: none;
+    background: var(--gradient-primary);
+    color: white;
+    font-family: var(--font-family-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.write-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.write-button .icon {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+}
+
 /* TOP3 Grid - 3 Column Layout */
 .main-top-contents {
     display: grid;
