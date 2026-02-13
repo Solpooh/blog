@@ -526,8 +526,8 @@ export default function Authentication() {
                 <div className='auth-jumbotron-box'>
                     <div className='auth-jumbotron-contents'>
                         <div className='auth-jumbotron-text-box'>
-                            <div className='auth-jumbotron-text'>{'개발자들을 위한 소통의 장'}</div>
-                            <div className='auth-jumbotron-text'>{'DevHub 입니다.'}</div>
+                            {/*<div className='auth-jumbotron-text'>{'개발자들을 위한 소통의 장'}</div>*/}
+                            {/*<div className='auth-jumbotron-text'>{'DevHub 입니다.'}</div>*/}
                         </div>
                     </div>
                 </div>

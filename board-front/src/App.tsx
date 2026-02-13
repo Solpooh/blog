@@ -30,6 +30,7 @@ const BoardWrite = lazy(() => import('views/Board/Write'));
 const BoardUpdate = lazy(() => import('views/Board/Update'));
 const BoardDetail = lazy(() => import('views/Board/Detail'));
 const Youtube = lazy(() => import('./views/Youtube'));
+const YoutubeCategory = lazy(() => import('./views/YoutubeCategory'));
 const YoutubeTrend = lazy(() => import("./views/YoutubeTrend"));
 const Admin = lazy(() => import('./views/Admin'));
 const AdminChannel = lazy(() => import('./views/Admin/Channel'));
@@ -106,10 +107,10 @@ function App() {
                     </Route>
                     <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
                     <Route path="/youtube/search/:searchWord" element={<Youtube />} />
-                    <Route path="/youtube/category/:mainCategory" element={<Youtube />} />
-                    <Route path="/youtube/category/:mainCategory/:subCategory" element={<Youtube />} />
-                    <Route path="/youtube/category/:mainCategory/search/:searchWord" element={<Youtube />} />
-                    <Route path="/youtube/category/:mainCategory/:subCategory/search/:searchWord" element={<Youtube />} />
+                    <Route path="/youtube/category/:mainCategory" element={<YoutubeCategory />} />
+                    <Route path="/youtube/category/:mainCategory/:subCategory" element={<YoutubeCategory />} />
+                    <Route path="/youtube/category/:mainCategory/search/:searchWord" element={<YoutubeCategory />} />
+                    <Route path="/youtube/category/:mainCategory/:subCategory/search/:searchWord" element={<YoutubeCategory />} />
                     <Route path={YOUTUBE_TREND_PATH()} element={<YoutubeTrend />}/>
                     <Route path={ADMIN_PATH()} element={<Admin />}>
                         <Route path={ADMIN_CHANNEL_PATH()} element={<AdminChannel />} />

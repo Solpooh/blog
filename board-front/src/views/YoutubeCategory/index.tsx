@@ -1,39 +1,35 @@
-//  component: 유튜브 메인 화면 컴포넌트  //
+//  component: 유튜브 카테고리별 영상 목록 컴포넌트  //
 import {VideoListItem} from 'types/interface';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import VideoItem from 'components/VideoItem';
-import {getSearchVideoListRequest, getVideoListRequest} from 'apis';
+import {getCategoryVideoListRequest, getSubCategoryVideoListRequest, getCategorySearchRequest, getSubCategorySearchRequest} from 'apis';
 import {GetVideoListResponseDto, GetSearchVideoListResponseDto} from 'apis/response/youtube';
 import {ResponseDto} from 'apis/response';
 import './style.css';
 import Pagination from 'types/interface/pagination.interface';
 import Paging from 'components/Paging';
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {YOUTUBE_SEARCH_PATH, YOUTUBE_PATH} from "../../constants";
+import {YOUTUBE_CATEGORY_SEARCH_PATH, YOUTUBE_SUBCATEGORY_SEARCH_PATH, YOUTUBE_PATH} from "../../constants";
 import SearchAutocomplete from 'components/SearchAutocomplete';
 import SortDropdown, { SortType } from 'components/SortDropdown';
-import { Users, Video, Search } from 'lucide-react';
+import { Search, ChevronRight, Layers, Video } from 'lucide-react';
 
-//  component: Youtube 컴포넌트  //
-export default function Youtube() {
-    //  ref: wrapper (스크롤 애니메이션 범위) //
-    const wrapperRef = useRef<HTMLDivElement>(null);
-    //  ref: 섹션 3 스크롤 타겟 //
+//  component: YoutubeCategory 컴포넌트  //
+export default function YoutubeCategory() {
+    //  ref: 비디오 섹션 스크롤 타겟 //
     const videoSectionRef = useRef<HTMLDivElement>(null);
     //  state: path variable 상태 //
-    const { searchWord } = useParams();
+    const { searchWord, mainCategory, subCategory } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const pageParam = Number(searchParams.get("page")) || 1;
     const sortParam = (searchParams.get("sort") as SortType) || null;
     const [currentPage, setCurrentPage] = useState(pageParam);
 
-    //  state: 유튜브 최신 비디오 리스트 상태  //
+    //  state: 비디오 리스트 상태  //
     const [videoList, setVideoList] = useState<VideoListItem[]>([]);
     //  state: 페이지네이션 상태 //
-    const [pagination, setPagination] = useState<Pagination<VideoListItem> | null>(null)
-    //  state: 총 채널 수 상태 //
-    const [totalChannelCount, setTotalChannelCount] = useState<number | null>(null)
+    const [pagination, setPagination] = useState<Pagination<VideoListItem> | null>(null);
 
     //  state: 검색어 저장 상태 //
     const [word, setWord] = useState<string>('');
@@ -47,7 +43,8 @@ export default function Youtube() {
 
     //  function: 네비게이트 함수 //
     const navigate = useNavigate();
-    //  function: Latest videoList response 처리 함수 //
+
+    //  function: videoList response 처리 함수 //
     const getVideoListResponse = (responseBody: GetVideoListResponseDto | ResponseDto | null) => {
         if (!responseBody) {
             setIsLoading(false);
@@ -58,7 +55,6 @@ export default function Youtube() {
         if (code === 'DBE') {
             setIsLoading(false);
             alert('일시적인 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
-            console.error('Database error while fetching video list');
             return;
         }
         if (code !== 'SU') {
@@ -66,12 +62,12 @@ export default function Youtube() {
             return;
         }
 
-        const { videoList, totalChannelCount } = (responseBody as GetVideoListResponseDto).data;
+        const { videoList } = (responseBody as GetVideoListResponseDto).data;
         setVideoList(videoList.content);
         setPagination(videoList);
-        setTotalChannelCount(totalChannelCount);
         setIsLoading(false);
     }
+
     //  function: Search videoList response 처리 함수 //
     const getSearchVideoListResponse = (responseBody: GetSearchVideoListResponseDto | ResponseDto | null) => {
         if (!responseBody) {
@@ -83,7 +79,6 @@ export default function Youtube() {
         if (code === 'DBE') {
             setIsLoading(false);
             alert('일시적인 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
-            console.error('Database error while searching videos');
             return;
         }
         if (code !== 'SU') {
@@ -108,8 +103,12 @@ export default function Youtube() {
             alert('검색어를 입력해주세요.');
             return;
         }
-        navigate(YOUTUBE_SEARCH_PATH(value));
-    }, [navigate]);
+        if (mainCategory && subCategory) {
+            navigate(YOUTUBE_SUBCATEGORY_SEARCH_PATH(mainCategory, subCategory, value));
+        } else if (mainCategory) {
+            navigate(YOUTUBE_CATEGORY_SEARCH_PATH(mainCategory, value));
+        }
+    }, [navigate, mainCategory, subCategory]);
 
     //  event handler: 페이지 변경 함수 //
     const onPageChange = useCallback((page: number) => {
@@ -133,23 +132,6 @@ export default function Youtube() {
         setCurrentPage(1);
     }, [setSearchParams, defaultSort]);
 
-    //  effect: Scroll-triggered Animation (IntersectionObserver) //
-    useEffect(() => {
-        if (!wrapperRef.current) return;
-        const targets = wrapperRef.current.querySelectorAll('.scroll-animate');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        targets.forEach(el => observer.observe(el));
-        return () => observer.disconnect();
-    }, []);
-
     //  effect: page/sort param 변경될 때마다 적용 //
     useEffect(() => {
         const page = Number(searchParams.get("page")) || 1;
@@ -167,101 +149,79 @@ export default function Youtube() {
 
     //  effect: 데이터 로드 //
     useEffect(() => {
+        if (!mainCategory) return;
         setIsLoading(true);
-        // 검색/페이지 변경 시 섹션 3 위치로 스크롤
+
         if (searchWord || currentPage > 1) {
             videoSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        if (searchWord) {
-            // 검색 모드
+        if (subCategory && searchWord) {
             setWord(searchWord);
-            getSearchVideoListRequest(searchWord, currentPage - 1, sortType)
+            getSubCategorySearchRequest(mainCategory, subCategory, searchWord, currentPage - 1, sortType)
                 .then(getSearchVideoListResponse);
+        } else if (searchWord) {
+            setWord(searchWord);
+            getCategorySearchRequest(mainCategory, searchWord, currentPage - 1, sortType)
+                .then(getSearchVideoListResponse);
+        } else if (subCategory) {
+            getSubCategoryVideoListRequest(mainCategory, subCategory, currentPage - 1, sortType)
+                .then(getVideoListResponse);
         } else {
-            // 메인 페이지 (최신 영상)
-            getVideoListRequest(currentPage - 1, sortType)
+            getCategoryVideoListRequest(mainCategory, currentPage - 1, sortType)
                 .then(getVideoListResponse);
         }
-    }, [currentPage, searchWord, sortType]);
+    }, [currentPage, searchWord, mainCategory, subCategory, sortType]);
+
+    //  render: 카테고리 표시 이름 //
+    const categoryDisplayName = subCategory || mainCategory || '';
 
     return (
-        <div className="youtube-wrapper" ref={wrapperRef}>
-            {/* ===== Section 1: DevTube Intro ===== */}
-            <section className="devtube-intro">
-                <div className="devtube-intro-grid">
-                    <div className="devtube-intro-text">
-                        <span className="devtube-badge">Youtube IT Trend Platform</span>
-                        <h1 className="devtube-title">
-                            <span className="devtube-title-accent">DevTube</span>
-                        </h1>
-                        <p className="devtube-description">
-                            개발 트렌드와 최신 IT 영상을 빠르게 탐색하고 시청하세요.<br />
-                            검색 기능을 이용해 관련도가 높은 영상을 확인할 수 있습니다.<br />
-                            정확한 Caption을 기반으로 AI 기반 Transcript를 제공합니다.
+        <div className="youtube-category-wrapper">
+            {/* ===== Section 1: Category Banner ===== */}
+            <section className="category-banner">
+                <div className="category-banner-inner">
+                    <div className="category-banner-content">
+                        <div className="category-breadcrumb">
+                            <Layers size={16} className="category-breadcrumb-icon" />
+                            <span className="category-breadcrumb-item" onClick={() => navigate(YOUTUBE_PATH())}>DevTube</span>
+                            <ChevronRight size={14} className="category-breadcrumb-sep" />
+                            {subCategory ? (
+                                <>
+                                    <span className="category-breadcrumb-item"
+                                          onClick={() => mainCategory && navigate(`/youtube/category/${mainCategory}`)}>
+                                        {mainCategory}
+                                    </span>
+                                    <ChevronRight size={14} className="category-breadcrumb-sep" />
+                                    <span className="category-breadcrumb-current">{subCategory}</span>
+                                </>
+                            ) : (
+                                <span className="category-breadcrumb-current">{mainCategory}</span>
+                            )}
+                        </div>
+                        <h1 className="category-banner-title">{categoryDisplayName}</h1>
+                        <p className="category-banner-desc">
+                            <strong>{categoryDisplayName}</strong> 관련 개발 영상을 탐색하세요
                         </p>
-                        <div className="devtube-trust-tags">
-                            <span className="trust-tag"><span className="trust-tag-icon">✓</span> Transcript 제공</span>
-                            <span className="trust-tag"><span className="trust-tag-icon">↻</span> 매일 업데이트</span>
-                            <span className="trust-tag"><span className="trust-tag-icon">★</span> 큐레이션 콘텐츠</span>
+                        <div className="category-banner-stats">
+                            <div className="category-stat-badge">
+                                <Video size={16} />
+                                <span>{pagination ? pagination.totalElements.toLocaleString() : '...'}개의 영상</span>
+                            </div>
                         </div>
                     </div>
-                    <div className="devtube-visual">
-                        <div className="visual-ring"></div>
-                        <div className="visual-ring-2"></div>
-                        <div className="visual-play-btn"></div>
-                        <div className="visual-shape visual-shape-1"></div>
-                        <div className="visual-shape visual-shape-2"></div>
-                        <div className="visual-shape visual-shape-3"></div>
-                        <div className="visual-shape visual-shape-4"></div>
-                        <div className="visual-shape visual-shape-5"></div>
-                        <div className="visual-shape-diamond"></div>
+                    <div className="category-banner-decoration">
+                        <div className="category-deco-circle category-deco-1"></div>
+                        <div className="category-deco-circle category-deco-2"></div>
+                        <div className="category-deco-circle category-deco-3"></div>
                     </div>
                 </div>
             </section>
 
-            {/* ===== Section 2: Selected Channels ===== */}
-            <section className="devtube-channels scroll-animate">
-                <div className="devtube-channels-grid">
-                    <div className="devtube-channels-text">
-                        <h2 className="channels-section-title">Selected Channels</h2>
-                        <p className="channels-section-desc">
-                            업로드 주기가 잦고 신뢰성이 높은 채널을 직접 선별하여 품질 높은 비디오를 제공합니다.
-                        </p>
-                        <div className="channels-stats">
-                            <div className="channel-stat-card">
-                                <div className="channel-stat-icon channel-stat-icon-channels">
-                                    <Users size={22} />
-                                </div>
-                                <div className="channel-stat-info">
-                                    <span className="channel-stat-number">{totalChannelCount ? totalChannelCount.toLocaleString() : '...'}</span>
-                                    <span className="channel-stat-label">선별된 채널</span>
-                                </div>
-                            </div>
-                            <div className="channel-stat-card">
-                                <div className="channel-stat-icon channel-stat-icon-videos">
-                                    <Video size={22} />
-                                </div>
-                                <div className="channel-stat-info">
-                                    <span className="channel-stat-number">{pagination ? pagination.totalElements.toLocaleString() : '...'}</span>
-                                    <span className="channel-stat-label">개발 영상</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="devtube-chart-area">
-                        <div className="chart-placeholder">
-                            <span className="chart-placeholder-icon">📊</span>
-                            <span className="chart-placeholder-text">일별 비디오 추가 통계 (Coming Soon)</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ===== Section 3: Video List ===== */}
-            <div className="devtube-videos" ref={videoSectionRef}>
+            {/* ===== Section 2: Search + Video List ===== */}
+            <div className="category-videos" ref={videoSectionRef}>
                 {/* Search Area */}
-                <div className="videos-search-area scroll-animate">
+                <div className="videos-search-area">
                     <div className="videos-search-inner">
                         <h2 className="videos-search-title">Search Videos</h2>
                         <div className="videos-search-row">
@@ -271,7 +231,7 @@ export default function Youtube() {
                                     value={word}
                                     onChange={onSearchWordChange}
                                     onSearch={onSearch}
-                                    placeholder="React, Spring, Docker... 관심 키워드를 검색해보세요"
+                                    placeholder={`${categoryDisplayName} 카테고리에서 검색...`}
                                 />
                             </div>
                             <button className="videos-view-all-btn" onClick={() => navigate(YOUTUBE_PATH())}>
@@ -290,7 +250,7 @@ export default function Youtube() {
                 </div>
 
                 {/* Section Header + Controls */}
-                <div className="videos-header scroll-animate">
+                <div className="videos-header">
                     <div className="videos-header-left">
                         <span className="videos-section-count">
                             {pagination ? pagination.totalElements.toLocaleString() : '0'}개의 영상
@@ -306,7 +266,7 @@ export default function Youtube() {
                 </div>
 
                 {/* Video Grid */}
-                <section className="video-grid scroll-animate">
+                <section className="video-grid">
                     {isLoading ? (
                         <>
                             {[1, 2, 3, 4, 5, 6].map((i) => (
