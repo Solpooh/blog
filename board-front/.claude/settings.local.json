@@ -22,7 +22,12 @@
       "Bash(curl:*)",
       "Bash(dir:*)",
       "Bash(git checkout -- src/App.tsx src/constants/index.ts src/index.css src/stores/index.ts src/types/interface/index.ts src/types/interface/user.interface.ts)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_handle_dialog"
     ]
   }
 }

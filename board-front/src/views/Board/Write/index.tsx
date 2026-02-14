@@ -1,8 +1,8 @@
-import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
+import React, {ChangeEvent, useCallback, useEffect, useRef, useState} from 'react';
 import './style.css';
 import {useBoardStore, useEditorStore} from '../../../stores';
 import {AUTH_PATH} from '../../../constants';
-import {useNavigate, useLocation} from 'react-router-dom';
+import {useNavigate, useLocation, useBlocker} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import {
     AtomicBlockUtils, ContentBlock,
@@ -74,13 +74,48 @@ export default function BoardWrite() {
     //  state: location 상태 (현재 경로 저장용) //
     const location = useLocation();
 
+    //  function: 페이지 이탈 방지 함수 //
+    const hasUnsavedChanges = useCallback(() => {
+        return !!(title || editorState.getCurrentContent().hasText());
+    }, [title, editorState]);
+
+    //  state: React Router 네비게이션 차단 //
+    const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+        // Zustand store에서 최신 상태를 직접 조회 (React 배치 업데이트 우회)
+        if (useBoardStore.getState().allowNavigation) return false;
+        return hasUnsavedChanges() && currentLocation.pathname !== nextLocation.pathname;
+    });
+
+    //  effect: 네비게이션 차단 시 확인 다이얼로그 //
+    useEffect(() => {
+        if (blocker.state === 'blocked') {
+            const confirmLeave = window.confirm('작성 중인 내용이 있습니다. 페이지를 떠나시겠습니까?');
+            if (confirmLeave) {
+                blocker.proceed();
+            } else {
+                blocker.reset();
+            }
+        }
+    }, [blocker]);
+
+    //  effect: 브라우저 새로고침/탭 닫기 방지 //
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges()) {
+                e.preventDefault();
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [hasUnsavedChanges]);
+
     //  function: CodeBlock에서 'Enter' 및 'Tab' 키 처리 함수 //
     const handleKeyCommand = (command: string): 'handled' | 'not-handled' => {
         const blockType = RichUtils.getCurrentBlockType(editorState);
         const currentContent = editorState.getCurrentContent();
         const selection = editorState.getSelection();
 
-        // Code Block에서 Enter 및 Tab 처리
+        // Code Block에서 Enter, Tab, Shift+Enter 처리
         if (blockType === 'code-block') {
             if (command === 'enter') {
                 const newContent = Modifier.insertText(currentContent, selection, '\n');
@@ -88,11 +123,22 @@ export default function BoardWrite() {
                 return 'handled';
             }
 
-            if (command === 'tab') {
-                const newContent = Modifier.replaceText(currentContent, selection, '    ');
-                setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
+            if (command === 'shift-enter') {
+                const newEditorState = EditorState.push(
+                    editorState,
+                    Modifier.splitBlock(currentContent, selection),
+                    'split-block'
+                );
+                setEditorState(RichUtils.toggleBlockType(newEditorState, 'unstyled'));
                 return 'handled';
             }
+        }
+
+        // Tab: 모든 블록에서 4칸 들여쓰기
+        if (command === 'tab') {
+            const newContent = Modifier.replaceText(currentContent, selection, '    ');
+            setEditorState(EditorState.push(editorState, newContent, 'insert-characters'));
+            return 'handled';
         }
 
         // 기본 동작 유지
@@ -105,9 +151,27 @@ export default function BoardWrite() {
     const keyBindingFn = (event: React.KeyboardEvent): string | undefined => {
         const blockType = RichUtils.getCurrentBlockType(editorState);
 
+        // Tab 키: 모든 블록에서 처리
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            // 리스트 블록: Draft.js 내장 depth 조절
+            if (blockType === 'unordered-list-item' || blockType === 'ordered-list-item') {
+                const newState = RichUtils.onTab(event, editorState, 4);
+                if (newState !== editorState) setEditorState(newState);
+                return undefined;
+            }
+            return 'tab';
+        }
+
         if (blockType === 'code-block') {
+            if (event.key === 'Enter' && event.shiftKey) return 'shift-enter';
             if (event.key === 'Enter') return 'enter';
-            if (event.key === 'Tab') return 'tab';
+        }
+
+        // Ctrl+S: 브라우저 기본 저장 동작 방지
+        if (event.key === 's' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            return undefined;
         }
 
         // 기본 동작을 유지하기 위해 기본 키 바인딩 반환
@@ -126,6 +190,13 @@ export default function BoardWrite() {
         if (!titleRef.current) return;
         titleRef.current.style.height = 'auto';
         titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
+    }
+    //  event handler: 제목 키 다운 이벤트 처리  //
+    const onTitleKeyDownHandler = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (editorRef.current) editorRef.current.focus();
+        }
     }
 
     //  event handler: editor 내용 변경 이벤트 처리  //
@@ -149,7 +220,7 @@ export default function BoardWrite() {
         let newEditorState = editorState;
 
         Array.from(files).forEach((file) => {
-            const id = `image_${Date.now()}`; // 고유 ID 생성
+            const id = `image_${crypto.randomUUID()}`; // 고유 ID 생성
             const imageUrl = URL.createObjectURL(file);
 
             newImageUrls.push({ id, url: imageUrl });
@@ -234,7 +305,7 @@ export default function BoardWrite() {
                 <div className='board-write-box'>
                     <div className='board-write-title-box'>
                         <div className='category-select-box'>
-                            <select className='category-select' value={category} onChange={onCategoryChangeHandler}>
+                            <select className={`category-select${!category ? ' category-empty' : ''}`} value={category} onChange={onCategoryChangeHandler}>
                                 <option value="">게시판을 선택해 주세요</option>
                                 <option value="java">Java</option>
                                 <option value="javascript">JavaScript</option>
@@ -255,7 +326,7 @@ export default function BoardWrite() {
                                 <option value="포트폴리오">포트폴리오</option>
                             </select>
                         </div>
-                        <textarea ref={titleRef} className='board-write-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler}/>
+                        <textarea ref={titleRef} className='board-write-title-textarea' rows={1} placeholder='제목을 작성해주세요.' value={title} onChange={onTitleChangeHandler} onKeyDown={onTitleKeyDownHandler}/>
                     </div>
                     <div className='divider'></div>
                     <div className='board-write-content-box'>
@@ -286,6 +357,7 @@ export default function BoardWrite() {
 
                             {/* ✍️ 에디터 영역 */}
                             <Editor
+                                ref={editorRef}
                                 editorState={editorState}
                                 onChange={onEditorChangeHandler}
                                 keyBindingFn={keyBindingFn}
@@ -294,6 +366,7 @@ export default function BoardWrite() {
                                 blockStyleFn={blockStyleFn}
                                 plugins={plugins}
                                 customStyleMap={customStyleMap}
+                                placeholder='내용을 입력해주세요.'
                             />
                         </div>
                         <div className='icon-button' onClick={onImageUploadButtonClickHandler}>

@@ -91,6 +91,12 @@
     font-size: 14px;
     border-radius: 10px;
     border: 1px solid #ccc;
+    transition: border-color 0.2s;
+}
+
+.category-select.category-empty {
+    border-color: #e0a800;
+    color: #999;
 }
 
 /* editor */

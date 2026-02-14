@@ -254,15 +254,18 @@ export default function Header() {
         //  state: 게시물 번호 path variable 상태 //
         const { boardNumber } = useParams();
         //  state: 게시물 상태 //
-        const { title, content, category, boardImageFileList, resetBoard } = useBoardStore();
+        const { title, content, category, boardImageFileList, resetBoard, setAllowNavigation } = useBoardStore();
         //  state: EditorState 상태 //
         const { editorState, setEditorState } = useEditorStore();
+        //  state: 업로드 중 상태 //
+        const [isUploading, setIsUploading] = useState<boolean>(false);
 
         //  function: 네비게이트 함수 //
         const navigator = useNavigate();
 
         //  function: post board response 처리 함수 //
         const postBoardResponse = (responseBody: PostBoardResponseDto | ResponseDto | null) => {
+            setIsUploading(false);
             if (!responseBody) return;
             const { code } = responseBody;
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
@@ -274,12 +277,14 @@ export default function Header() {
             if (code !== 'SU') return;
 
             resetBoard();
+            setAllowNavigation(true);
             if (!loginUser) return;
             const { email } = loginUser;
             navigate(USER_PATH(email));
         }
         //  function: patch board response 처리 함수 //
         const patchBoardResponse = (responseBody: PatchBoardResponseDto | ResponseDto | null) => {
+            setIsUploading(false);
             if (!responseBody) return;
             const { code } = responseBody;
             if (code === 'AF' || code === 'NU' || code == 'NB' || code == 'NP') {
@@ -290,17 +295,21 @@ export default function Header() {
             if (code === 'DBE') alert('데이터베이스 오류입니다.');
             if (code !== 'SU') return;
 
+            setAllowNavigation(true);
             if (!boardNumber) return;
             navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(category, boardNumber));
         }
 
         //  event handler: 업로드 버튼 클릭 이벤트 처리 함수 //
         const onUploadButtonClickHandler = async () => {
+            if (isUploading) return;
             // eslint-disable-next-line no-restricted-globals
             if (!confirm("게시글을 업로드 하시겠습니까?")) return;
 
+            setIsUploading(true);
             const accessToken = cookies.accessToken;
             if (!accessToken) {
+                setIsUploading(false);
                 alert("로그인 정보가 만료되었습니다.");
                 navigator(AUTH_PATH(), { state: { from: pathname } });
                 return;
@@ -373,6 +382,9 @@ export default function Header() {
             }
         };
 
+        //  render: 업로드 중 버튼 컴포넌트 렌더링 //
+        if (isUploading)
+        return <div className='disable-button' role='button' aria-label='업로드 중' aria-disabled='true'>{'업로드 중...'}</div>;
         //  render: 업로드 버튼 컴포넌트 렌더링 //
         if (title && content && category)
         return <div className='black-button' onClick={onUploadButtonClickHandler} onKeyDown={(e) => onKeyDownHandler(e, onUploadButtonClickHandler)} role='button' aria-label='게시글 업로드' tabIndex={0}>{'업로드'}</div>;
@@ -404,7 +416,7 @@ export default function Header() {
                     </div>
                 </nav>
                 <div className='header-right-box'>
-                    {!isYoutubePage && <SearchButton />}
+                    {!isYoutubePage && !isBoardWritePage && !isBoardUpdatePage && <SearchButton />}
                     <ThemeToggle />
                     <MyPageButton />
                     {(isBoardWritePage || isBoardUpdatePage) && <UploadButton />}

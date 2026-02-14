@@ -1,5 +1,5 @@
 import './App.css';
-import {Navigate, Route, Routes} from 'react-router-dom';
+import {Navigate, Outlet, Route, createBrowserRouter, createRoutesFromElements} from 'react-router-dom';
 import Container from 'layouts/Container';
 import {
     AUTH_PATH,
@@ -11,7 +11,7 @@ import {
     USER_PATH, YOUTUBE_PATH, YOUTUBE_TREND_PATH,
     ADMIN_PATH, ADMIN_CHANNEL_PATH, ADMIN_VIDEO_PATH
 } from './constants';
-import {Cookies, useCookies} from 'react-cookie';
+import {useCookies} from 'react-cookie';
 import React, {lazy, Suspense, useEffect} from 'react';
 import {useLoginUserStore} from './stores';
 import {getSignInUserRequest} from './apis';
@@ -37,8 +37,8 @@ const AdminChannel = lazy(() => import('./views/Admin/Channel'));
 const AdminVideo = lazy(() => import('./views/Admin/Video'));
 
 
-//  component: Application 컴포넌트 //
-function App() {
+//  component: Application 루트 레이아웃 컴포넌트 //
+function AppLayout() {
 
     //  state: 로그인 유저 전역 상태 //
     const { setLoginUser, resetLoginUser } = useLoginUserStore();
@@ -66,15 +66,7 @@ function App() {
 
     }, [cookies.accessToken]);
 
-    //  render: Application 컴포넌트 렌더링 //
-    //  description: 메인 화면 : '/' - Main //
-    //  description: 로그인 + 회원가입 화면 : '/auth' - Authentication //
-    //  description: 검색 화면 : '/search/:searchWord' - Search //
-    //  description: 유저 페이지 : '/user/:userEmail' - User //
-    //  description: 게시물 상세보기 : '/board/detail/:boardNumber' - BoardDetail //
-    //  description: 게시물 작성하기 : '/board/write' - BoardWrite //
-    //  description: 게시물 수정하기 : '/board/update/:boardNumber' - BoardUpdate //
-    //  description: 유튜브 비디오 화면 : '/youtube' - Youtube //
+    //  render: Application 루트 레이아웃 렌더링 //
     return (
         <>
             <ScrollToTop />
@@ -90,39 +82,54 @@ function App() {
                     로딩 중...
                 </div>
             }>
-                <Routes>
-                <Route element={<Container/>}>
-                    {/* 기본 접속 시 YouTube 페이지로 리다이렉트 */}
-                    <Route path="/" element={<Navigate to={YOUTUBE_PATH()} replace />} />
-
-                    {/* 게시글 카테고리 별 메인 목록 */}
-                    <Route path={MAIN_PATH(':category')} element={<Main />} />
-                    <Route path={AUTH_PATH()} element={<Authentication/>}/>
-                    <Route path={SEARCH_PATH(':searchWord')} element={<Search/>}/>
-                    <Route path={USER_PATH(':userEmail')} element={<UserP/>}/>x
-                    <Route path={BOARD_PATH()}>
-                        <Route path={BOARD_WRITE_PATH()} element={<BoardWrite/>}/>
-                        <Route path={BOARD_DETAIL_PATH(':category', ':boardNumber')} element={<BoardDetail/>}/>
-                        <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
-                    </Route>
-                    <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
-                    <Route path="/youtube/search/:searchWord" element={<Youtube />} />
-                    <Route path="/youtube/category/:mainCategory" element={<YoutubeCategory />} />
-                    <Route path="/youtube/category/:mainCategory/:subCategory" element={<YoutubeCategory />} />
-                    <Route path="/youtube/category/:mainCategory/search/:searchWord" element={<YoutubeCategory />} />
-                    <Route path="/youtube/category/:mainCategory/:subCategory/search/:searchWord" element={<YoutubeCategory />} />
-                    <Route path={YOUTUBE_TREND_PATH()} element={<YoutubeTrend />}/>
-                    <Route path={ADMIN_PATH()} element={<Admin />}>
-                        <Route path={ADMIN_CHANNEL_PATH()} element={<AdminChannel />} />
-                        <Route path={ADMIN_VIDEO_PATH()} element={<AdminVideo />} />
-                    </Route>
-                    <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
-                </Route>
-            </Routes>
+                <Outlet />
             </Suspense>
             <TopButton />
         </>
     );
 }
 
-export default App;
+//  router: Data Router 설정 (useBlocker 등 Data API 지원) //
+//  description: 메인 화면 : '/' - Main //
+//  description: 로그인 + 회원가입 화면 : '/auth' - Authentication //
+//  description: 검색 화면 : '/search/:searchWord' - Search //
+//  description: 유저 페이지 : '/user/:userEmail' - User //
+//  description: 게시물 상세보기 : '/board/detail/:boardNumber' - BoardDetail //
+//  description: 게시물 작성하기 : '/board/write' - BoardWrite //
+//  description: 게시물 수정하기 : '/board/update/:boardNumber' - BoardUpdate //
+//  description: 유튜브 비디오 화면 : '/youtube' - Youtube //
+export const router = createBrowserRouter(
+    createRoutesFromElements(
+        <Route element={<AppLayout />}>
+            <Route element={<Container/>}>
+                {/* 기본 접속 시 YouTube 페이지로 리다이렉트 */}
+                <Route path="/" element={<Navigate to={YOUTUBE_PATH()} replace />} />
+
+                {/* 게시글 카테고리 별 메인 목록 */}
+                <Route path={MAIN_PATH(':category')} element={<Main />} />
+                <Route path={AUTH_PATH()} element={<Authentication/>}/>
+                <Route path={SEARCH_PATH(':searchWord')} element={<Search/>}/>
+                <Route path={USER_PATH(':userEmail')} element={<UserP/>}/>
+                <Route path={BOARD_PATH()}>
+                    <Route path={BOARD_WRITE_PATH()} element={<BoardWrite/>}/>
+                    <Route path={BOARD_DETAIL_PATH(':category', ':boardNumber')} element={<BoardDetail/>}/>
+                    <Route path={BOARD_UPDATE_PATH(':boardNumber')} element={<BoardUpdate/>}/>
+                </Route>
+                <Route path={YOUTUBE_PATH()} element={<Youtube/>}/>
+                <Route path="/youtube/search/:searchWord" element={<Youtube />} />
+                <Route path="/youtube/category/:mainCategory" element={<YoutubeCategory />} />
+                <Route path="/youtube/category/:mainCategory/:subCategory" element={<YoutubeCategory />} />
+                <Route path="/youtube/category/:mainCategory/search/:searchWord" element={<YoutubeCategory />} />
+                <Route path="/youtube/category/:mainCategory/:subCategory/search/:searchWord" element={<YoutubeCategory />} />
+                <Route path={YOUTUBE_TREND_PATH()} element={<YoutubeTrend />}/>
+                <Route path={ADMIN_PATH()} element={<Admin />}>
+                    <Route path={ADMIN_CHANNEL_PATH()} element={<AdminChannel />} />
+                    <Route path={ADMIN_VIDEO_PATH()} element={<AdminVideo />} />
+                </Route>
+                <Route path='*' element={<h1>404 NOT FOUND</h1>}/>
+            </Route>
+        </Route>
+    )
+);
+
+export default AppLayout;

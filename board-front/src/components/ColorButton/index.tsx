@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {RichUtils} from 'draft-js';
 import {ColorMap} from 'types/enum';
 import './style.css';
@@ -7,6 +7,8 @@ import './style.css';
 export const ColorButton = ({ getEditorState, setEditorState }: any) => {
     //  state: color 팝업 열림 여부 상태  //
     const [isExpanded, setIsExpanded] = useState(false);
+    //  state: 컨테이너 참조 상태 //
+    const containerRef = useRef<HTMLDivElement>(null);
 
     //  텍스트/배경 색상 추출
     const colorStyles = Object.keys(ColorMap)
@@ -20,16 +22,24 @@ export const ColorButton = ({ getEditorState, setEditorState }: any) => {
         setEditorState(newState);
     };
 
-    //  effect: 팝업 초기화 시 닫기 //
+    //  effect: 팝업 외부 클릭 시 닫기 //
     useEffect(() => {
-        setIsExpanded(false);
-    }, []);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsExpanded(false);
+            }
+        };
+        if (isExpanded) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isExpanded]);
 
 
     return (
-        <div className="color-button-container">
+        <div className="color-button-container" ref={containerRef}>
             {/* 색상 선택 버튼 */}
-            <button className="color-toggle-button" onClick={() => setIsExpanded(!isExpanded)} />
+            <button className="color-toggle-button" onMouseDown={(e) => e.preventDefault()} onClick={() => setIsExpanded(!isExpanded)} />
 
             {/* 팝업: 색상 선택 */}
             {isExpanded && (
@@ -42,6 +52,7 @@ export const ColorButton = ({ getEditorState, setEditorState }: any) => {
                                 <button
                                     className="color-button"
                                     key={style}
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => applyStyle(style)}
                                     style={{ backgroundColor: ColorMap[style] }}
                                 ></button>
@@ -57,6 +68,7 @@ export const ColorButton = ({ getEditorState, setEditorState }: any) => {
                                 <button
                                     className="color-button"
                                     key={style}
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => applyStyle(style)}
                                     style={{ backgroundColor: ColorMap[style] }}
                                 ></button>
