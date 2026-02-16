@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+!build/libs/*.jar
+gradle/
+gradlew
+gradlew.bat
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# 환경 변수
+.env
+*.env
+
+# 로그
+logs/
+*.log
+
+# 임시 파일
+transcript/
+cookies/
+*.tmp

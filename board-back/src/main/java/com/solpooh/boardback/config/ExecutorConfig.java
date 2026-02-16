@@ -14,15 +14,15 @@ import java.util.concurrent.Executors;
 public class ExecutorConfig {
     @Bean
     public ExecutorService videoFetchExecutor() {
-        return Executors.newFixedThreadPool(32);
+        return Executors.newFixedThreadPool(8);
     }
 
     @Bean(name = "transcriptExecutor")
     public Executor transcriptExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(8);
-        executor.setMaxPoolSize(16);
-        executor.setQueueCapacity(100);
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(50);
         executor.setThreadNamePrefix("transcript-");
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(60);

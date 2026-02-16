@@ -1,6 +1,5 @@
 package com.solpooh.boardback.batch;
 
-import com.solpooh.boardback.cache.CacheService;
 import com.solpooh.boardback.dto.response.youtube.PostVideoResponse;
 import com.solpooh.boardback.entity.BatchHistoryEntity;
 import com.solpooh.boardback.service.BatchHistoryService;
@@ -16,10 +15,9 @@ import org.springframework.stereotype.Component;
 public class VideoBatchScheduler {
 
     private final YoutubeBatchService youtubeBatchService;
-    private final CacheService cacheService;
     private final BatchHistoryService batchHistoryService;
 
-    // 1시간 주기 - 비디오 저장 + 캐시 동기화
+    // 1시간 주기 - 비디오 저장 (캐시는 collectVideos() 내부에서 addAll()로 동기화됨)
     @Scheduled(cron = "0 0 * * * *")
     public void postHourlyVideo() {
         String jobName = "VIDEO_COLLECT";
@@ -28,7 +26,6 @@ public class VideoBatchScheduler {
 
         try {
             PostVideoResponse response = youtubeBatchService.postVideo();
-            cacheService.syncFromDB();
 
             int savedCount = (response != null && response.videoIds() != null) ? response.videoIds().size() : 0;
             batchHistoryService.success(history, savedCount);
@@ -40,8 +37,8 @@ public class VideoBatchScheduler {
         }
     }
 
-    // 3시간 주기 - Score 기반 비디오 메타데이터 갱신
-    @Scheduled(cron = "0 0 */3 * * *")
+    // 3시간 주기 - Score 기반 비디오 메타데이터 갱신 (:20분에 실행하여 영상 수집과 분산)
+    @Scheduled(cron = "0 20 */3 * * *")
     public void postMinutelyVideoData() {
         String jobName = "VIDEO_DATA_UPDATE";
         log.info("[BATCH:{}] 시작", jobName);
@@ -59,8 +56,8 @@ public class VideoBatchScheduler {
         }
     }
 
-    // 1시간 주기 - 비디오 Score 계산
-    @Scheduled(cron = "0 0 * * * *")
+    // 1시간 주기 - 비디오 Score 계산 (:40분에 실행하여 다른 작업과 분산)
+    @Scheduled(cron = "0 40 * * * *")
     public void postDailyCalculate() {
         String jobName = "VIDEO_SCORE_UPDATE";
         log.info("[BATCH:{}] 시작", jobName);

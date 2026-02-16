@@ -17,9 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
+import org.springframework.data.domain.PageRequest;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,21 +47,14 @@ public class YoutubeBatchService {
      */
     @Transactional
     public int updateVideoData() {
-        List<VideoEntity> videoEntities = videoRepository.findAll();
+        // trendScore 상위 400개만 DB에서 조회 (findAll() 대신)
+        List<VideoEntity> topVideos = videoRepository.findTopByTrendScore(PageRequest.of(0, 400));
 
-        // trend score 정렬
-        Comparator<VideoEntity> descByScore =
-                Comparator.comparingDouble(VideoEntity::getTrendScore).reversed();
-
-        // 상위 400개 videoId
-        List<String> topVideoIds = videoEntities.stream()
-                .sorted(descByScore)
-                .limit(400)
+        List<String> topVideoIds = topVideos.stream()
                 .map(VideoEntity::getVideoId)
                 .toList();
 
-        // Entity Map 구성 (기존 DB 값 활용)
-        Map<String, VideoEntity> entityMap = videoEntities.stream()
+        Map<String, VideoEntity> entityMap = topVideos.stream()
                 .collect(Collectors.toMap(VideoEntity::getVideoId, v -> v));
 
         // videoId 50개 단위로 chunk 나누기
@@ -159,45 +151,12 @@ public class YoutubeBatchService {
 
     /**
      * 전체 영상의 트렌드 스코어 재계산
+     * DB 레벨에서 단일 쿼리로 처리하여 애플리케이션 메모리 사용 없음
      * @return 업데이트된 영상 수
      */
     @Transactional
     public int updateVideoScore() {
-        List<VideoEntity> videoEntities = videoRepository.findAll();
-        List<VideoMetaData> updateList = videoEntities.stream()
-                .map(entity -> VideoMetaData.builder()
-                        .videoId(entity.getVideoId())
-                        .trendScore(calculateScore(entity))
-                        .build())
-                .toList();
-
-        videoJdbcRepository.updateTrendScore(updateList);
-        return updateList.size();
+        return videoJdbcRepository.updateAllTrendScores();
     }
 
-    public static double calculateScore(VideoEntity entity) {
-        long prev = entity.getPrevViewCount();
-        long curr = entity.getViewCount();
-
-        long diff = Math.max(curr - prev, 0);
-
-        // A. 증가율(rateScore)
-        double rate = (double) diff / (prev + 10);
-        double rateScore = Math.log10(1 + Math.max(rate, 0));
-
-        // B. 절대 증가량(deltaScore)
-        double deltaScore = Math.sqrt(diff);
-
-        // C. 최신성(latestScore) - 점수 더 많이 주기
-        long hours = Duration.between(
-                entity.getPublishedAt().atZone(ZoneId.systemDefault()).toInstant(),
-                Instant.now()
-        ).toHours();
-        hours = Math.max(1, hours);
-        double latestScore = 1.0 / Math.sqrt(hours);
-
-        return (0.40 * rateScore)
-                + (0.20 * deltaScore)
-                + (0.25 * latestScore);
-    }
 }

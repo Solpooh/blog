@@ -45,7 +45,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않음 (stateless)
                 )
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/api/v1/channel/**", "/api/v1/video/**", "/actuator/prometheus").permitAll()
+                        .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/api/v1/channel/**", "/api/v1/video/**", "/actuator/**").permitAll()
                         // GET 메서드 사용하는 것들에는 인증X
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*", "/api/v1/channel/**").permitAll()
                         // 관리자 API는 ADMIN 권한 필요

@@ -33,17 +33,18 @@ public class VideoJdbcRepository {
                 });
     }
 
-    public void updateTrendScore(List<VideoMetaData> list) {
+    /**
+     * 전체 비디오의 trend_score를 DB 레벨에서 단일 쿼리로 재계산.
+     * 애플리케이션 메모리를 사용하지 않음.
+     */
+    public int updateAllTrendScores() {
         String sql = """
-                UPDATE video
-                SET trend_score = ?
-                WHERE video_id = ?
+                UPDATE video SET trend_score =
+                    (0.40 * LOG10(1 + GREATEST(CAST((view_count - prev_view_count) AS DOUBLE) / (prev_view_count + 10), 0)))
+                  + (0.20 * SQRT(GREATEST(view_count - prev_view_count, 0)))
+                  + (0.25 * (1.0 / SQRT(GREATEST(TIMESTAMPDIFF(HOUR, published_at, NOW()), 1))))
                 """;
 
-        jdbcTemplate.batchUpdate(sql, list, 1000,
-                (ps, dto) -> {
-                    ps.setDouble(1, dto.trendScore());
-                    ps.setString(2, dto.videoId());
-                });
+        return jdbcTemplate.update(sql);
     }
 }

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -72,7 +73,18 @@ public class TranscriptFetcher {
             }
         }
 
-        int exitCode = process.waitFor();
+        boolean finished = process.waitFor(60, TimeUnit.SECONDS);
+        if (!finished) {
+            process.destroyForcibly();
+            String errorMsg = String.format(
+                    "yt-dlp timed out after 60s (videoId=%s)%nOutput:%n%s",
+                    videoId, output.toString()
+            );
+            log.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
+        int exitCode = process.exitValue();
         if (exitCode != 0) {
             String errorMsg = String.format(
                     "yt-dlp transcript fetch failed (exitCode=%d, videoId=%s)%nOutput:%n%s",

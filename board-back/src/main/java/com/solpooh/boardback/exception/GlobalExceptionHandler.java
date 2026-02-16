@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.util.List;
 
@@ -67,6 +68,13 @@ public class GlobalExceptionHandler {
                 ex.getClass().getSimpleName(), ex.getMostSpecificCause().getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseDto.of(ResponseApi.DATABASE_ERROR));
+    }
+
+    // 클라이언트가 응답 수신 전 연결을 끊은 경우 (Broken Pipe)
+    // 응답을 쓸 수 없으므로 아무것도 반환하지 않고 즉시 스레드를 해제한다
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void brokenPipeHandler(AsyncRequestNotUsableException ex) {
+        log.debug("Client disconnected (Broken Pipe) - {}", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

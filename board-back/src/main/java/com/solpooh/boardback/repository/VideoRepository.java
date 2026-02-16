@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +23,10 @@ public interface VideoRepository extends JpaRepository<VideoEntity, String>, Vid
 
     // 50개 chunk에 해당하는 엔티티 조회
     List<VideoEntity> findByVideoIdIn(List<String> videoIds);
+
+    // trendScore 상위 N개 조회
+    @Query("SELECT v FROM VideoEntity v ORDER BY v.trendScore DESC")
+    List<VideoEntity> findTopByTrendScore(Pageable pageable);
 
     // 채널별 비디오 삭제
     void deleteAllByChannel_ChannelId(String channelId);

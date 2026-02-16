@@ -15,7 +15,14 @@
       "Bash(dir:*)",
       "WebFetch(domain:ytpeek.com)",
       "Bash(./gradlew clean:*)",
-      "Bash(docker pull:*)"
+      "Bash(docker pull:*)",
+      "Bash(git reset:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\n[deploy] Cloudflare Workers 프론트엔드 배포 설정\n\n- wrangler.jsonc 추가 \\(SPA not_found_handling 설정\\)\n- API URL www.devtube.site로 변경\n- _routes.json SPA 라우팅 설정\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)"
     ]
   }
 }

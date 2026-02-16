@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 /**
  * Phase 1: 영상 수집 전용 서비스
  * - 외부 API 호출 (트랜잭션 외부)
- * - DB 저장 + ES 인덱싱 (단일 트랜잭션)
+ * - DB 저장 + 캐시 (트랜잭션 내부)
+ * - ES 인덱싱 (트랜잭션 외부 — DB 커넥션 점유 방지)
  * - Transcript 처리 이벤트 발행 (자막 분석 + 카테고리 분류는 TranscriptAsyncService에서 처리)
  */
 @Slf4j
@@ -50,8 +51,9 @@ public class VideoCollectorService {
      * 영상 수집 메인 메서드
      * 1. Activities API 병렬 호출 (트랜잭션 외부)
      * 2. Video API 호출 (트랜잭션 외부)
-     * 3. DB 저장 + ES 인덱싱 (트랜잭션 내부)
-     * 4. Transcript 처리 이벤트 발행 (자막 분석 + 카테고리 자동 분류)
+     * 3. DB 저장 + 캐시 (트랜잭션 내부)
+     * 4. ES 인덱싱 (트랜잭션 외부 — DB 커넥션 점유 방지)
+     * 5. Transcript 처리 이벤트 발행 (자막 분석 + 카테고리 자동 분류)
      */
     public PostVideoResponse collectVideos() {
         List<String> channelIds = channelRepository.findAllIds();
@@ -77,13 +79,16 @@ public class VideoCollectorService {
                 .toList();
         Map<String, VideoMetaData> metaDataMap = fetchVideoMetadata(newVideoIds);
 
-        // Phase 1-4: DB 저장 + ES 인덱싱 (단일 트랜잭션)
-        List<VideoEntity> savedVideos = saveAndIndexVideos(newActivities, metaDataMap);
+        // Phase 1-4: DB 저장 + 캐시 (트랜잭션 내부)
+        List<VideoEntity> savedVideos = saveVideos(newActivities, metaDataMap);
         List<String> savedVideoIds = savedVideos.stream()
                 .map(VideoEntity::getVideoId)
                 .toList();
 
         log.info("신규 영상 {}개 저장 완료", savedVideoIds.size());
+
+        // Phase 1-5: ES 인덱싱 (트랜잭션 외부 — DB 커넥션 점유 방지)
+        videoIndexService.indexVideos(savedVideos);
 
         // Phase 2 트리거: Transcript 비동기 처리 이벤트 발행 (자막 분석 + 카테고리 분류 포함)
         if (!savedVideoIds.isEmpty()) {
@@ -167,11 +172,12 @@ public class VideoCollectorService {
     }
 
     /**
-     * DB 저장 + ES 인덱싱 (단일 트랜잭션)
+     * DB 저장 + 캐시 (트랜잭션 내부)
+     * ES 인덱싱은 트랜잭션 외부에서 별도 수행하여 DB 커넥션 점유 시간 최소화
      */
     @Transactional
-    public List<VideoEntity> saveAndIndexVideos(List<ActivityWithChannel> activities,
-                                                  Map<String, VideoMetaData> metaDataMap) {
+    public List<VideoEntity> saveVideos(List<ActivityWithChannel> activities,
+                                        Map<String, VideoMetaData> metaDataMap) {
         List<VideoEntity> videoEntities = new ArrayList<>();
 
         for (ActivityWithChannel item : activities) {
@@ -196,9 +202,6 @@ public class VideoCollectorService {
                 .map(VideoEntity::getVideoId)
                 .toList();
         cacheService.addAll(savedVideoIds);
-
-        // ES 인덱싱 (신규 영상만)
-        videoIndexService.indexVideos(savedEntities);
 
         return savedEntities;
     }
